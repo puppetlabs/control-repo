@@ -20,7 +20,7 @@
 # Define filebucket 'main':
 filebucket { 'main':
   #server should point to one master that will be the file bucket
-  server => 'changeme',
+  server => "${settings::server}",
   path   => false,
 }
 

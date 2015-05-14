@@ -2,8 +2,7 @@
 :backends:
   - yaml
 :hierarchy:
-  - "%{clientcert}"
-  - "%{application_tier}"
+  - "nodes/%{clientcert}"
   - defaults
 
 :yaml:

@@ -1,8 +1,13 @@
 forge "http://forge.puppetlabs.com"
 
 # Modules from the Puppet Forge
-mod "puppetlabs/ntp"
-mod "puppetlabs/stdlib"
+# Note the versions are all set to :latest but after you've 
+# installed you should change them to the exact version you want
+mod "puppetlabs/inifile", :latest
+mod "puppetlabs/stdlib", :latest
+mod "puppetlabs/concat", :latest
+mod "puppetlabs/ntp", :latest
+mod "saz/ssh", :latest
 
 # Modules from Github using various references
 # Further examples: https://github.com/puppetlabs/r10k/blob/master/doc/puppetfile.mkd#examples

@@ -9,6 +9,10 @@ mod "puppetlabs/concat", :latest
 mod "puppetlabs/ntp", :latest
 mod "saz/ssh", :latest
 
+#An example of using a specific forge module version instead of latest
+#Notice the addition of single quotes
+#mod "puppetlabs/inifile", '1.3.0'
+
 # Modules from Github using various references
 # Further examples: https://github.com/puppetlabs/r10k/blob/master/doc/puppetfile.mkd#examples
 #mod 'notifyme',

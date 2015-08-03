@@ -15,6 +15,11 @@ mod "saz/ssh", :latest
 
 # Modules from Github using various references
 # Further examples: https://github.com/puppetlabs/r10k/blob/master/doc/puppetfile.mkd#examples
+# update the tag to the most current release when implementing
+mod 'hiera',
+  :git => 'https://github.com/hunner/puppet-hiera',
+  :tag => '1.3.1'
+
 #mod 'notifyme',
 #  :git => 'git://github.com/glarizza/puppet-notifyme',
 #  :ref => '50c01703b2e3e352520a9a2271ea4947fe17a51f'

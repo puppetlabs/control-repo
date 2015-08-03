@@ -1,9 +1,0 @@
----
-:backends:
-  - yaml
-:hierarchy:
-  - "nodes/%{clientcert}"
-  - common
-
-:yaml:
-  :datadir: "/etc/puppetlabs/puppet/environments/%{environment}/hieradata"

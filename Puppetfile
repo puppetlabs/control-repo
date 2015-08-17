@@ -27,6 +27,11 @@ mod 'gitlab',
 mod 'r10k',
   :git => 'https://github.com/acidprime/r10k',
   :tag => 'v3.1.1'
+
+mod 'gms',
+  :git => 'https://github.com/abrader/abrader-gms',
+  :tag => 'v0.0.9'
+
 #mod 'notifyme',
 #  :git => 'git://github.com/glarizza/puppet-notifyme',
 #  :ref => '50c01703b2e3e352520a9a2271ea4947fe17a51f'

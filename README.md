@@ -30,6 +30,32 @@ If you intend to use it on an existing installation of PE then you'll have to fi
 8.  Push the repository from your machine up to your git server
  - `git push origin production`
 
+## Setting Up Your Git Management System
+
+### Setting Up Gitlab
+
+1.  Install Gitlab on a server by specifying laying down the following trusted fact
+
+2.  After Gitlab is installed you may sign if with the `root` user and password `5iveL!fe`
+
+3.  Create a group called `puppet` ( notice the lower case p )
+ - http://doc.gitlab.com/ce/workflow/groups.html
+
+4.  Create a user called `r10k_api_user` and add them to the `puppet` group
+
+5. Create a project called `control-repo` and set the Namespace to be the `puppet` group
+ - If you have direct internet access from your Gitlab server you can also use the "Import project from" option to import this repo
+ - If you do not have direct internet access then wait a little bit and we'll get to that later
+
+6.  Login as the `r10k_api_user` 
+ - Go to profile settings -> account ( https://<your_gitlab_server>/profile/account )
+ - Copy the api token
+
+7. `mv hieradata/nodes/example-puppet-master.yaml hieradata/nodes/<fqdn_of_your_puppet_master>.yaml`
+ - Open `hieradata/nodes/<fqdn_of_your_puppet_master>.yaml` and edit `gms_api_token` to be your api token
+
+8.   
+
 ## Lay Down a Trusted Fact Before Installing PE
 
 This control repository is setup to manage certain portions of your PE installation for you if you lay down a trusted fact called pp_role before installing.  In order to immeadiately gain from these benefits you will need to lay down a file that looks exactly like the below in `/etc/puppetlabs/puppet/csr_attributes.yaml`

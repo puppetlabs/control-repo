@@ -30,7 +30,7 @@ mod 'r10k',
 
 mod 'gms',
   :git => 'https://github.com/abrader/abrader-gms',
-  :tag => 'v0.0.9'
+  :tag => '3d088c8ba8cef6d108236a8cee06ab7bedd6deeb'
 
 #mod 'notifyme',
 #  :git => 'git://github.com/glarizza/puppet-notifyme',

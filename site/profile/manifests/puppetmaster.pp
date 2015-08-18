@@ -42,7 +42,7 @@ class profile::puppetmaster {
       name         => $::fqdn,
       path         => "${r10k_ssh_key_file}.pub",
       token        => hiera('gms_api_token'),
-      project_name => 'puppet/control',
+      project_name => 'puppet/control-repo',
       server_url   => hiera('gms_server_url'),
       provider     => $git_management_system,
     }
@@ -51,7 +51,7 @@ class profile::puppetmaster {
       ensure       => present,
       webhook_url  => "http://${fqdn}:8088/payload",
       token        => hiera('gms_api_token'),
-      project_name => 'puppet/control',
+      project_name => 'puppet/control-repo',
       server_url   => hiera('gms_server_url'),
       provider     => $git_management_system,
     }

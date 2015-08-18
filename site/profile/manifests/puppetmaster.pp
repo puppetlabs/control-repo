@@ -2,6 +2,7 @@ class profile::puppetmaster {
 
   class { 'hiera':
     hierarchy  => [
+      'virtual/%{::virtual}',
       'nodes/%{::trusted.certname}',
       'common',
     ],

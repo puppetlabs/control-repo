@@ -34,11 +34,20 @@ If you intend to use it on an existing installation of PE then you'll have to fi
 
 ### Setting Up Gitlab
 
-1.  Install Gitlab on a server by specifying laying down the following trusted fact
+1.  Install Gitlab on a server by specifying laying down the following trusted fact the soon-to-be Gitlab server and then [install the PE agent](http://docs.puppetlabs.com/pe/latest/install_agents.html#using-the-puppet-agent-package-installation-script). 
 
-2.  After Gitlab is installed you may sign if with the `root` user and password `5iveL!fe`
+   ```
+   ---
+   extension_requests:
+      #pp_role
+      1.3.6.1.4.1.34380.1.1.13: 'gitlab'
+   ```
+   
+2. After the install of the agent completes and an agent run completes Gitlab will be installed.
 
-3.  Create a group called `puppet` ( notice the lower case p )
+2. After Gitlab is installed you may sign if with the `root` user and password `5iveL!fe`
+
+3.  Create a group called `puppet` ( this is case sensitive )
  - http://doc.gitlab.com/ce/workflow/groups.html
 
 4.  Create a user called `r10k_api_user` and add them to the `puppet` group
@@ -47,18 +56,24 @@ If you intend to use it on an existing installation of PE then you'll have to fi
  - If you have direct internet access from your Gitlab server you can also use the "Import project from" option to import this repo
  - If you do not have direct internet access then wait a little bit and we'll get to that later
 
-6.  Login as the `r10k_api_user` 
+6.  Logout of root and login as the `r10k_api_user` 
  - Go to profile settings -> account ( https://<your_gitlab_server>/profile/account )
  - Copy the api token
 
 7. `mv hieradata/nodes/example-puppet-master.yaml hieradata/nodes/<fqdn_of_your_puppet_master>.yaml`
- - Open `hieradata/nodes/<fqdn_of_your_puppet_master>.yaml` and edit `gms_api_token` to be your api token
+ - Open `hieradata/nodes/<fqdn_of_your_puppet_master>.yaml` 
+     - edit `gms_api_token` to be your api token
+     - edit `git_management_system` to be 'gitlab'
+     - You should not need to edit the `gms_server_url`
+ 
 
-8.   
+### Setting up Github
+
+You   
 
 ## Lay Down a Trusted Fact Before Installing PE
 
-This control repository is setup to manage certain portions of your PE installation for you if you lay down a trusted fact called pp_role before installing.  In order to immeadiately gain from these benefits you will need to lay down a file that looks exactly like the below in `/etc/puppetlabs/puppet/csr_attributes.yaml`
+This control repository is setup to manage certain portions of your PE installation for you if you lay down a trusted fact called `pp_role` before installing.  In order to immeadiately gain from these benefits you will need to lay down a file that looks exactly like the below in `/etc/puppetlabs/puppet/csr_attributes.yaml`
 
 ```
 ---
@@ -83,5 +98,4 @@ https://docs.puppetlabs.com/pe/latest/r10k_config_console.html
 ## Run r10k
 
 1.  Run `r10k deploy environment —verbose` and watch it install the modules from your Puppetfile
-
 

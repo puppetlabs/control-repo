@@ -8,6 +8,9 @@ mod "puppetlabs/stdlib", :latest
 mod "puppetlabs/concat", :latest
 mod "puppetlabs/ntp", :latest
 mod "saz/ssh", :latest
+mod "puppetlabs/postgresql",  '4.5.0'
+mod "puppetlabs/stash",       '1.3.0'
+mod "puppetlabs/java",        '1.4.1'
 
 #An example of using a specific forge module version instead of latest
 #Notice the addition of single quotes
@@ -30,13 +33,4 @@ mod 'r10k',
 
 mod 'gms',
   :git => 'https://github.com/abrader/abrader-gms',
-  :tag => '3d088c8ba8cef6d108236a8cee06ab7bedd6deeb'
-
-#mod 'notifyme',
-#  :git => 'git://github.com/glarizza/puppet-notifyme',
-#  :ref => '50c01703b2e3e352520a9a2271ea4947fe17a51f'
-
-#mod 'profiles',
-#  :git => 'git://github.com/glarizza/puppet-profiles',
-#  :ref => '3611ae4253ff01762f9bda1d93620edf8f9a3b22'
-
+  :tag => 'bb5bcaa4e0fbeb2dae08eedb09d7eec1681a6172' 

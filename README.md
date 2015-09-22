@@ -4,18 +4,41 @@ This control repo and the steps below are intended to be used during a new insta
 
 If you intend to use it on an existing installation of PE then you'll have to figure out some of the steps on your own and be warned that if you've already written or downloaded modules when you start using r10k it will remove all of the existing modules and replace them with what you define in your Puppetfile.  Please copy or move your existing modules to another directory to ensure you do not lose any work you've already started.  
 
+## Lay Down a Trusted Fact Before Installing PE
+
+This control repository is setup to manage certain portions of your PE installation for you if you lay down a trusted fact called `pp_role` before installing.  In order to immeadiately gain from these benefits you will need to lay down a file that looks exactly like the below in `/etc/puppetlabs/puppet/csr_attributes.yaml`
+
+```
+---
+extension_requests:
+  #pp_role
+  1.3.6.1.4.1.34380.1.1.13: 'all_in_one_pe'
+```
+
+##Install PE 2015.2
+
+1. Download the 2015.2 installer for your platform and copy it to your master
+ - https://puppetlabs.com/download-puppet-enterprise-expand  
+2. Expand the tarball and `cd` into the directory
+3. Run `puppet-enterprise-installer` to install
+
+
 ## How to Copy This Repo Into Your Own Git Server
 
-1.  Make an user in your internal git server
+1.  Make an user in your internal git server for yourself
 
 2.  Make an ssh key to link with your user.  You’ll want to do this on the machine you intend to edit code from ( most likely not your puppet master but your local workstation / laptop )
  - https://help.github.com/articles/generating-ssh-keys/
 
-3. Create a repository in your git server called control-repo
+3. Create a group or organization called "puppet" 
 
-4. Setup your control repository by copying this one
+4. Create a repository in your git server called control-repo
+
+4. Upload this control repository to your control repository 
  - https://github.com/npwalker/control-repo
- - git clone https://github.com/npwalker/control-repo.git
+ - git clone --mirror https://github.com/npwalker/control-repo.git
+ - cd control-repo 
+ - git remote set-url --push 
 
 5. Remove the .git directory from the cloned repo.
  - `cd control-repo`
@@ -29,6 +52,10 @@ If you intend to use it on an existing installation of PE then you'll have to fi
 
 8.  Push the repository from your machine up to your git server
  - `git push origin production`
+
+## Update Your Install To Point To The Control Repository
+
+https://docs.puppetlabs.com/pe/latest/r10k_config_console.html
 
 ## Setting Up Your Git Management System
 
@@ -69,18 +96,12 @@ If you intend to use it on an existing installation of PE then you'll have to fi
 
 ### Setting up Github
 
-You   
+Not yet completed. 
 
-## Lay Down a Trusted Fact Before Installing PE
+### Setting up Stash
 
-This control repository is setup to manage certain portions of your PE installation for you if you lay down a trusted fact called `pp_role` before installing.  In order to immeadiately gain from these benefits you will need to lay down a file that looks exactly like the below in `/etc/puppetlabs/puppet/csr_attributes.yaml`
+Not yet completed.
 
-```
----
-extension_requests:
-  #pp_role
-  1.3.6.1.4.1.34380.1.1.13: 'all_in_one_pe'
-```
 
 ## Install a New PE 2015.2+ Instance or Update an Existing PE Instance To Use the Control Repository
 
@@ -91,9 +112,7 @@ https://docs.puppetlabs.com/pe/latest/r10k_config_answers.html
 #TODO
 Flush out generating an answer file and then appending these answers onto the end of it.  
 
-### Update Existing PE 2015.2+ Install To Point To The Control Repository
 
-https://docs.puppetlabs.com/pe/latest/r10k_config_console.html
 
 ## Run r10k
 

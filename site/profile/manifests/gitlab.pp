@@ -1,5 +1,9 @@
 class profile::gitlab {
 
+  file { ['/etc/gitlab', '/etc/gitlab/ssl'] :
+    ensure => directory,
+  }
+
   file { "/etc/gitlab/ssl/${fqdn}.key" :
     ensure => file,
     source => "${settings::privatekeydir}/${trusted['certname']}.pem",

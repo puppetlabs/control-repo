@@ -58,7 +58,7 @@ http://docs.puppetlabs.com/pe/latest/regenerate_certs_master.html
  - TODO: Change permissions for this user?
 	
 9. Clone this control repository to your laptop/workstation 
- - `git clone --mirror https://github.com/npwalker/control-repo.git`
+ - `git clone https://github.com/npwalker/control-repo.git`
  - `cd control-repo`
 
 10. `mv hieradata/nodes/example-puppet-master.yaml hieradata/nodes/<fqdn_of_your_puppet_master>.yaml`

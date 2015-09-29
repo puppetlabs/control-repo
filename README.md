@@ -61,11 +61,13 @@ http://docs.puppetlabs.com/pe/latest/regenerate_certs_master.html
  - `git clone https://github.com/npwalker/control-repo.git`
  - `cd control-repo`
 
-10. `mv hieradata/nodes/example-puppet-master.yaml hieradata/nodes/<fqdn_of_your_puppet_master>.yaml`
+10. `git mv hieradata/nodes/example-puppet-master.yaml hieradata/nodes/<fqdn_of_your_puppet_master>.yaml`
  - Open `hieradata/nodes/<fqdn_of_your_puppet_master>.yaml` 
      - edit `gms_api_token` to be your api token
      - edit `git_management_system` to be 'gitlab'
-     - You should not need to edit the `gms_server_url`
+     - edit the `gms_server_url`
+
+11. `git commit -m "renaming example-puppet-master.yaml"`
 
 11. Rename my repository as the upstream remote
  - `git remote rename origin upstream`
@@ -133,7 +135,7 @@ https://docs.puppetlabs.com/pe/latest/r10k_config_console.html
 
 ## Run r10k
 
-1.  Run `r10k deploy environment —verbose` and watch it install the modules from your Puppetfile
+1.  Run `r10k deploy environment -pv` and watch it install the modules from your Puppetfile
 
 
 ----

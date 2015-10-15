@@ -10,6 +10,7 @@ class profile::puppetmaster {
     datadir    => '/etc/puppetlabs/code/environments/%{environment}/hieradata',
     owner      => 'root',
     group      => 'root',
+    notify     => Service['pe-puppetserver'],
   }
   
   ##BEGIN - r10k webhook support
@@ -21,6 +22,7 @@ class profile::puppetmaster {
     user    => 'root',
     group   => '0',
     require => Class['r10k::webhook::config'],
+    notify  => Service['mcollective'],
   }
   ##END - r10k webhook support
 

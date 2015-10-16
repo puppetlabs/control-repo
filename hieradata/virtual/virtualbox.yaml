@@ -27,8 +27,8 @@ puppet_enterprise::profile::master::java_args:
   'XX:MaxPermSize': '=96m'
   'XX:PermSize': '=64m'
 puppet_enterprise::profile::puppetdb::java_args:
-  Xmx: '64m'
-  Xms: '64m'
+  Xmx: '96m'
+  Xms: '96m'
   'XX:MaxPermSize': '=96m'
   'XX:PermSize': '=64m'
 puppet_enterprise::profile::console::java_args:

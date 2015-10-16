@@ -46,16 +46,18 @@ http://docs.puppetlabs.com/pe/latest/regenerate_certs_master.html
  - http://doc.gitlab.com/ce/workflow/groups.html
 
 6. Create a user called `r10k_api_user` and add them to the `puppet` group
+ - From the landing page, select groups
+ - Choose the puppet group
+ - In the left hand pane, select memembers
+ - Add the `r10k_api_user` with `master` permissions
 
 7. Add your user to the `puppet` group as well 
 
 7. Create a project called `control-repo` and set the Namespace to be the `puppet` group
- - TODO: Change permissions on the group?
 
 8.  Logout of root and login as the `r10k_api_user` 
  - Go to profile settings -> account ( https://<your_gitlab_server>/profile/account )
  - Copy the api token
- - TODO: Change permissions for this user?
 	
 9. Clone this control repository to your laptop/workstation 
  - `git clone https://github.com/npwalker/control-repo.git`

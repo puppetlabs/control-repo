@@ -12,19 +12,6 @@ class profile::puppetmaster {
     group      => 'root',
     notify     => Service['pe-puppetserver'],
   }
-  
-  ##BEGIN - r10k webhook support
-  include r10k::mcollective
-
-  include r10k::webhook::config
-
-  class {'r10k::webhook':
-    user    => 'root',
-    group   => '0',
-    require => Class['r10k::webhook::config'],
-    notify  => Service['mcollective'],
-  }
-  ##END - r10k webhook support
 
   #BEGIN - Generate an SSH key for r10k to connect to git
   $r10k_ssh_key_file = '/root/.ssh/r10k_rsa'

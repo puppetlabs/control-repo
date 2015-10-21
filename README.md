@@ -54,6 +54,8 @@ http://docs.puppetlabs.com/pe/latest/regenerate_certs_master.html
 7. Add your user to the `puppet` group as well 
 
 7. Create a project called `control-repo` and set the Namespace to be the `puppet` group
+ - Set the permissions of the project to `Public' 
+ - We'll change this back to private at the end
 
 8.  Logout of root and login as the `r10k_api_user` 
  - Go to profile settings -> account ( https://<your_gitlab_server>/profile/account )
@@ -69,6 +71,8 @@ http://docs.puppetlabs.com/pe/latest/regenerate_certs_master.html
      - edit `git_management_system` to be 'gitlab'
      - edit the `gms_server_url`
 
+11. `git add hieradata/nodes/<fqdn_of_your_puppet_master>.yaml`
+
 11. `git commit -m "renaming example-puppet-master.yaml"`
 
 11. Rename my repository as the upstream remote
@@ -77,8 +81,12 @@ http://docs.puppetlabs.com/pe/latest/regenerate_certs_master.html
 12. Add your internal repository as the origin remote
  - `git remote add origin <url of your repository from step 4>`
 
+13. `git branch --set-upstream-to origin/production`
+
 13.  Push the production branch of the repository from your machine up to your git server
  - `git push origin production`
+
+14. Change the permission of control-repo in your gitlab server to `private`
 
 ###Stash
 
@@ -109,7 +117,7 @@ http://docs.puppetlabs.com/pe/latest/regenerate_certs_master.html
 7.  Push the production branch of the repository from your machine up to your git server
  - `git push origin production`
 
-8. Find the url to your internal repo this is usually on the front page of the repo
+8. Find the url to your internal repo.  This is usually on the front page of the repo
 
 9. Add the repo as a remote
  - git remote add origin git@your-git-server:puppet/control-repo.git
@@ -130,6 +138,28 @@ http://docs.puppetlabs.com/pe/latest/regenerate_certs_master.html
 If you run into any issues or have more questions about the installer you can see our docs here:
 
 http://docs.puppetlabs.com/pe/latest/install_basic.html
+
+##Get the Control-Repo Deployed On Your Master
+
+At this point you have my control-repo code deployed into your git server.  However, we have one final challenge getting that code onto your puppet master.  In the end state the master will pull code from the git server via r10k, however, at this moment your puppet master doesn't have credentials to get code from the git server.  
+
+So, we'll set up a deploy key in the git server that will allow a ssh-key we make to deploy the code and configure everything else.  
+
+1. On your puppet master, make an ssh key for r10k to connect to gitlab
+ - `/usr/bin/ssh-keygen -t rsa -b 2048 -C 'r10k' -f /root/.ssh/r10k_rsa -q -N ''`
+ - http://doc.gitlab.com/ce/ssh/README.html
+ - https://help.github.com/articles/generating-ssh-keys/
+2. Create a deploy key on the `control-repo` project in Gitlab
+ - paste in the public key from above
+3. Follow https://docs.puppetlabs.com/pe/latest/r10k_config_console.html
+ - The remote is on the front page of the project in the gitlab UI
+ - git_settings should be:
+ - `{"provider": "rugged",
+    "private_key": "/root/.ssh/r10k_rsa"}`
+3. Run `puppet agent -t` 
+ - Expect to see changes to `r10k.yaml`
+3. Run `r10k deploy environment -pv`
+4. Run `puppet agent -t` 
 
 ### Update Your Existing Install To Point To The Control Repository
 

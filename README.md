@@ -2,7 +2,7 @@
 
 This control repo and the steps below are intended to be used during a new installation of PE.  
 
-If you intend to use it on an existing installation of PE then you'll have to figure out some of the steps on your own and be warned that if you've already written or downloaded modules when you start using r10k it will remove all of the existing modules and replace them with what you define in your Puppetfile.  Please copy or move your existing modules to another directory to ensure you do not lose any work you've already started.  
+If you intend to use it on an existing installation then be warned that if you've already written or downloaded modules when you start using r10k it will remove all of the existing modules and replace them with what you define in your Puppetfile.  Please copy or move your existing modules to another directory to ensure you do not lose any work you've already started.  
 
 ## Setup a Trusted Fact On Your PE Master
 
@@ -86,41 +86,11 @@ http://docs.puppetlabs.com/pe/latest/regenerate_certs_master.html
 
 ###Stash
 
+Coming soon!
+
 ###Github
 
-###The General Idea - Not Specific to GMS 
-
-1. Make an user in your internal git server for yourself
-
-2. Make an ssh key to link with your user. You’ll want to do this on the machine you intend to edit code from ( most likely not your puppet master but your local workstation / laptop )
-
- - https://help.github.com/articles/generating-ssh-keys/
-
-3. Create a group or organization called "puppet"
-
-4. Create a repository in your git server called control-repo
-
-4. Clone this control repository to your laptop/workstation 
- - `git clone https://github.com/npwalker/control-repo.git`
- - `cd control-repo`
-
-5. Rename my repository as the upstream remote
- - `git remote rename origin upstream`
-
-6. Add your internal repository as the origin remote
- - `git remote add origin <url of your repository from step 4>`
-
-7.  Push the production branch of the repository from your machine up to your git server
- - `git push origin production`
-
-8. Find the url to your internal repo.  This is usually on the front page of the repo
-
-9. Add the repo as a remote
- - git remote add origin git@your-git-server:puppet/control-repo.git
-
-10. Push the repository from your machine up to your git server
-
- - git push origin production
+Coming soon!
 
 ##Configure PE to Use the Control-Repo
 
@@ -135,7 +105,7 @@ If you run into any issues or have more questions about the installer you can se
 
 http://docs.puppetlabs.com/pe/latest/install_basic.html
 
-##Get the Control-Repo Deployed On Your Master
+###Get the Control-Repo Deployed On Your Master
 
 At this point you have my control-repo code deployed into your git server.  However, we have one final challenge getting that code onto your puppet master.  In the end state the master will pull code from the git server via r10k, however, at this moment your puppet master doesn't have credentials to get code from the git server.  
 
@@ -146,25 +116,33 @@ So, we'll set up a deploy key in the git server that will allow a ssh-key we mak
  - http://doc.gitlab.com/ce/ssh/README.html
  - https://help.github.com/articles/generating-ssh-keys/
 2. Create a deploy key on the `control-repo` project in Gitlab
- - paste in the public key from above
+ - Paste in the public key from above
+ - `cat /root/.ssh/r10k_rsa.pub`
 3. Follow https://docs.puppetlabs.com/pe/latest/r10k_config_console.html
  - The remote is on the front page of the project in the gitlab UI
  - git_settings should be:
- - `{"provider": "rugged",
+     - `{"provider": "rugged",
     "private_key": "/root/.ssh/r10k_rsa"}`
 3. Run `puppet agent -t` 
  - Expect to see changes to `r10k.yaml`
 3. Run `r10k deploy environment -pv`
-4. Run `puppet agent -t` 
+4. Run `puppet agent -t`
+ - Now you should see many more changes
 
-### Update Your Existing Install To Point To The Control Repository
 
-https://docs.puppetlabs.com/pe/latest/r10k_config_console.html
+## Test The Zack/r10k Webhook
 
-## Run r10k
+One of the components setup by this control-repo is that when you "push" code to your git server, the git server will inform the puppet master to run `r10k deploy environment -p`. 
 
-1.  Run `r10k deploy environment -pv` and watch it install the modules from your Puppetfile
+1. Edit README.md 
+ - Just add something to it
+2. `git add README.md`
+3. `git commit -m "edit README"`
+4. `git push origin production`
+5. Allow the push to complete and then give it few seconds to complete
+ - Open `/etc/puppetlabs/code/environments/production/README.md` and confirm your change is present
 
+ 
 
 ----
 #Miscellaneous

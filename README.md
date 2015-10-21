@@ -54,8 +54,6 @@ http://docs.puppetlabs.com/pe/latest/regenerate_certs_master.html
 7. Add your user to the `puppet` group as well 
 
 7. Create a project called `control-repo` and set the Namespace to be the `puppet` group
- - Set the permissions of the project to `Public' 
- - We'll change this back to private at the end
 
 8.  Logout of root and login as the `r10k_api_user` 
  - Go to profile settings -> account ( https://<your_gitlab_server>/profile/account )
@@ -85,8 +83,6 @@ http://docs.puppetlabs.com/pe/latest/regenerate_certs_master.html
 
 13.  Push the production branch of the repository from your machine up to your git server
  - `git push origin production`
-
-14. Change the permission of control-repo in your gitlab server to `private`
 
 ###Stash
 

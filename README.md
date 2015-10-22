@@ -53,36 +53,36 @@ http://docs.puppetlabs.com/pe/latest/regenerate_certs_master.html
 
 7. Add your user to the `puppet` group as well 
 
-7. Create a project called `control-repo` and set the Namespace to be the `puppet` group
+8. Create a project called `control-repo` and set the Namespace to be the `puppet` group
 
-8.  Logout of root and login as the `r10k_api_user` 
+9.  Logout of root and login as the `r10k_api_user`
  - Go to profile settings -> account ( https://<your_gitlab_server>/profile/account )
  - Copy the api token
 	
-9. Clone this control repository to your laptop/workstation 
+10. Clone this control repository to your laptop/workstation
  - `git clone https://github.com/npwalker/control-repo.git`
  - `cd control-repo`
 
-10. `git mv hieradata/nodes/example-puppet-master.yaml hieradata/nodes/<fqdn_of_your_puppet_master>.yaml`
+11. `git mv hieradata/nodes/example-puppet-master.yaml hieradata/nodes/<fqdn_of_your_puppet_master>.yaml`
  - Open `hieradata/nodes/<fqdn_of_your_puppet_master>.yaml` 
      - edit `gms_api_token` to be your api token
      - edit `git_management_system` to be 'gitlab'
      - edit the `gms_server_url`
 
-11. `git add hieradata/nodes/<fqdn_of_your_puppet_master>.yaml`
+12. `git add hieradata/nodes/<fqdn_of_your_puppet_master>.yaml`
 
-11. `git commit -m "renaming example-puppet-master.yaml"`
+13. `git commit -m "renaming example-puppet-master.yaml"`
 
-11. Rename my repository as the upstream remote
+14. Rename my repository as the upstream remote
  - `git remote rename origin upstream`
 
-12. Add your internal repository as the origin remote
- - `git remote add origin <url of your repository from step 4>`
+15. Add your internal repository as the origin remote
+ - `git remote add origin <url of your gitlab repository>`
 
-13. `git branch --set-upstream-to origin/production`
-
-13.  Push the production branch of the repository from your machine up to your git server
+16.  Push the production branch of the repository from your machine up to your git server
  - `git push origin production`
+
+17. `git branch --set-upstream-to origin/production`
 
 ###Stash
 

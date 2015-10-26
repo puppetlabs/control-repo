@@ -63,6 +63,7 @@ class profile::puppetmaster {
     section => 'main',
     setting => 'environment_timeout',
     value   => 'unlimited',
+    notify     => Service['pe-puppetserver'],
   }
 
 }

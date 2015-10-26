@@ -6,6 +6,6 @@ CERT=$(puppet master   --confdir ${CONFDIR} --configprint hostcert)
 CACERT=$(puppet master --confdir ${CONFDIR} --configprint localcacert)
 PRVKEY=$(puppet master --confdir ${CONFDIR} --configprint hostprivkey)
 OPTIONS="--cert ${CERT} --cacert ${CACERT} --key ${PRVKEY}"
-CONSOLE=$(awk '/server =/{print $NF}' ${CONFDIR}/console.conf)
+CONSOLE=$(awk '/server: /{print $NF}' ${CONFDIR}/classifier.yaml)
 
 curl -k -X POST ${OPTIONS} "https://${CONSOLE}:4433/classifier-api/v1/update-classes"

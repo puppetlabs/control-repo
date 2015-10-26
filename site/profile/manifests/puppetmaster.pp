@@ -53,6 +53,7 @@ class profile::puppetmaster {
   file { '/usr/local/bin/update-classes.sh' :
     ensure => file,
     source => 'puppet:///modules/profile/puppetmaster/update-classes.sh',
+    mode   => '755',
   }
 
   #https://docs.puppetlabs.com/puppet/latest/reference/config_file_environment.html#environmenttimeout

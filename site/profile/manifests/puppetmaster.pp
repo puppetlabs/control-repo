@@ -52,7 +52,7 @@ class profile::puppetmaster {
   #This is configured via the pe_r10k::postrun key in hiera
   file { '/usr/local/bin/update-classes.sh' :
     ensure => file,
-    source => 'puppet::///modules/profile/puppetmaster/update-classes.sh',
+    source => 'puppet:///modules/profile/puppetmaster/update-classes.sh',
   }
 
   #https://docs.puppetlabs.com/puppet/latest/reference/config_file_environment.html#environmenttimeout

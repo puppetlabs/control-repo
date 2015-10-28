@@ -26,7 +26,7 @@ class profile::puppetmaster {
 
   if $git_management_system in ['gitlab', 'github'] {
    
-    git_deploy_key { "add_deploy_key_to_puppet_control-${fqdn}":
+    git_deploy_key { "add_deploy_key_to_puppet_control-${::fqdn}":
       ensure             => present,
       name               => $::fqdn,
       path               => "${r10k_ssh_key_file}.pub",
@@ -36,9 +36,9 @@ class profile::puppetmaster {
       provider           => $git_management_system,
     }
   
-    git_webhook { 'web_post_receive_webhook' :
+    git_webhook { "web_post_receive_webhook-${::fqdn}" :
       ensure             => present,
-      webhook_url        => "http://${fqdn}:8088/payload",
+      webhook_url        => "http://${::fqdn}:8088/payload",
       token              => hiera('gms_api_token'),
       project_name       => 'puppet/control-repo',
       server_url         => hiera('gms_server_url'),

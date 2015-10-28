@@ -27,22 +27,24 @@ class profile::puppetmaster {
   if $git_management_system in ['gitlab', 'github'] {
    
     git_deploy_key { "add_deploy_key_to_puppet_control-${fqdn}":
-      ensure       => present,
-      name         => $::fqdn,
-      path         => "${r10k_ssh_key_file}.pub",
-      token        => hiera('gms_api_token'),
-      project_name => 'puppet/control-repo',
-      server_url   => hiera('gms_server_url'),
-      provider     => $git_management_system,
+      ensure             => present,
+      name               => $::fqdn,
+      path               => "${r10k_ssh_key_file}.pub",
+      token              => hiera('gms_api_token'),
+      project_name       => 'puppet/control-repo',
+      server_url         => hiera('gms_server_url'),
+      provider           => $git_management_system,
+      disable_ssl_verify => true,
     }
   
     git_webhook { 'web_post_receive_webhook' :
-      ensure       => present,
-      webhook_url  => "http://${fqdn}:8088/payload",
-      token        => hiera('gms_api_token'),
-      project_name => 'puppet/control-repo',
-      server_url   => hiera('gms_server_url'),
-      provider     => $git_management_system,
+      ensure             => present,
+      webhook_url        => "http://${fqdn}:8088/payload",
+      token              => hiera('gms_api_token'),
+      project_name       => 'puppet/control-repo',
+      server_url         => hiera('gms_server_url'),
+      provider           => $git_management_system,
+      disable_ssl_verify => true,
     }
 
   }
@@ -63,7 +65,7 @@ class profile::puppetmaster {
     section => 'main',
     setting => 'environment_timeout',
     value   => 'unlimited',
-    notify     => Service['pe-puppetserver'],
+    notify  => Service['pe-puppetserver'],
   }
 
 }

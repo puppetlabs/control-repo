@@ -34,7 +34,6 @@ class profile::puppetmaster {
       project_name       => 'puppet/control-repo',
       server_url         => hiera('gms_server_url'),
       provider           => $git_management_system,
-      disable_ssl_verify => true,
     }
   
     git_webhook { 'web_post_receive_webhook' :

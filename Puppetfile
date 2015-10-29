@@ -32,5 +32,5 @@ mod 'r10k',
   :tag => 'v3.1.1'
 
 mod 'gms',
-  :git => 'https://github.com/abrader/abrader-gms',
-  :tag => 'bb5bcaa4e0fbeb2dae08eedb09d7eec1681a6172' 
+  :git    => 'https://github.com/npwalker/abrader-gms',
+  :branch => 'gitlab_disable_ssl_verify_support'

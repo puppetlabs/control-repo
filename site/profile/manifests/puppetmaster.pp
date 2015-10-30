@@ -23,20 +23,20 @@ class profile::puppetmaster (
     creates => $r10k_ssh_key_file,
   }
   #END - Generate an SSH key for r10k to connect to git  
- 
+
   #BEGIN - Add deploy key and webook to git management system
   $git_management_system = hiera('git_management_system', '')
 
   if $git_management_system in ['gitlab', 'github'] {
-   
+
     git_deploy_key { "add_deploy_key_to_puppet_control-${::fqdn}":
-      ensure             => present,
-      name               => $::fqdn,
-      path               => "${r10k_ssh_key_file}.pub",
-      token              => hiera('gms_api_token'),
-      project_name       => 'puppet/control-repo',
-      server_url         => hiera('gms_server_url'),
-      provider           => $git_management_system,
+      ensure       => present,
+      name         => $::fqdn,
+      path         => "${r10k_ssh_key_file}.pub",
+      token        => hiera('gms_api_token'),
+      project_name => 'puppet/control-repo',
+      server_url   => hiera('gms_server_url'),
+      provider     => $git_management_system,
     }
   
     git_webhook { "web_post_receive_webhook-${::fqdn}" :
@@ -57,11 +57,11 @@ class profile::puppetmaster (
   file { '/usr/local/bin/update-classes.sh' :
     ensure => file,
     source => 'puppet:///modules/profile/puppetmaster/update-classes.sh',
-    mode   => '755',
+    mode   => '0755',
   }
 
   #https://docs.puppetlabs.com/puppet/latest/reference/config_file_environment.html#environmenttimeout
-  ini_setting { "environment_timeout = unlimited":
+  ini_setting { 'environment_timeout = unlimited':
     ensure  => present,
     path    => '/etc/puppetlabs/puppet/puppet.conf',
     section => 'main',

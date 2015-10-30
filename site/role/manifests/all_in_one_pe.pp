@@ -8,7 +8,7 @@ class role::all_in_one_pe {
     webhook_password => $webhook_password,
   }
 
-  class { 'profile::webhook_no_mcollective' :
+  class { 'profile::zack_r10k_webhook' :
     username => $webhook_username,
     password => $webhook_password,
   }

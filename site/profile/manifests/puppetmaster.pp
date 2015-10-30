@@ -1,4 +1,7 @@
-class profile::puppetmaster {
+class profile::puppetmaster (
+  $webhook_username,
+  $webhook_password
+) {
 
   class { 'hiera':
     hierarchy  => [
@@ -38,7 +41,7 @@ class profile::puppetmaster {
   
     git_webhook { "web_post_receive_webhook-${::fqdn}" :
       ensure             => present,
-      webhook_url        => "https://${::fqdn}:8088/payload",
+      webhook_url        => "https://${webhook_username}:${webhook_password}@${::fqdn}:8088/payload",
       token              => hiera('gms_api_token'),
       project_name       => 'puppet/control-repo',
       server_url         => hiera('gms_server_url'),

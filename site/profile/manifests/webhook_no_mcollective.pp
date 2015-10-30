@@ -1,8 +1,13 @@
-class profile::webhook_no_mcollective {
+class profile::webhook_no_mcollective (
+  $username,
+  $password
+) {
 
   class {'r10k::webhook::config':
     enable_ssl      => true,
-    protected       => false,
+    protected       => true,
+    user            => $username,
+    pass            => $password,
     use_mcollective => false,
   }
 

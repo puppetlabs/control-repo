@@ -26,4 +26,15 @@ class profile::zack_r10k_webhook (
     require => Class['r10k::webhook::config'],
   }
 
+  if !empty($gms_api_token)  {
+    git_webhook { "web_post_receive_webhook-${::fqdn}" :
+      ensure             => present,
+      webhook_url        => "https://${username}:${password}@${::fqdn}:8088/payload",
+      token              => $gms_api_token,
+      project_name       => 'puppet/control-repo',
+      server_url         => hiera('gms_server_url'),
+      provider           => $git_management_system,
+      disable_ssl_verify => true,
+    }
+  }
 }

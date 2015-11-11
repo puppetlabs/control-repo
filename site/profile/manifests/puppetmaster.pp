@@ -25,7 +25,8 @@ class profile::puppetmaster (
   #END - Generate an SSH key for r10k to connect to git  
 
   #BEGIN - Add deploy key and webook to git management system
-  $git_management_system = hiera('git_management_system', '')
+  $git_management_system = hiera('git_management_system', undef)
+  $gms_api_token         = hiera('gms_api_token', undef)
 
   if $git_management_system in ['gitlab', 'github'] {
 

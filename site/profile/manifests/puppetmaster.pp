@@ -1,7 +1,4 @@
-class profile::puppetmaster (
-  $webhook_username,
-  $webhook_password
-) {
+class profile::puppetmaster {
 
   class { 'hiera':
     hierarchy  => [
@@ -28,28 +25,18 @@ class profile::puppetmaster (
   $git_management_system = hiera('git_management_system', undef)
   $gms_api_token         = hiera('gms_api_token', undef)
 
-  if $git_management_system in ['gitlab', 'github'] {
+  if !empty($gms_api_token) {
 
     git_deploy_key { "add_deploy_key_to_puppet_control-${::fqdn}":
       ensure       => present,
       name         => $::fqdn,
       path         => "${r10k_ssh_key_file}.pub",
-      token        => hiera('gms_api_token'),
+      token        => $gms_api_token,
       project_name => 'puppet/control-repo',
       server_url   => hiera('gms_server_url'),
       provider     => $git_management_system,
     }
   
-    git_webhook { "web_post_receive_webhook-${::fqdn}" :
-      ensure             => present,
-      webhook_url        => "https://${webhook_username}:${webhook_password}@${::fqdn}:8088/payload",
-      token              => hiera('gms_api_token'),
-      project_name       => 'puppet/control-repo',
-      server_url         => hiera('gms_server_url'),
-      provider           => $git_management_system,
-      disable_ssl_verify => true,
-    }
-
   }
   #END - Add deploy key and webhook to git management system
 

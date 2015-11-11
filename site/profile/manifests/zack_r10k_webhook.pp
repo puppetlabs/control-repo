@@ -1,8 +1,12 @@
 class profile::zack_r10k_webhook (
-  $username,
-  $password,
   $use_mcollective = false,
 ) {
+
+  $username = hiera('webhook_username', fqdn_rand_string(10, '', 'username'))
+  $password = hiera('webhook_password', fqdn_rand_string(20, '', 'password'))
+
+  $gms_api_token         = hiera('gms_api_token', undef)
+  $git_management_system = hiera('git_management_system', undef)
 
   if $use_mcollective {
   

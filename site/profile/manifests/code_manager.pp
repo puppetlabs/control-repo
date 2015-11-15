@@ -42,11 +42,14 @@ class profile::code_manager {
   }
 
 
-  if !empty($gms_api_token)  {
+  #this file cannont be read until the next run after the above exec
+  #because the file function runs on the master not on the agent
+  #so the file doesn't exist at the time the function is run
+  $rbac_token_file_contents = no_fail_file($token_filename)
 
-    #this file cannont be read until the next run after the above exec
-    #because the file function runs on the master not on the agent
-    $rbac_token = parsejson(file($token_filename))['token']
+  if !empty($gms_api_token) and !empty($rbac_token_file_contents) {
+
+    $rbac_token = parsejson($rbac_token_file_contents)['token']
 
     $code_manager_webhook_type = $git_management_system ? {
                                    'gitlab' => 'github',

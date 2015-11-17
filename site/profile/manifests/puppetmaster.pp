@@ -11,8 +11,8 @@ class profile::puppetmaster (
     ],
     hiera_yaml => '/etc/puppetlabs/code/hiera.yaml',
     datadir    => '/etc/puppetlabs/code/environments/%{environment}/hieradata',
-    owner      => 'root',
-    group      => 'root',
+    owner      => 'pe-puppet',
+    group      => 'pe-puppet',
     notify     => Service['pe-puppetserver'],
   }
 

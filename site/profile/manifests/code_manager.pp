@@ -1,5 +1,7 @@
 class profile::code_manager {
 
+  $authenticate_webhook = hiera('puppet_enterprise::master::code_manager::authenticate_webhook', true) 
+
   $code_manager_service_user = 'code_manager_service_user'
   $code_manager_service_user_password = fqdn_rand_string(40, '', "${code_manager_service_user}_password")
   
@@ -47,9 +49,16 @@ class profile::code_manager {
   #so the file doesn't exist at the time the function is run
   $rbac_token_file_contents = no_fail_file($token_filename)
 
-  if !empty($gms_api_token) and !empty($rbac_token_file_contents) {
+  if !empty($gms_api_token) {
+    if $authenticate_webhook and !empty($rbac_token_file_contents) {
 
-    $rbac_token = parsejson($rbac_token_file_contents)['token']
+      $rbac_token = parsejson($rbac_token_file_contents)['token']
+
+      $token_info = "&token=${rbac_token}"
+    }
+    else {
+      $token_info = ''
+    }
 
     $code_manager_webhook_type = $git_management_system ? {
                                    'gitlab' => 'github',
@@ -58,7 +67,7 @@ class profile::code_manager {
 
     git_webhook { "code_manager_post_receive_webhook-${::fqdn}" :
       ensure             => present,
-      webhook_url        => "https://${::fqdn}:8170/code-manager/v1/webhook?type=${code_manager_webhook_type}&token=${rbac_token}",
+      webhook_url        => "https://${::fqdn}:8170/code-manager/v1/webhook?type=${code_manager_webhook_type}${token_info}",
       token              => $gms_api_token,
       project_name       => 'puppet/control-repo',
       server_url         => hiera('gms_server_url'),

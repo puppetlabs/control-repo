@@ -16,6 +16,12 @@ class profile::code_manager {
   $gms_api_token         = hiera('gms_api_token', undef)
   $git_management_system = hiera('git_management_system', undef)
 
+  #If files exist in the codedir code manager can't manage them unless pe-puppet can read them
+  exec { 'chown all environments to pe-puppet' :
+    command => "/bin/chown -R pe-puppet:pe-puppet ${::settings::codedir}",
+    unless  => "/usr/bin/test \$(stat -c %U ${::settings::codedir}/environments/production) = 'pe-puppet'",
+  }
+
   rbac_user { $code_manager_service_user :
     ensure       => 'present',
     name         => $code_manager_service_user,

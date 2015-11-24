@@ -1,9 +1,8 @@
-# control-repo
-A control repository template
-=======
 # Before Starting: 
 
-This control repo and the steps below are intended to be used during a new installation of PE.  
+This control repo and the steps below are intended to be used during a new installation of PE.
+
+This control repo has only been tested against PE2015.2.z, it's likely close to working on PE3.8.z but has not been tested.
 
 If you intend to use it on an existing installation then be warned that if you've already written or downloaded modules when you start using r10k it will remove all of the existing modules and replace them with what you define in your Puppetfile.  Please copy or move your existing modules to another directory to ensure you do not lose any work you've already started.  
 
@@ -63,7 +62,7 @@ http://docs.puppetlabs.com/pe/latest/regenerate_certs_master.html
  - Copy the api token
 	
 10. Clone this control repository to your laptop/workstation
- - `git clone https://github.com/npwalker/control-repo.git`
+ - `git clone <repository url>`
  - `cd control-repo`
 
 11. `git mv hieradata/nodes/example-puppet-master.yaml hieradata/nodes/<fqdn_of_your_puppet_master>.yaml`

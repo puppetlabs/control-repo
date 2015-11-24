@@ -14,4 +14,4 @@ commit = repo.lookup(head_sha)
 
 #add something to find the remote url
 
-puts head_sha 
+puts head_sha

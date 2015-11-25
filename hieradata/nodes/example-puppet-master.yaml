@@ -1,0 +1,8 @@
+---
+git_management_system: 'gitlab'
+gms_server_url: 'https://gitlab-server'
+gms_api_token: 'BDkZfWWnk4LVTLHdAywd'
+
+#setup r10k to update classes in the console after code deploy
+pe_r10k::postrun:
+ - '/usr/local/bin/update-classes.sh'

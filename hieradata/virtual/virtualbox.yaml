@@ -1,0 +1,42 @@
+#These setting are intended for low memory testing VMs
+#Not intended for general usage
+---
+#Drop puppetdb Java Heap Size
+#PE3.2 and above
+pe_puppetdb::pe::java_args:
+  -Xmx: '256m'
+  -Xms: '64m'
+#PE3.1 and below
+pe_puppetdb::java_args:
+  -Xmx: '256m'
+  -Xms: '64m'
+#Drop the activemq java heap size
+pe_mcollective::role::master::activemq_heap_mb: '96'
+#Allow access to the puppetdb performance dashboard from non-localhost
+#This is insecure and also allows access to all API endpoints without verification
+pe_puppetdb::pe::listen_address: '0.0.0.0'
+
+#PE3.7+
+#Allow access to the puppetdb performance dashboard from non-localhost
+#This is insecure and also allows access to all API endpoints without verification
+puppet_enterprise::profile::puppetdb::listen_address: '0.0.0.0'
+puppet_enterprise::profile::amq::broker::heap_mb: '96'
+puppet_enterprise::profile::master::java_args:
+  Xmx: '192m'
+  Xms: '128m'
+  'XX:MaxPermSize': '=96m'
+  'XX:PermSize': '=64m'
+puppet_enterprise::profile::puppetdb::java_args:
+  Xmx: '96m'
+  Xms: '96m'
+  'XX:MaxPermSize': '=96m'
+  'XX:PermSize': '=64m'
+puppet_enterprise::profile::console::java_args:
+  Xmx: '64m'
+  Xms: '64m'
+  'XX:MaxPermSize': '=96m'
+  'XX:PermSize': '=64m'
+puppet_enterprise::master::puppetserver::jruby_max_active_instances: 1  #PE3.7.2 only
+puppet_enterprise::profile::console::delayed_job_workers: 1
+#shared_buffers takes affect during install but is not managed after
+puppet_enterprise::profile::database::shared_buffers: '4MB'

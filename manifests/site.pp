@@ -19,9 +19,7 @@
 # Define filebucket 'main':
 filebucket { 'main':
   #server should point to one master that will be the file bucket
-  #$servername is the closest thing to the current behavior of PE
-  #which hardcodes each master to point to itself for a file buckket
-  server => $servername,
+  server => "${settings::server}",
   path   => false,
 }
 
@@ -39,6 +37,14 @@ File { backup => 'main' }
 # specified in the console for that node.
 
 node default {
+  #incude a role on any node that specifies it's role via a trusted fact at provision time
+  #https://docs.puppetlabs.com/puppet/latest/reference/lang_facts_and_builtin_vars.html#trusted-facts
+  #https://docs.puppetlabs.com/puppet/latest/reference/ssl_attributes_extensions.html#aws-attributes-and-extensions-population-example
+  
+  if !empty( $trusted['extensions']['pp_role'] ) {
+    include "role::${trusted['extensions']['pp_role']}"
+  }
+
   # This is where you can declare classes for all nodes.
   # Example:
   #   class { 'my_class': }

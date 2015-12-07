@@ -11,20 +11,9 @@
 
 ## Active Configurations ##
 
-# PRIMARY FILEBUCKET
-# This configures puppet agent and puppet inspect to back up file contents when
-# they run. The Puppet Enterprise console needs this to display file contents
-# and differences.
-
-# Define filebucket 'main':
-filebucket { 'main':
-  #server should point to one master that will be the file bucket
-  server => "${settings::server}",
-  path   => false,
-}
-
-# Make filebucket 'main' the default backup location for all File resources:
-File { backup => 'main' }
+# Disable filebucket by default for all File resources:
+#http://docs.puppetlabs.com/pe/latest/release_notes.html#filebucket-resource-no-longer-created-by-default
+File { backup => false }
 
 # DEFAULT NODE
 # Node definitions in this file are merged with node data from the console. See
@@ -40,7 +29,7 @@ node default {
   #incude a role on any node that specifies it's role via a trusted fact at provision time
   #https://docs.puppetlabs.com/puppet/latest/reference/lang_facts_and_builtin_vars.html#trusted-facts
   #https://docs.puppetlabs.com/puppet/latest/reference/ssl_attributes_extensions.html#aws-attributes-and-extensions-population-example
-  
+
   if !empty( $trusted['extensions']['pp_role'] ) {
     include "role::${trusted['extensions']['pp_role']}"
   }

@@ -1,4 +1,4 @@
-# Before Starting: 
+# Before Starting:
 
 This control repo and the steps below are intended to be used during a new installation of PE.
 
@@ -17,15 +17,15 @@ extension_requests:
   1.3.6.1.4.1.34380.1.1.13: 'all_in_one_pe'
 ```
 
-### If You Have Not Installed PE 
+### If You Have Not Installed PE
 
-Good then you can proceed forward and the trusted fact will be used when you get to the install step. 
+Good then you can proceed forward and the trusted fact will be used when you get to the install step.
 
 ### If You Have Already Installed PE
 
-Trusted facts are created at the time a CSR is generated.  So, we need to regenerate the certificate on the master for the above trusted fact to be created.  
+Trusted facts are created at the time a CSR is generated.  So, we need to regenerate the certificate on the master for the above trusted fact to be created.
 
-Follow this document to regenerate the certificate on your master.  
+Follow this document to regenerate the certificate on your master.
 
 http://docs.puppetlabs.com/pe/latest/regenerate_certs_master.html
 
@@ -53,20 +53,20 @@ http://docs.puppetlabs.com/pe/latest/regenerate_certs_master.html
  - In the left hand pane, select memembers
  - Add the `r10k_api_user` with `master` permissions
 
-7. Add your user to the `puppet` group as well 
+7. Add your user to the `puppet` group as well
 
 8. Create a project called `control-repo` and set the Namespace to be the `puppet` group
 
 9.  Logout of root and login as the `r10k_api_user`
  - Go to profile settings -> account ( https://<your_gitlab_server>/profile/account )
  - Copy the api token
-	
+
 10. Clone this control repository to your laptop/workstation
  - `git clone <repository url>`
  - `cd control-repo`
 
 11. `git mv hieradata/nodes/example-puppet-master.yaml hieradata/nodes/<fqdn_of_your_puppet_master>.yaml`
- - Open `hieradata/nodes/<fqdn_of_your_puppet_master>.yaml` 
+ - Open `hieradata/nodes/<fqdn_of_your_puppet_master>.yaml`
      - edit `gms_api_token` to be your api token
      - edit `git_management_system` to be 'gitlab'
      - edit the `gms_server_url`
@@ -99,7 +99,7 @@ Coming soon!
 ###Install PE
 
 1. Download the latest version of the PE installer for your platform and copy it to your master
- - https://puppetlabs.com/download-puppet-enterprise 
+ - https://puppetlabs.com/download-puppet-enterprise
 2. Expand the tarball and `cd` into the directory
 3. Run `puppet-enterprise-installer` to install
 
@@ -109,34 +109,50 @@ http://docs.puppetlabs.com/pe/latest/install_basic.html
 
 ###Get the Control-Repo Deployed On Your Master
 
-At this point you have my control-repo code deployed into your git server.  However, we have one final challenge getting that code onto your puppet master.  In the end state the master will pull code from the git server via r10k, however, at this moment your puppet master doesn't have credentials to get code from the git server.  
+At this point you have our control-repo code deployed into your git server.  However, we have one final challenge: getting that code onto your puppet master.  In the end state the master will pull code from the git server via r10k, however, at this moment your puppet master doesn't have credentials to get code from the git server.
 
-So, we'll set up a deploy key in the git server that will allow a ssh-key we make to deploy the code and configure everything else.  
+So, we'll set up a deploy key in the git server that will allow a ssh-key we make to deploy the code and configure everything else.
 
 1. On your puppet master, make an ssh key for r10k to connect to gitlab
- - `/usr/bin/ssh-keygen -t rsa -b 2048 -C 'r10k' -f /root/.ssh/r10k_rsa -q -N ''`
+ - `/usr/bin/ssh-keygen -t rsa -b 2048 -C 'code_manager' -f /etc/puppetlabs/puppetserver/code_manager.key -q -N ''`
  - http://doc.gitlab.com/ce/ssh/README.html
  - https://help.github.com/articles/generating-ssh-keys/
 2. Create a deploy key on the `control-repo` project in Gitlab
  - Paste in the public key from above
- - `cat /root/.ssh/r10k_rsa.pub`
-3. Follow https://docs.puppetlabs.com/pe/latest/r10k_config_console.html
- - The remote is on the front page of the project in the gitlab UI
- - git_settings should be:
-     - `{"provider": "rugged",
-    "private_key": "/root/.ssh/r10k_rsa"}`
-3. Run `puppet agent -t` 
+ - `cat /etc/puppetlabs/puppetserver/code_manager.key.pub`
+3. Login to the PE console
+4. Select Access Control in the left hand panel
+5. On the User Roles page, add a new role called `Deploy Environments`
+ - NOTE: Make sure to name it exactly as I have because the puppet code expects that exact name
+6. After creating the role click through and select the permissions tab
+ - Add Puppet Environment type, Deploy Code permission, and All object
+ - Add Tokens type, override default expiry permission
+7. Still in the PE Console, navigate to the Classification page
+ - Click on the PE Master group
+ - Click the Classes tab
+ - Add the `puppet_enterprise::profile::master`
+    - Set the `r10k_remote` to the ssh url from the front page of your gitlab repo
+    - Set the `r10k_private_key` parameter to `/etc/puppetlabs/puppetserver/code_manager.key`
+ - Commit your changes
+8. Run `puppet agent -t`
  - Expect to see changes to `r10k.yaml`
-3. Run `r10k deploy environment -pv`
-4. Run `puppet agent -t`
+9. Run `r10k deploy environment -pv`
+10. Run `puppet agent -t`
+ - Expect to see code manager enabled
+10. `echo 'code_manager_mv_old_code=true' > /opt/puppetlabs/facter/facts.d/code_manager_mv_old_code.txt`
+11. Run `puppet agent -t`
  - Now you should see many more changes
+ - Your code has been deployed with code manager now
+
+## Test Code Manager
+
 
 
 ## Test The Zack/r10k Webhook
 
-One of the components setup by this control-repo is that when you "push" code to your git server, the git server will inform the puppet master to run `r10k deploy environment -p`. 
+One of the components setup by this control-repo is that when you "push" code to your git server, the git server will inform the puppet master to run `r10k deploy environment -p`.
 
-1. Edit README.md 
+1. Edit README.md
  - Just add something to it
 2. `git add README.md`
 3. `git commit -m "edit README"`
@@ -144,16 +160,14 @@ One of the components setup by this control-repo is that when you "push" code to
 5. Allow the push to complete and then give it few seconds to complete
  - Open `/etc/puppetlabs/code/environments/production/README.md` and confirm your change is present
 
- 
-
 ----
 #Miscellaneous
 
 ## If You Want to Install Pointing To This Repo on Github
 
-### Setting Up Gitlab 
+### Setting Up Gitlab
 
-1.  Install Gitlab on a server by specifying the following trusted fact on the soon-to-be Gitlab server and then [install the PE agent](http://docs.puppetlabs.com/pe/latest/install_agents.html#using-the-puppet-agent-package-installation-script). 
+1.  Install Gitlab on a server by specifying the following trusted fact on the soon-to-be Gitlab server and then [install the PE agent](http://docs.puppetlabs.com/pe/latest/install_agents.html#using-the-puppet-agent-package-installation-script).
 
    ```
    ---
@@ -164,7 +178,7 @@ One of the components setup by this control-repo is that when you "push" code to
 
 ### Setting up Github
 
-Not yet completed. 
+Not yet completed.
 
 ### Setting up Stash
 
@@ -173,6 +187,3 @@ Not yet completed.
 
 #TODO
 Flush out generating an answer file and then appending extra answers onto the end of it.  
-
-
-

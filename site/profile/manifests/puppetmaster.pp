@@ -13,33 +13,6 @@ class profile::puppetmaster {
     notify     => Service['pe-puppetserver'],
   }
 
-  #BEGIN - Generate an SSH key for r10k to connect to git
-  $r10k_ssh_key_file = '/root/.ssh/r10k_rsa'
-  exec { 'create r10k ssh key' :
-    command => "/usr/bin/ssh-keygen -t rsa -b 2048 -C 'r10k' -f ${r10k_ssh_key_file} -q -N ''",
-    creates => $r10k_ssh_key_file,
-  }
-  #END - Generate an SSH key for r10k to connect to git  
-
-  #BEGIN - Add deploy key and webook to git management system
-  $git_management_system = hiera('git_management_system', undef)
-  $gms_api_token         = hiera('gms_api_token', undef)
-
-  if !empty($gms_api_token) {
-
-    git_deploy_key { "add_deploy_key_to_puppet_control-${::fqdn}":
-      ensure       => present,
-      name         => $::fqdn,
-      path         => "${r10k_ssh_key_file}.pub",
-      token        => $gms_api_token,
-      project_name => 'puppet/control-repo',
-      server_url   => hiera('gms_server_url'),
-      provider     => $git_management_system,
-    }
-  
-  }
-  #END - Add deploy key and webhook to git management system
-
   #Lay down update-classes.sh for use in r10k postrun_command
   #This is configured via the pe_r10k::postrun key in hiera
   file { '/usr/local/bin/update-classes.sh' :

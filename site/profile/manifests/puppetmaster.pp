@@ -1,16 +1,34 @@
 class profile::puppetmaster {
 
+  $hiera_yaml = "${::settings::confdir}/hiera.yaml"
+
   class { 'hiera':
     hierarchy  => [
       'virtual/%{::virtual}',
       'nodes/%{::trusted.certname}',
       'common',
     ],
-    hiera_yaml => '/etc/puppetlabs/code/hiera.yaml',
+    hiera_yaml => $hiera_yaml,
     datadir    => '/etc/puppetlabs/code/environments/%{environment}/hieradata',
     owner      => 'pe-puppet',
     group      => 'pe-puppet',
     notify     => Service['pe-puppetserver'],
+  }
+
+  ini_setting { 'puppet.conf hiera_config' :
+    ensure  => present,
+    path    => "${::settings::confdir}/puppet.conf",
+    section => 'master',
+    setting => 'hiera_config',
+    value   => $hiera_yaml,
+    notify  => Service['pe-puppetserver'],
+  }
+
+  #remove the default hiera.yaml from the code-staging directory
+  #after the next code manager deployment it should be removed
+  #from the live codedir
+  file { '/etc/puppetlabs/code-staging/hiera.yaml' :
+    ensure => absent,
   }
 
   #Lay down update-classes.sh for use in r10k postrun_command

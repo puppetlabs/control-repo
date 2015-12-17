@@ -1,3 +1,26 @@
+Table of Contents
+=================
+
+  * [Before Starting:](#before-starting)
+    * [Setup a Trusted Fact On Your PE Master](#setup-a-trusted-fact-on-your-pe-master)
+      * [If You Have Not Installed PE](#if-you-have-not-installed-pe)
+      * [If You Have Already Installed PE](#if-you-have-already-installed-pe)
+    * [Copy This Repo Into Your Own Git Server](#copy-this-repo-into-your-own-git-server)
+      * [Gitlab](#gitlab)
+      * [Stash](#stash)
+      * [Github](#github)
+    * [Configure PE to Use the Control\-Repo](#configure-pe-to-use-the-control-repo)
+      * [Install PE](#install-pe)
+      * [Get the Control\-Repo Deployed On Your Master](#get-the-control-repo-deployed-on-your-master)
+    * [Test Code Manager](#test-code-manager)
+    * [Test The Zack/r10k Webhook](#test-the-zackr10k-webhook)
+  * [Miscellaneous](#miscellaneous)
+    * [If You Want to Install Pointing To This Repo on Github](#if-you-want-to-install-pointing-to-this-repo-on-github)
+      * [Setting Up Gitlab](#setting-up-gitlab)
+      * [Setting up Github](#setting-up-github)
+      * [Setting up Stash](#setting-up-stash)
+  * [TODO](#todo)
+
 # Before Starting:
 
 This control repo and the steps below are intended to be used during a new installation of PE.
@@ -146,7 +169,18 @@ So, we'll set up a deploy key in the git server that will allow a ssh-key we mak
 
 ## Test Code Manager
 
+One of the components setup by this control-repo is that when you "push" code to your git server, the git server will inform the puppet master to deploy branch you just pushed.
 
+1. In one terminal window, `tail -f /var/log/puppetlabs/puppetserver/puppetserver.log`
+2. In a second terminal window
+ - Add a new file, `touch test_file`
+ - `git add test_file`
+ - `git commit -m "adding a test_file"`
+ - `git push origin production`
+3. Allow the push to complete and then wait a few seconds for everything to sync over
+ - `ls -l /etc/puppetlabs/code/environments/production`
+    - Confirm test_file is present
+4. In your first terminal window review the `puppetserver.log` to see the type of logging each sync will create
 
 ## Test The Zack/r10k Webhook
 
@@ -183,7 +217,6 @@ Not yet completed.
 ### Setting up Stash
 
 Not yet completed.
-
 
 #TODO
 Flush out generating an answer file and then appending extra answers onto the end of it.  

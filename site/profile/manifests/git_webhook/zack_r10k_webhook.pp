@@ -1,4 +1,4 @@
-class profile::zack_r10k_webhook (
+class profile::git_webhook::zack_r10k_webhook (
   $use_mcollective = false,
 ) {
 

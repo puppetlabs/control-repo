@@ -6,6 +6,7 @@ class profile::git_webhook (
     include profile::git_webhook::zack_r10k_webhook
   } else {
     include profile::git_webhook::code_manager
+    include profile::git_webhook::zack_r10k_webhook_disable
   }
 
 }

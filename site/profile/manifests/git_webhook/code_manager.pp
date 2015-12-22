@@ -35,13 +35,35 @@ class profile::git_webhook::code_manager {
     unless  => "/usr/bin/test \$(stat -c %U ${::settings::codedir}/environments/production) = 'pe-puppet'",
   }
 
+  $code_manager_role_name = 'Deploy Environments'
+  $create_role_creates_file = '/etc/puppetlabs/puppetserver/.puppetlabs/deploy_environments_created'
+  $create_role_curl = @(EOT)
+    /opt/puppetlabs/puppet/bin/curl -k -X POST -H 'Content-Type: application/json' \
+    https://<%= $::trusted['certname'] %>:4433/rbac-api/v1/roles \
+    -d '{"permissions": [{"object_type": "environment", "action": "deploy_code", "instance": "*"},
+    {"object_type": "tokens", "action": "override_lifetime", "instance": "*"}],"user_ids": [], "group_ids": [], "display_name": "<%= $code_manager_role_name  %>", "description": ""}' \
+    --cert <%= $::settings::certdir %>/<%= $::trusted['certname'] %>.pem  \
+    --key <%= $::settings::privatekeydir %>/<%= $::trusted['certname'] %>.pem  \
+    --cacert <%= $::settings::certdir %>/ca.pem;
+    touch <%= $create_role_creates_file %>
+    | EOT
+
+  exec { 'create deploy environments role' :
+    command   => inline_epp( $create_role_curl ),
+    creates   => $create_role_creates_file,
+    logoutput => true,
+    path      => $::path,
+    require   => File[$token_directory],
+  }
+
   rbac_user { $code_manager_service_user :
     ensure       => 'present',
     name         => $code_manager_service_user,
     email        => "${code_manager_service_user}@example.com",
     display_name => 'Code Manager Service Account',
     password     => $code_manager_service_user_password,
-    roles        => [ 'Deploy Environments' ],
+    roles        => [ $code_manager_role_name ],
+    require      => Exec['create deploy environments role'],
   }
 
   file { $token_directory :

@@ -25,7 +25,7 @@ Table of Contents
 
 This control repo and the steps below are intended to be used during a new installation of PE.
 
-This control repo has only been tested against PE2015.2.z, it's likely close to working on PE3.8.z but has not been tested.
+This control repo has only been tested against PE2015.2.z and PE2015.3.z.  It is likely close to working on PE3.8.z but has not been tested.
 
 If you intend to use it on an existing installation then be warned that if you've already written or downloaded modules when you start using r10k it will remove all of the existing modules and replace them with what you define in your Puppetfile.  Please copy or move your existing modules to another directory to ensure you do not lose any work you've already started.  
 
@@ -144,13 +144,7 @@ So, we'll set up a deploy key in the git server that will allow a ssh-key we mak
  - Paste in the public key from above
  - `cat /etc/puppetlabs/puppetserver/code_manager.key.pub`
 3. Login to the PE console
-4. Select Access Control in the left hand panel
-5. On the User Roles page, add a new role called `Deploy Environments`
- - NOTE: Make sure to name it exactly as I have because the puppet code expects that exact name
-6. After creating the role click through and select the permissions tab
- - Add Puppet Environment type, Deploy Code permission, and All object
- - Add Tokens type, override default expiry permission
-7. Still in the PE Console, navigate to the Classification page
+7. Navigate to the Classification page
  - Click on the PE Master group
  - Click the Classes tab
  - Add the `puppet_enterprise::profile::master`

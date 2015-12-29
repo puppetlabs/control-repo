@@ -1,6 +1,7 @@
 class profile::pe_postgresql_management (
   $autovacuum_scale_factor   = '.01',
   $manage_postgresql_service = true,
+  $all_in_one_pe_install     = true,
 ) {
 
   $postgresql_service_resource_name = 'postgresqld'
@@ -9,12 +10,17 @@ class profile::pe_postgresql_management (
     true    => Service[$postgresql_service_resource_name],
     default => undef,
   }
+  $notify_console_services = $all_in_one_pe_install ? {
+    true    => Service['pe-console-services'],
+    default => undef,
+  }
 
   if $manage_postgresql_service {
     service { $postgresql_service_resource_name :
       name   => $postgresql_service_name,
       ensure => running,
       enable => true,
+      notify => $notify_console_services
     }
   }
 

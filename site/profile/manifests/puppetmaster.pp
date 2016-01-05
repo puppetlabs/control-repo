@@ -1,7 +1,6 @@
-class profile::puppetmaster (
-  $webhook_username,
-  $webhook_password
-) {
+class profile::puppetmaster {
+
+  $hiera_yaml = "${::settings::confdir}/hiera.yaml"
 
   class { 'hiera':
     hierarchy  => [
@@ -9,48 +8,28 @@ class profile::puppetmaster (
       'nodes/%{::trusted.certname}',
       'common',
     ],
-    hiera_yaml => '/etc/puppetlabs/code/hiera.yaml',
+    hiera_yaml => $hiera_yaml,
     datadir    => '/etc/puppetlabs/code/environments/%{environment}/hieradata',
     owner      => 'pe-puppet',
     group      => 'pe-puppet',
     notify     => Service['pe-puppetserver'],
   }
 
-  #BEGIN - Generate an SSH key for r10k to connect to git
-  $r10k_ssh_key_file = '/root/.ssh/r10k_rsa'
-  exec { 'create r10k ssh key' :
-    command => "/usr/bin/ssh-keygen -t rsa -b 2048 -C 'r10k' -f ${r10k_ssh_key_file} -q -N ''",
-    creates => $r10k_ssh_key_file,
+  ini_setting { 'puppet.conf hiera_config' :
+    ensure  => present,
+    path    => "${::settings::confdir}/puppet.conf",
+    section => 'master',
+    setting => 'hiera_config',
+    value   => $hiera_yaml,
+    notify  => Service['pe-puppetserver'],
   }
-  #END - Generate an SSH key for r10k to connect to git  
 
-  #BEGIN - Add deploy key and webook to git management system
-  $git_management_system = hiera('git_management_system', '')
-
-  if $git_management_system in ['gitlab', 'github'] {
-
-    git_deploy_key { "add_deploy_key_to_puppet_control-${::fqdn}":
-      ensure       => present,
-      name         => $::fqdn,
-      path         => "${r10k_ssh_key_file}.pub",
-      token        => hiera('gms_api_token'),
-      project_name => 'puppet/control-repo',
-      server_url   => hiera('gms_server_url'),
-      provider     => $git_management_system,
-    }
-  
-    git_webhook { "web_post_receive_webhook-${::fqdn}" :
-      ensure             => present,
-      webhook_url        => "https://${webhook_username}:${webhook_password}@${::fqdn}:8088/payload",
-      token              => hiera('gms_api_token'),
-      project_name       => 'puppet/control-repo',
-      server_url         => hiera('gms_server_url'),
-      provider           => $git_management_system,
-      disable_ssl_verify => true,
-    }
-
+  #remove the default hiera.yaml from the code-staging directory
+  #after the next code manager deployment it should be removed
+  #from the live codedir
+  file { '/etc/puppetlabs/code-staging/hiera.yaml' :
+    ensure => absent,
   }
-  #END - Add deploy key and webhook to git management system
 
   #Lay down update-classes.sh for use in r10k postrun_command
   #This is configured via the pe_r10k::postrun key in hiera

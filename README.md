@@ -1,33 +1,44 @@
 Table of Contents
 =================
 
-  * [Before Starting:](#before-starting)
-    * [Setup a Trusted Fact On Your PE Master](#setup-a-trusted-fact-on-your-pe-master)
-      * [If You Have Not Installed PE](#if-you-have-not-installed-pe)
-      * [If You Have Already Installed PE](#if-you-have-already-installed-pe)
-    * [Copy This Repo Into Your Own Git Server](#copy-this-repo-into-your-own-git-server)
-      * [Gitlab](#gitlab)
-      * [Stash](#stash)
-      * [Github](#github)
-    * [Configure PE to Use the Control\-Repo](#configure-pe-to-use-the-control-repo)
-      * [Install PE](#install-pe)
-      * [Get the Control\-Repo Deployed On Your Master](#get-the-control-repo-deployed-on-your-master)
-    * [Test Code Manager](#test-code-manager)
-    * [Test The Zack/r10k Webhook](#test-the-zackr10k-webhook)
-  * [Miscellaneous](#miscellaneous)
-    * [If You Want to Install Pointing To This Repo on Github](#if-you-want-to-install-pointing-to-this-repo-on-github)
-      * [Setting Up Gitlab](#setting-up-gitlab)
-      * [Setting up Github](#setting-up-github)
-      * [Setting up Stash](#setting-up-stash)
-  * [TODO](#todo)
+* [Before Starting](#before-starting)
+* [What You Get From This control\-repo](#what-you-get-from-this-control-repo)
+* [How To Set It All Up](#how-to-set-it-all-up)
+  * [Setup a Trusted Fact On Your PE Master](#setup-a-trusted-fact-on-your-pe-master)
+    * [If You Have Not Installed PE](#if-you-have-not-installed-pe)
+    * [If You Have Already Installed PE](#if-you-have-already-installed-pe)
+  * [Copy This Repo Into Your Own Git Server](#copy-this-repo-into-your-own-git-server)
+    * [Gitlab](#gitlab)
+    * [Stash](#stash)
+    * [Github](#github)
+  * [Configure PE to Use the Control\-Repo](#configure-pe-to-use-the-control-repo)
+    * [Install PE](#install-pe)
+    * [Get the Control\-Repo Deployed On Your Master](#get-the-control-repo-deployed-on-your-master)
+  * [Test Code Manager](#test-code-manager)
+* [Updating From a Previous Version of PE](#updating-from-a-previous-version-of-pe)
+  * [Upgrading to PE2015\.3\.z from PE 2015\.2\.z](#upgrading-to-pe20153z-from-pe-20152z)
+* [Appendix](#appendix)
+  * [Test The Zack/r10k Webhook](#test-the-zackr10k-webhook)
 
-# Before Starting:
+# Before Starting
 
 This control repo and the steps below are intended to be used during a new installation of PE.
 
-This control repo has only been tested against PE2015.2.z and PE2015.3.z.  It is likely close to working on PE3.8.z but has not been tested.
+The instructions are geared towards a new installation of PE2015.3.z.  However, the control-repo should work just fine on [PE2015.2.z](#upgrading-to-pe20153z-from-pe-20152z)
 
-If you intend to use it on an existing installation then be warned that if you've already written or downloaded modules when you start using r10k it will remove all of the existing modules and replace them with what you define in your Puppetfile.  Please copy or move your existing modules to another directory to ensure you do not lose any work you've already started.  
+If you intend to use this control-repo on an existing installation then be warned that if you've already written or downloaded modules when you start using r10k it will remove all of the existing modules and replace them with what you define in your Puppetfile.  Please copy or move your existing modules to another directory to ensure you do not lose any work you've already started.
+
+# What You Get From This control-repo
+
+As a result of following the instructions below you will receive at least the beginning of a best-practices installation of PE including...
+
+ - A git server
+ - The ability to push code to your git server and have it automatically deployed to your PE Master
+ - A config_version script to output the commit of code that your agent just applied
+ - Optimal tuning of PE settings for this configuration
+ - Working and example roles/profiles code
+
+# How To Set It All Up
 
 ## Setup a Trusted Fact On Your PE Master
 
@@ -176,7 +187,25 @@ One of the components setup by this control-repo is that when you "push" code to
     - Confirm test_file is present
 4. In your first terminal window review the `puppetserver.log` to see the type of logging each sync will create
 
+----
+# Updating From a Previous Version of PE
+
+## Upgrading to PE2015.3.z from PE 2015.2.z
+
+Remove `pe_r10k` from the PE master group in the console and instead add the following two parameters to the `puppet_enterprise::profile::master` class under the PE master group.
+
+- `r10k_remote` = the ssh url for your internal repo
+- `r10k_private_key` = `/etc/puppetlabs/puppetserver/code_manager.key`
+
+When upgrading the `puppet_enterprise::profile::master` class has the `file_sync_enabled` parameter set to `false`.  This parameter should be removed so that code manager can configure file sync.
+
+Finally, you’ll need to `echo 'code_manager_mv_old_code=true' > /opt/puppetlabs/facter/facts.d/code_manager_mv_old_code.txt` so that my puppet code will redeploy all of your code with code manager.
+
+# Appendix
+
 ## Test The Zack/r10k Webhook
+
+If you are using PE2015.2.z or if you've forced the use of the zack/r10k webhook then you'll want to test that it works.
 
 One of the components setup by this control-repo is that when you "push" code to your git server, the git server will inform the puppet master to run `r10k deploy environment -p`.
 
@@ -187,30 +216,3 @@ One of the components setup by this control-repo is that when you "push" code to
 4. `git push origin production`
 5. Allow the push to complete and then give it few seconds to complete
  - Open `/etc/puppetlabs/code/environments/production/README.md` and confirm your change is present
-
-----
-#Miscellaneous
-
-## If You Want to Install Pointing To This Repo on Github
-
-### Setting Up Gitlab
-
-1.  Install Gitlab on a server by specifying the following trusted fact on the soon-to-be Gitlab server and then [install the PE agent](http://docs.puppetlabs.com/pe/latest/install_agents.html#using-the-puppet-agent-package-installation-script).
-
-   ```
-   ---
-   extension_requests:
-      #pp_role
-      1.3.6.1.4.1.34380.1.1.13: 'gitlab'
-   ```
-
-### Setting up Github
-
-Not yet completed.
-
-### Setting up Stash
-
-Not yet completed.
-
-#TODO
-Flush out generating an answer file and then appending extra answers onto the end of it.  

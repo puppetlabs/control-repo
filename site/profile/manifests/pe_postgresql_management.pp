@@ -1,7 +1,8 @@
 class profile::pe_postgresql_management (
-  $autovacuum_scale_factor   = '.01',
-  $manage_postgresql_service = true,
-  $all_in_one_pe_install     = true,
+  $autovacuum_scale_factor                  = '.01',
+  $manage_postgresql_service                = true,
+  $all_in_one_pe_install                    = true,
+  Boolean $include_pe_databases_maintenance = true,
 ) {
 
   $postgresql_service_resource_name = 'postgresqld'
@@ -30,6 +31,11 @@ class profile::pe_postgresql_management (
     target => '/opt/puppetlabs/server/data/postgresql/9.4/data/postgresql.conf',
     value  => $autovacuum_scale_factor,
     notify => $notify_postgresql_service,
+  }
+
+  #https://github.com/npwalker/pe_databases
+  if $include_pe_databases_maintenance {
+    include pe_databases::maintenance
   }
 
 }

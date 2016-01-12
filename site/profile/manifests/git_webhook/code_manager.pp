@@ -39,7 +39,7 @@ class profile::git_webhook::code_manager {
   $create_role_creates_file = '/etc/puppetlabs/puppetserver/.puppetlabs/deploy_environments_created'
   $create_role_curl = @(EOT)
     /opt/puppetlabs/puppet/bin/curl -k -X POST -H 'Content-Type: application/json' \
-    https://<%= $::trusted['certname'] %>:4433/rbac-api/v1/roles \
+    https://<%= $classifier_hostname %>:4433/rbac-api/v1/roles \
     -d '{"permissions": [{"object_type": "environment", "action": "deploy_code", "instance": "*"},
     {"object_type": "tokens", "action": "override_lifetime", "instance": "*"}],"user_ids": [], "group_ids": [], "display_name": "<%= $code_manager_role_name  %>", "description": ""}' \
     --cert <%= $::settings::certdir %>/<%= $::trusted['certname'] %>.pem  \

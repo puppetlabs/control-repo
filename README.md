@@ -72,7 +72,7 @@ http://docs.puppetlabs.com/pe/latest/regenerate_certs_master.html
 
 2. After Gitlab is installed you may sign if with the `root` user and password `5iveL!fe`
 
-3. Make an user for yourself
+3. Make a user for yourself
 
 4.  Make an ssh key to link with your user.  You’ll want to do this on the machine you intend to edit code from ( most likely not your puppet master but your local workstation / laptop )
  - http://doc.gitlab.com/ce/ssh/README.html

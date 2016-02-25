@@ -28,6 +28,10 @@ mod 'r10k',
   :git => 'https://github.com/acidprime/r10k',
   :tag => 'v3.1.1'
 
+mod 'pe_code_manager_webhook',
+  :git => 'https://github.com/npwalker/pe_code_manager_webhook',
+  :ref => '20d9f2e274325edaa10d8ec3b4f98a62ad726335'
+
 mod 'gms',
   :git    => 'https://github.com/npwalker/abrader-gms',
   :branch => 'gitlab_disable_ssl_verify_support'

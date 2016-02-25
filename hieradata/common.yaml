@@ -2,7 +2,7 @@
 message: "This node is using common data"
 
 #Puppet Server Tuning
-puppet_enterprise::master::puppetserver::jruby_max_requests_per_instance: 10000
+puppet_enterprise::master::puppetserver::jruby_max_requests_per_instance: 0
 #Enable code manager
 puppet_enterprise::profile::master::code_manager_auto_configure: true
 puppet_enterprise::master::code_manager::authenticate_webhook: false

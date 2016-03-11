@@ -12,7 +12,7 @@ mod "saz/ssh",                :latest
 mod "puppetlabs/postgresql",  '4.5.0'
 mod "puppet/stash",           '1.3.0'
 mod "puppetlabs/java",        '1.4.1'
-mod "npwalker/pe_code_manager_webhook", '1.0.1'
+mod "npwalker/pe_code_manager_webhook", '1.0.2'
 
 #An example of using a specific forge module version instead of latest
 #Notice the addition of single quotes

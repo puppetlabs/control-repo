@@ -38,3 +38,7 @@ mod 'gms',
 mod 'pltraining-rbac',
   :git    => 'https://github.com/puppetlabs/pltraining-rbac',
   :ref    => '2f60e1789a721ce83f8df061e13f8bf81cd4e4ce'
+
+mod 'pe_databases',
+  :git => 'https://github.com/npwalker/pe_databases',
+  :ref => 'ce51abffa029d910f84b44160791e7406f2da864'

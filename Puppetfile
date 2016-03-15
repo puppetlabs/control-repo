@@ -3,6 +3,7 @@ forge "http://forge.puppetlabs.com"
 # Modules from the Puppet Forge
 # Note the versions are all set to :latest but after you've 
 # installed you should change them to the exact version you want
+mod "hunner/hiera",           '2.0.1'
 mod "puppetlabs/inifile", :latest
 mod "puppetlabs/stdlib", :latest
 mod "puppetlabs/concat", :latest
@@ -19,10 +20,6 @@ mod "puppetlabs/java",        '1.4.1'
 # Modules from Github using various references
 # Further examples: https://github.com/puppetlabs/r10k/blob/master/doc/puppetfile.mkd#examples
 # update the tag to the most current release when implementing
-mod 'hiera',
-  :git => 'https://github.com/hunner/puppet-hiera',
-  :tag => '1.3.1'
-
 mod 'gitlab',
   :git => 'https://github.com/vshn/puppet-gitlab',
   :ref => '00397b86dfb3487d9df768cbd3698d362132b5bf'

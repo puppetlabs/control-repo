@@ -15,15 +15,6 @@ class profile::puppetmaster {
     notify     => Service['pe-puppetserver'],
   }
 
-  ini_setting { 'puppet.conf hiera_config main section' :
-    ensure  => present,
-    path    => "${::settings::confdir}/puppet.conf",
-    section => 'main',
-    setting => 'hiera_config',
-    value   => $hiera_yaml,
-    notify  => Service['pe-puppetserver'],
-  }
-
   ini_setting { 'puppet.conf hiera_config master section' :
     ensure  => absent,
     path    => "${::settings::confdir}/puppet.conf",

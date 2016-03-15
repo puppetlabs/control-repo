@@ -87,7 +87,7 @@ class profile::git_webhook::code_manager {
   #this file cannont be read until the next run after the above exec
   #because the file function runs on the master not on the agent
   #so the file doesn't exist at the time the function is run
-  $rbac_token_file_contents = no_fail_file($token_filename)
+  $rbac_token_file_contents = file($token_filename, '/dev/null')
 
   #Only mv code if this is at least the 2nd run of puppet
   #Code manager needs to be enabled and puppet server restarted

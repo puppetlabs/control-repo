@@ -3,11 +3,3 @@ message: "This node is using common data"
 
 #Puppet Server Tuning
 puppet_enterprise::master::puppetserver::jruby_max_requests_per_instance: 0
-#Enable code manager
-puppet_enterprise::profile::master::code_manager_auto_configure: true
-puppet_enterprise::master::code_manager::authenticate_webhook: false
-
-#pe-console-services tuning
-#https://docs.puppetlabs.com/pe/latest/console_config.html#tuning-the-classifier-synchronization-period
-#disable classifier scheduled sync and rely on r10k postrun command to sync the classes
-puppet_enterprise::profile::console::classifier_synchronization_period: 0

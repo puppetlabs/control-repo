@@ -1,7 +1,0 @@
-<%- | String  $code_manager_service_user,
-      String  $code_manager_service_user_password,
-      String  $classifier_hostname,
-      Integer $classifier_port,
-      String  $token_filename
-| -%>
-/opt/puppetlabs/puppet/bin/curl -k -X POST -H 'Content-Type: application/json' -d '{"login": "<%= $code_manager_service_user %>", "password": "<%= $code_manager_service_user_password %>", "lifetime": "0"}' https://<%= $classifier_hostname %>:<%= $classifier_port %>/rbac-api/v1/auth/token >> <%= $token_filename %>

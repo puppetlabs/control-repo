@@ -48,3 +48,7 @@ mod 'rampup_profile_puppetmaster',
 mod 'rampup_profile_gitlab',
   :git    => 'https://github.com/PuppetLabs-RampUpProgram/RampUp_profile_gitlab',
   :branch => 'master'
+
+mod 'rampup_profile_stash',
+  :git    => 'https://github.com/PuppetLabs-RampUpProgram/RampUp_profile_stash',
+  :branch => 'master'

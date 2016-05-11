@@ -7,14 +7,14 @@ forge "http://forge.puppetlabs.com"
 #mod "puppetlabs/stdlib",      '4.11.0'
 #mod "puppetlabs/concat",      '2.1.0'
 mod "puppet/zabbix",  '2.3.0'
-mod "puppet/stdlib" '4.1.0'
-mod "puppet/ruby" '0.4.0'
-mod "puppet/postgresql" '4.0.0'
-mod "puppet/pe_gem" '0.1.0'
-mod "puppet/mysql" '2.0.0'
-mod "puppet/firewall" '1.0.0'
-mod "puppet/apt" '2.0.0'
-mod "puppet/apache" '1.0.0'
+mod "puppet/stdlib", '4.1.0'
+mod "puppet/ruby", '0.4.0'
+mod "puppet/postgresql", '4.0.0'
+mod "puppet/pe_gem", '0.1.0'
+mod "puppet/mysql", '2.0.0'
+mod "puppet/firewall", '1.0.0'
+mod "puppet/apt", '2.0.0'
+mod "puppet/apache", '1.0.0'
 
 
 # Modules from Git

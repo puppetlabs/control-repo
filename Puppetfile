@@ -15,7 +15,7 @@ mod "puppetlabs/mysql", '3.7.0'
 mod "puppetlabs/firewall", '1.8.0'
 mod "puppetlabs/apt", '2.2.2'
 mod "puppetlabs/apache", '1.9.0'
-mod "nanliu/statging", '1.0.3'
+mod "nanliu/staging", '1.0.3'
 
 
 # Modules from Git

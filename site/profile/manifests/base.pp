@@ -1,4 +1,4 @@
 class profile::base {
 
-  accounts::user { 'test': }
+  accounts::user { 'joe': }
 }

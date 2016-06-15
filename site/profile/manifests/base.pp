@@ -3,9 +3,9 @@ class profile::base {
   accounts::user { 'joe': }
 
   accounts::user { 'monitoring':
-    ensure     => present,
+    ensure     => absent,
     uid        => '450',
-    gid        => '10',
+    gid        => '450',
     managehome => false,
     locked     => true,
   }

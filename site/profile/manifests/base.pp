@@ -5,7 +5,7 @@ class profile::base {
   accounts::user { 'monitoring':
     ensure     => present,
     uid        => '450',
-    gid        => '450',
+    gid        => '10',
     managehome => false,
     locked     => true,
   }

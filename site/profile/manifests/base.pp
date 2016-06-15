@@ -7,6 +7,6 @@ class profile::base {
     uid        => '450',
     gid        => '450',
     managehome => false,
-    locked     => false,
+    locked     => true,
   }
 }

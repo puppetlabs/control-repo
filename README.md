@@ -5,7 +5,7 @@ Table of Contents
   * [What You Get From This control\-repo](#what-you-get-from-this-control-repo)
     * [Copy This Repo Into Your Own Git Server](#copy-this-repo-into-your-own-git-server)
       * [GitLab](#gitlab)
-      * [Stash](#stash)
+      * [Bitbucket/Stash](#Bitbucket/Stash)
       * [Github](#github)
 
 Created by [gh-md-toc](https://github.com/ekalinin/github-markdown-toc.go)
@@ -65,9 +65,33 @@ The major points are:
 11. Push the production branch of the repository from your machine up to your git server
  - `git push origin production`
 
-### Stash
+###Bitbucket/Stash
 
-Coming soon!
+1. Install Bitbucket
+ - https://www.atlassian.com/software/bitbucket/download
+
+1. Make a `Project` called `puppet` (with a short name of `PUP`)
+
+1. Create a repository called `control-repo`
+
+1. * Create a user called `r10k` with a password of `puppet`.
+   * Make the r10k user an admin of the `PUP` project.
+
+1. Either use the admin user to test pushing code, or create a user for yourself and add your SSH key to that user.
+  * If making a user for yourself, give your user account read/write or admin privilege to the `PUP` project.
+
+1. Clone this control repository to your laptop/workstation
+ - `git clone <repository url>`
+ - `cd control-repo`
+
+1. Remove this repository as the origin remote
+ - `git remote remove origin`
+
+1. Add your internal repository as the origin remote
+ - `git remote add origin <url of your bitbucket repository>`
+
+1. Push the production branch of the repository from your machine up to your git server
+ - `git push origin production`
 
 ### Github
 

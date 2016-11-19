@@ -1,3 +1,4 @@
+#!/usr/bin/env ruby
 begin
   require 'rugged'
 rescue LoadError => e

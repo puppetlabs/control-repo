@@ -1,3 +1,4 @@
+#!/usr/bin/env ruby
 require 'json'
 
 environmentpath = ARGV[0]

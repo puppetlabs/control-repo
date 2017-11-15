@@ -37,7 +37,7 @@ The major points are:
 1. Install GitLab.
  - https://about.gitlab.com/downloads/
 
-2. After GitLab is installed you may sign if with the `root` user and password `5iveL!fe`.
+2. After GitLab is installed you may sign in with the `root` user and password `5iveL!fe`.
 
 3. Make a user for yourself.
 

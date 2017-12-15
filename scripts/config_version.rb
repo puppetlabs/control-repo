@@ -10,7 +10,8 @@ else
   environment     = ARGV[1]
 
   # Get the hostname of the Puppet master compiling the catalog.
-  compiling_master = Socket.gethostname
+  # Sometimes the hostname is the fqdn, so we'll take the first segment.
+  compiling_master = Socket.gethostname.split('.').first
 
   # Get the path to the environment being compiled.
   repo = Rugged::Repository.discover(File.join(environmentpath, environment))

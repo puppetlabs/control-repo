@@ -15,3 +15,4 @@ forge "http://forge.puppetlabs.com"
 #mod 'apache',
 #  :git    => 'https://github.com/puppetlabs/puppetlabs-apache',
 #  :branch => 'docs_experiment'
+mod 'beersy-pe_code_manager_easy_setup', '2.0.0'

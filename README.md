@@ -5,10 +5,8 @@ Table of Contents
   * [What You Get From This control\-repo](#what-you-get-from-this-control-repo)
     * [Copy This Repo Into Your Own Git Server](#copy-this-repo-into-your-own-git-server)
       * [GitLab](#gitlab)
-      * [Bitbucket/Stash](#Bitbucket/Stash)
+      * [Bitbucket/Stash](#bitbucketstash)
       * [Github](#github)
-
-Created by [gh-md-toc](https://github.com/ekalinin/github-markdown-toc.go)
 
 # Where Did All The Previous Code Go?
 
@@ -22,97 +20,74 @@ All of the code that was previously in this repository still exists in separate 
 This repository is a template control-repo that can be used with r10k or Puppet Enterprise Code Manager.
 
 The major points are:
- - An environment.conf that correctly implements:
-   - A site directory for roles, profiles, and any custom modules for your organization.
-   - A config_version script.
- - Provided config_version scripts to output the commit of code that your agent just applied.
- - Basic example of roles/profiles code.
- - Example hieradata directory with pre-created common.yaml and nodes directory.
-   - These match the default hierarchy that ships with PE.
+ * An environment.conf that correctly implements:
+   * A site directory for roles, profiles, and any custom modules for your organization.
+   * A config_version script.
+ * Provided config_version scripts to output the commit of code that your agent just applied.
+ * Basic example of roles/profiles code.
+ * Example hieradata directory with pre-created common.yaml and nodes directory.
+   * These match the default hierarchy that ships with PE.
 
 ## Copy This Repo Into Your Own Git Server
 
 ### GitLab
 
 1. Install GitLab.
- - https://about.gitlab.com/downloads/
-
-2. After GitLab is installed you may sign in with the `root` user and password `5iveL!fe`.
-
-3. Make a user for yourself.
-
-4. Make an SSH key to link with your user. You’ll want to do this on the machine you intend to edit code from (most likely not your Puppet master, but your local workstation or laptop).
- - http://doc.gitlab.com/ce/ssh/README.html
- - https://help.github.com/articles/generating-ssh-keys/
-
-5. Create a group called `puppet` (this is case sensitive).
- - http://doc.gitlab.com/ce/workflow/groups.html
-
-6. Add your user to the `puppet` group as well.
-
-7. Create a project called `control-repo`, and set the Namespace to be the `puppet` group.
-
-8. Clone this control repository to your laptop/workstation:
- - `git clone <repository url>`
- - `cd control-repo`
-
-9. Remove this repository as the origin remote:
- - `git remote remove origin`
-
-10. Add your internal repository as the origin remote:
- - `git remote add origin <url of your gitlab repository>`
-
-11. Push the production branch of the repository from your machine up to your git server
- - `git push origin production`
+    * <https://about.gitlab.com/downloads/>
+1. After GitLab is installed you may sign in with the `root` user and password `5iveL!fe`.
+1. Make a user for yourself.
+1. Make an SSH key to link with your user. You’ll want to do this on the machine you intend to edit code from (most likely not your Puppet master, but your local workstation or laptop).
+    * <http://doc.gitlab.com/ce/ssh/README.html>
+    * <https://help.github.com/articles/generating-ssh-keys/>
+1. Create a group called `puppet` (this is case sensitive).
+    * <http://doc.gitlab.com/ce/workflow/groups.html>
+1. Add your user to the `puppet` group as well.
+1. Create a project called `control-repo`, and set the Namespace to be the `puppet` group.
+1. Clone this control repository to your laptop/workstation:
+    * `git clone <repository url>`
+    * `cd control-repo`
+1. Remove this repository as the origin remote:
+    * `git remote remove origin`
+1. Add your internal repository as the origin remote:
+    * `git remote add origin <url of your gitlab repository>`
+1. Push the production branch of the repository from your machine up to your git server
+    * `git push origin production`
 
 ### Bitbucket/Stash
 
 1. Install Bitbucket
- - https://www.atlassian.com/software/bitbucket/download
-
+    * <https://www.atlassian.com/software/bitbucket/download>
 1. Make a `Project` called `puppet` (with a short name of `PUP`)
-
 1. Create a repository called `control-repo`
-
-1. * Create a user called `r10k` with a password of `puppet`.
-   * Make the r10k user an admin of the `PUP` project.
-
+1. Create a user called `r10k` with a password of `puppet`.
+    * Make the r10k user an admin of the `PUP` project.
 1. Either use the admin user to test pushing code, or create a user for yourself and add your SSH key to that user.
-  * If making a user for yourself, give your user account read/write or admin privilege to the `PUP` project.
-
+    * If making a user for yourself, give your user account read/write or admin privilege to the `PUP` project.
 1. Clone this control repository to your laptop/workstation
- - `git clone <repository url>`
- - `cd control-repo`
-
+    * `git clone <repository url>`
+    * `cd control-repo`
 1. Remove this repository as the origin remote
- - `git remote remove origin`
-
+    * `git remote remove origin`
 1. Add your internal repository as the origin remote
- - `git remote add origin <url of your bitbucket repository>`
-
+    * `git remote add origin <url of your bitbucket repository>`
 1. Push the production branch of the repository from your machine up to your git server
- - `git push origin production`
+    * `git push origin production`
 
 ### GitHub
 
 1. Prepare your local git client to authenticate with GitHub.com or a local GitHub Enterprise instance.
-  - https://help.github.com/articles/generating-ssh-keys/
-  - https://help.github.com/articles/adding-a-new-ssh-key-to-your-github-account/
+    * <https://help.github.com/articles/generating-ssh-keys/>
+    * <https://help.github.com/articles/adding-a-new-ssh-key-to-your-github-account/>
+1. Create a repository called `control-repo` in your user account or organization. Ensure that "Initialize this repository with a README" is not selected.
+    * <https://help.github.com/articles/creating-a-new-repository/>
+1. Make a note of your repository URL (HTTPS or SSH, depending on your security configuration).
+1. Clone this control repository to your laptop/workstation:
+    * `git clone <repository url>`
+    * `cd control-repo`
+1. Remove this repository as the origin remote:
+    * `git remote remove origin`
+1. Add your internal repository as the origin remote:
+    * `git remote add origin <url of your github repository>`
+1. Push the production branch of the repository from your machine up to your git server
+    * `git push origin production`
 
-2. Create a repository called `control-repo` in your user account or organization.  Ensure that "Initialize this repository with a README" is not selected.
-  - https://help.github.com/articles/creating-a-new-repository/
-
-3. Make a note of your repository URL (HTTPS or SSH, depending on your security configuration).
-
-4. Clone this control repository to your laptop/workstation:
-  - `git clone <repository url>`
-  - `cd control-repo`
-
-5. Remove this repository as the origin remote:
-  - `git remote remove origin`
-
-6. Add your internal repository as the origin remote:
-  - `git remote add origin <url of your github repository>`
-
-7. Push the production branch of the repository from your machine up to your git server
-  - `git push origin production`

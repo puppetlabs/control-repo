@@ -7,6 +7,7 @@ Table of Contents
       * [GitLab](#gitlab)
       * [Bitbucket/Stash](#Bitbucket/Stash)
       * [Github](#github)
+  * [Troubleshooting](#troubleshooting)
 
 Created by [gh-md-toc](https://github.com/ekalinin/github-markdown-toc.go)
 
@@ -116,3 +117,38 @@ The major points are:
 
 7. Push the production branch of the repository from your machine up to your git server
   - `git push origin production`
+
+# Troubleshooting
+
+If, after deploying code, the `config_version.sh` script is not executable (`-rwxr-x---`) on the master, you may have to explicitly configure the permissions of the script in the repository. This is especially true when this repository is cloned on Windows, as Windows file permissions do not map to Git file permissions.
+
+### In the repository:
+
+1. Configure core.filemode:
+  - `git config core.filemode true`
+
+1. Set the executable bit:
+ - `git update-index --chmod=+x scripts/config_version.sh`
+
+1. Verify the file permissions are `100755`:
+  - `git ls-tree HEAD scripts/config_version.sh`
+
+1. Commit:
+  - `git commit scripts/config_version.sh -m "set file permissions"`
+
+1. Push:
+  - `git push`
+
+### On the master:
+
+1. Change to the production environment directory:
+  - `cd /etc/puppetlabs/code/environments/production`
+
+1. Delete the script:
+  - `rm -f scripts/config_version.sh`
+
+1. Deploy:
+  - `puppet code deploy production --wait`
+
+1. Verify a valid configuration version:
+  - `puppet agent -t --noop`

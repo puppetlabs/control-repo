@@ -1,34 +1,31 @@
-Table of Contents
-=================
+# A Puppet Control Repository
 
-  * [Where Did All The Previous Code Go?](#where-did-all-the-previous-code-go)
-  * [What You Get From This control\-repo](#what-you-get-from-this-control-repo)
-    * [Copy This Repo Into Your Own Git Server](#copy-this-repo-into-your-own-git-server)
-      * [GitLab](#gitlab)
-      * [Bitbucket/Stash](#bitbucketstash)
-      * [Github](#github)
+* [What You Get From This control\-repo](#what-you-get-from-this-control-repo)
+* [Copy This Repo Into Your Own Git Server](#copy-this-repo-into-your-own-git-server)
+  * [GitLab](#gitlab)
+  * [Bitbucket/Stash](#bitbucketstash)
+  * [Github](#github)
+* [Where Did All The Previous Code Go?](#where-did-all-the-previous-code-go)
 
-# Where Did All The Previous Code Go?
 
-Initially, the control-repo project began as a 'starter' template for anyone who wanted to get started with r10k. As time passed, and Code Manager was integrated into Puppet Enterprise, the scope of this project grew to include opinionated Puppet profiles to set up many Puppet Enterprise components. As the code increased, so did the complexity of the control-repo project. To reduce that complexity, as well as continuing to meet the needs of individuals who would like a more minimal template, this repository was stripped of anything other than the bare minimum files necessary to get started with a functioning
-control-repo.
+## What You Get From This control-repo
 
-All of the code that was previously in this repository still exists in separate repositories under the [Puppet Ramp Up Program namespace within Github](https://github.com/Puppet-RampUpProgram) and can be re-connected to an existing control-repo if that is required by adding the modules to the Puppetfile. Alternatively, if that previously opinionated control-repo is desired, [it still exists on Github under the Puppet Ramp Up Program namespace.](https://github.com/Puppet-RampUpProgram/control-repo) This control-repo project will remain a template for anyone who would like a minimal 'starter' template.
+This is a template [control repository](https://puppet.com/docs/pe/latest/code_management/control_repo.html) that has the minimum amount of scaffolding to make it easy to get started with [r10k](https://puppet.com/docs/pe/latest/code_management/r10k.html) or Puppet Enterprise's [Code Manager](https://puppet.com/docs/pe/latest/code_management/code_mgr.html).
 
-# What You Get From This control-repo
+The important files and items in this template are as follows:
 
-This repository is a template control-repo that can be used with r10k or Puppet Enterprise Code Manager.
-
-The major points are:
- * An environment.conf that correctly implements:
-   * A site directory for roles, profiles, and any custom modules for your organization.
-   * A config_version script.
- * Provided config_version scripts to output the commit of code that your agent just applied.
- * Basic example of roles/profiles code.
- * Example hieradata directory with pre-created common.yaml and nodes directory.
-   * These match the default hierarchy that ships with PE.
+* Basic example of roles and profiles.
+* An example Puppetfile with various module references.
+* An example Hiera configuration file and data directory with pre-created common.yaml and nodes directory.
+  * These match the default hierarchy that ships with PE.
+* An [environment.conf](https://puppet.com/docs/puppet/5.3/config_file_environment.html) that correctly implements:
+  * A site directory for roles, profiles, and any custom modules for your organization.
+  * A config_version script.
+* An example [config_version](https://puppet.com/docs/puppet/5.3/config_file_environment.html#configversion) script that outputs the git commit ID of the code that was used during a Puppet run.
 
 ## Copy This Repo Into Your Own Git Server
+
+To get started with using the control-repo template in your own environment and git server, we've provided steps for the three most common servers we see: [GitLab](#gitlab), [BitBucket](#bitbucketstash), and [GitHub](#github).
 
 ### GitLab
 
@@ -90,4 +87,11 @@ The major points are:
     * `git remote add origin <url of your github repository>`
 1. Push the production branch of the repository from your machine up to your git server
     * `git push origin production`
+
+## Where Did All The Previous Code Go?
+
+Initially, the control-repo project began as a 'starter' template for anyone who wanted to get started with r10k. As time passed and Code Manager was integrated into Puppet Enterprise, the scope of this project grew to include opinionated Puppet profiles to set up many Puppet Enterprise components. As the code increased, so did the complexity of the control-repo project. To reduce that complexity, as well as continuing to meet the needs of individuals who would like a more minimal template, this repository was stripped of anything other than the bare minimum files necessary to get started with a functioning
+control-repo.
+
+All of the code that was previously in this repository still exists in separate repositories under the [Puppet Ramp Up Program namespace within Github](https://github.com/Puppet-RampUpProgram) and can be re-connected to an existing control-repo if that is required by adding the modules to the Puppetfile. Alternatively, if that previously opinionated control-repo is desired, [it still exists on Github under the Puppet Ramp Up Program namespace.](https://github.com/Puppet-RampUpProgram/control-repo) This control-repo project will remain a template for anyone who would like a minimal 'starter' template.
 

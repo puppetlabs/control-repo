@@ -5,7 +5,7 @@
   * [GitLab](#gitlab)
   * [Bitbucket/Stash](#bitbucketstash)
   * [Github](#github)
-* [Where Did All The Previous Code Go?](#where-did-all-the-previous-code-go)
+* [Code Manager Setup](#code-manager-setup)
 
 
 ## What You Get From This control-repo
@@ -111,10 +111,9 @@ To get started with using the control-repo template in your own environment and 
 1. Push the production branch of the repository from your machine up to your git server
     * `git push origin production`
 
-## Where Did All The Previous Code Go?
+## Code Manager Setup
 
-Initially, the control-repo project began as a 'starter' template for anyone who wanted to get started with r10k. As time passed and Code Manager was integrated into Puppet Enterprise, the scope of this project grew to include opinionated Puppet profiles to set up many Puppet Enterprise components. As the code increased, so did the complexity of the control-repo project. To reduce that complexity, as well as continuing to meet the needs of individuals who would like a more minimal template, this repository was stripped of anything other than the bare minimum files necessary to get started with a functioning
-control-repo.
+If you use Puppet Enterprise and have not yet enabled and configured Code Manager, in addition to reading the official [documentation](https://puppet.com/docs/pe/latest/code_management/code_mgr.html) for enabling it, you may want to look at the Ramp-Up Program's control repository instead of this one. It's similar to this repo except that it has batteries includes, so to speak. There are pre-built profiles for configuring Code Manager, generating SSH keys, and setting up your Git server to work with Code Manager.
 
-All of the code that was previously in this repository still exists in separate repositories under the [Puppet Ramp Up Program namespace within Github](https://github.com/Puppet-RampUpProgram) and can be re-connected to an existing control-repo if that is required by adding the modules to the Puppetfile. Alternatively, if that previously opinionated control-repo is desired, [it still exists on Github under the Puppet Ramp Up Program namespace.](https://github.com/Puppet-RampUpProgram/control-repo) This control-repo project will remain a template for anyone who would like a minimal 'starter' template.
+* <https://github.com/Puppet-RampUpProgram/control-repo>
 

@@ -23,6 +23,29 @@ The important files and items in this template are as follows:
   * A config_version script.
 * An example [config_version](https://puppet.com/docs/puppet/5.3/config_file_environment.html#configversion) script that outputs the git commit ID of the code that was used during a Puppet run.
 
+Here's a visual representation of the structure of this repository:
+
+```
+control-repo/
+├── data/                                 # Hiera data directory.
+│   ├── nodes/                            # Node-specific data goes here.
+│   └── common.yaml                       # Common data goes here.
+├── manifests/
+│   └── site.pp                           # The "main" manifest that contains a default node definition.
+├── scripts/
+│   ├── code_manager_config_version.rb    # A config_version script for Code Manager.
+│   ├── config_version.rb                 # A config_version script for r10k.
+│   └── config_version.sh                 # A wrapper that chooses the appropriate config_version script.
+├── site/                                 # This directory contains site-specific modules and is added to $modulepath.
+│   ├── profile/                          # The profile module.
+│   └── role/                             # The role module.
+├── LICENSE
+├── Puppetfile                            # A list of external Puppet modules to deploy with an environment.
+├── README.md
+├── environment.conf                      # Environment-specific settings. Configures the moduelpath and config_version.
+└── hiera.yaml                            # Hiera's configuration file. The Hiera hierarchy is defined here.
+```
+
 ## Copy This Repo Into Your Own Git Server
 
 To get started with using the control-repo template in your own environment and git server, we've provided steps for the three most common servers we see: [GitLab](#gitlab), [BitBucket](#bitbucketstash), and [GitHub](#github).

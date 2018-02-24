@@ -6,6 +6,7 @@ forge "https://forge.puppet.com"
 #mod "puppetlabs/stdlib",      '4.11.0'
 #mod "puppetlabs/concat",      '2.1.0'
 mod "puppetlabs-dsc", '1.5.0'
+mod 'puppetlabs-windows', '5.0.0'
 
 # Modules from Git
 # Examples: https://github.com/puppetlabs/r10k/blob/master/doc/puppetfile.mkd#examples

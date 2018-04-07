@@ -1,4 +1,3 @@
-#!/opt/puppetlabs/puppet/bin/ruby
 begin
   require 'rugged'
   require 'socket'

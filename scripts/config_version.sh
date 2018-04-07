@@ -1,12 +1,14 @@
-#!/bin/bash
-if [ -e $1/$2/.r10k-deploy.json ]
-then
-  /opt/puppetlabs/puppet/bin/ruby $1/$2/scripts/code_manager_config_version.rb $1 $2
-elif [ -e /opt/puppetlabs/server/pe_version ]
-then
-  /opt/puppetlabs/puppet/bin/ruby $1/$2/scripts/config_version.rb $1 $2
-else
-  /usr/bin/git --version > /dev/null 2>&1 &&
-  /usr/bin/git --git-dir $1/$2/.git rev-parse HEAD ||
-  date +%s
+#!/bin/sh
+
+ruby=ruby
+script="$1/$2/scripts/config_version.rb"
+
+if [ -x /opt/puppetlabs/puppet/bin/ruby ]; then
+  ruby=/opt/puppetlabs/puppet/bin/ruby
 fi
+
+if [ -e $1/$2/.r10k-deploy.json ]; then
+  script="$1/$2/scripts/code_manager_config_version.rb"
+fi
+
+"${ruby}" "${script}" "$1" "$2"

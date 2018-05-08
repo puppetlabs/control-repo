@@ -2,7 +2,7 @@
 begin
   require 'rugged'
   require 'socket'
-rescue LoadError => e
+rescue LoadError
   t = Time.new
   puts t.to_i
 else

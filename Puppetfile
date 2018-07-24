@@ -16,3 +16,18 @@ forge "http://forge.puppetlabs.com"
 #  :git    => 'https://github.com/puppetlabs/puppetlabs-apache',
 #  :branch => 'docs_experiment'
 mod 'beersy-pe_code_manager_easy_setup', '2.0.0'
+mod 'tspy-code_deploy', '1.0.2'
+
+# google
+mod 'google-gauth', '0.2.1'
+mod 'google-giam', '0.1.1'
+mod 'google-gresourcemanager', '0.1.1'
+mod 'google-gstorage', '0.2.1'
+mod 'google-gdns', '0.1.1'
+mod 'google-cloud', '0.3.0'
+mod 'google-gsql', '0.3.0'
+mod 'google-gcompute', '0.2.1'
+mod 'google-gcontainer', '0.2.0'
+mod 'google-gpubsub', '0.1.0'
+mod 'google-glogging', '0.1.1'
+mod 'google-gspanner', '0.1.0'

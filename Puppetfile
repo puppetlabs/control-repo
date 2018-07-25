@@ -17,6 +17,7 @@ forge "http://forge.puppetlabs.com"
 #  :branch => 'docs_experiment'
 mod 'beersy-pe_code_manager_easy_setup', '2.0.0'
 mod 'tspy-code_deploy', '1.0.2'
+mod 'puppetlabs-exec', '0.2.0'
 
 # google
 mod 'google-gauth', '0.2.1'

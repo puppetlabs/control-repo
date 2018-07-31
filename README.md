@@ -1,5 +1,3 @@
-Editing the readme
-
 Table of Contents
 =================
 

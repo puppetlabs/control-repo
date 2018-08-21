@@ -13,7 +13,7 @@ This repository provides "batteries-included" starter Puppet content. It shows y
 
 Installation with git
 ```
-git clone https://github.com/puppetlabs/puppet-starter_content.git
+git clone https://github.com/maju6406/control-repo.git
 cd puppet-starter_content
 sudo bash scripts/nc_setup.sh
 sudo /opt/puppetlabs/bin/puppet agent -t
@@ -21,8 +21,8 @@ sudo /opt/puppetlabs/bin/puppet agent -t
 
 Installation with curl
 ```
-curl -sSL https://github.com/puppetlabs/puppet-starter_content/archive/production.tar.gz | tar -zx
-cd puppet-starter_content-production
+curl -sSL https://github.com/puppetlabs/control-repo/archive/production.tar.gz | tar -zx
+cd control-repo-production
 sudo bash scripts/nc_setup.sh
 sudo /opt/puppetlabs/bin/puppet agent -t
 ```

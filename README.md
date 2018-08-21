@@ -21,7 +21,7 @@ sudo /opt/puppetlabs/bin/puppet agent -t
 
 Installation with curl
 ```
-curl -sSL https://github.com/puppetlabs/control-repo/archive/production.tar.gz | tar -zx
+curl -sSL https://github.com/maju6406/control-repo/archive/production.tar.gz | tar -zx
 cd control-repo-production
 sudo bash scripts/nc_setup.sh
 sudo /opt/puppetlabs/bin/puppet agent -t

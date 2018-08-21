@@ -9,6 +9,7 @@
 
 <body>
     <div class="container">
+        <img src="img/LEGO.jpg" alt="Puppet" />    
         <div class="blurb">
           <% if $kernel == 'windows' { -%>
             <img src="img/windows.png" height="128" width="128" />

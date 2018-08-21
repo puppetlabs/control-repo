@@ -3,7 +3,7 @@ class profile::sample_website::windows (
     $doc_root,
     $webserver_port,
 ) {
-  require profile::iis
+  require ::profile::iis
 
   # configure iis
   iis::manage_app_pool {'sample_website':

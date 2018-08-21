@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Sample Website</title>
+    <link rel="stylesheet" type="text/css" href="css/main.css">
+    <link rel="icon" type="image/x-icon" href="img/favicon.ico">
+</head>
+
+<body>
+    <div class="container">
+        <div class="blurb">
+          <% if $kernel == 'windows' { -%>
+            <img src="img/windows.png" height="128" width="128" />
+          <% } elsif $kernel == 'Linux' { -%>
+            <img src="img/tux.png" height="128" width="128" />
+            <% } elsif $kernel == 'Darwin' { -%>
+              <img src="img/apple.png" height="128" width="128" />
+            <% } -%>
+            <h1>System Info </h1>
+            <p>fqdn/certname:
+                <%= $trusted[certname] %>
+            </p>
+            <p>ip address:
+                <%= $networking[ip] %>
+            </p>
+            <p>total system memory:
+                <%= $memory[system][total] %>
+            </p>
+            <p>vm uuid:
+                <%= $trusted[extensions][pp_uuid] %>
+            </p>
+        </div>
+    </div>
+</body>
+
+</html>

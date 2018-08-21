@@ -2,7 +2,7 @@
 version: 5
 
 defaults:
-  datadir: "hieradata"
+  datadir: "data"
 
 hierarchy:
   - name: 'Yaml backend'

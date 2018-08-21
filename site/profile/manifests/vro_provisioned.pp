@@ -3,7 +3,7 @@ class profile::vro_provisioned {
 
   # any operating system-specific state for vro-provisioned machines.
   # it's common to change the Administrator user name on Windows, for example.
-  case $kernel {
+  case $::kernel {
     'Linux': {
       $agent_confdir = '/etc/puppetlabs/puppet'
     }

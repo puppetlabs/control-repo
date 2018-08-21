@@ -1,1 +1,5 @@
 hieradata/nodes/example-puppet-master.yaml
+.DS_Store
+site/.DS_Store
+site/profile/.DS_Store
+site/.DS_Store

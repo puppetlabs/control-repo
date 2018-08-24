@@ -46,7 +46,7 @@ end
 def checkout_puppetfile_repo(puppetfile_branch, module_info)
 
   repo = PuppetfileRepo.new
-  puppetfile_git_repo = "git@github.webapps.rr.com:fylgia/puppetfile.git"
+  puppetfile_git_repo = "git@github.com:maju6406/control-repo.git"
   git_work_dir = File.expand_path(module_info.module_workspace + "/p_file_repo")
   git_dir = git_work_dir + "/.git"
   repo.git_work_dir = git_work_dir

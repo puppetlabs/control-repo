@@ -11,10 +11,9 @@ USAGE = <<-EOS
   <module_name>
     Name of the module to update in the Puppetfile
 
-  <git_ref>
-    The git ref (branch, tag, sha) that we want to set for the module_name in
+  <git_commit>
+    The git commit sha that we want to set for the module_name in
     the Puppetfile.
-    NOTE: production Puppetfile will only have release tags as git refs
 
   <module_workspace>
     The module's workspace where we will clone the puppetfile repo into
@@ -97,7 +96,7 @@ def update_puppetfile_module_ref(puppetfile_repo, module_info)
 
     new_contents = contents.gsub(regex, """
 mod '#{module_info.module_name}'\\2
-  :ref => '#{module_info.module_git_ref}'
+  :commit => '#{module_info.module_git_ref}'
 """.strip)
 
     puts "after regex, file contents = #{new_contents}"

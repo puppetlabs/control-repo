@@ -2,7 +2,7 @@
 
 USAGE = <<-EOS
 --------------------------------------------------------------------------------
-  update_puppetfile <puppetfile_branch> <module_name> <git_ref> <module_workspace>
+  update_puppetfile <puppetfile_branch> <module_name> <git_commit> <module_workspace> <control_repo>
 --------------------------------------------------------------------------------
   <puppetfile_branch>
     Name of the branch to checkout for puppetfile repo (in dynamic environments, this 
@@ -17,6 +17,11 @@ USAGE = <<-EOS
 
   <module_workspace>
     The module's workspace where we will clone the puppetfile repo into
+
+  <control_repo>
+    The control repo containing the Puppetfule
+
+  Ex ./update_puppetfile master puppetlabs-ntp 30b2ac4f33d6f0498ec97a419204ccb943d10115 /tmp
 
 EOS
 
@@ -42,10 +47,10 @@ def get_module_info_from_args(mod_name, mod_git_ref, mod_workspace)
 end
 
 # instantiate and return a PuppetfileRepo object with git info
-def checkout_puppetfile_repo(puppetfile_branch, module_info)
+def checkout_puppetfile_repo(puppetfile_branch, module_info, control_repo)
 
   repo = PuppetfileRepo.new
-  puppetfile_git_repo = "git@github.com:maju6406/control-repo.git"
+  puppetfile_git_repo = control_repo
   git_work_dir = File.expand_path(module_info.module_workspace + "/p_file_repo")
   git_dir = git_work_dir + "/.git"
   repo.git_work_dir = git_work_dir
@@ -140,7 +145,7 @@ def update_puppetfile(args)
   end
 
   begin
-    module_info = get_module_info_from_args(args[1], args[2], args[3])
+    module_info = get_module_info_from_args(args[1], args[2], args[3], args[4])
     puppetfile_repo = checkout_puppetfile_repo(args[0], module_info)
     update_puppetfile_module_ref(puppetfile_repo, module_info)
   end

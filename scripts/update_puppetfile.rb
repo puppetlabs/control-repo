@@ -48,10 +48,10 @@ def get_module_info_from_args(mod_name, mod_git_ref, mod_workspace, mod_control_
 end
 
 # instantiate and return a PuppetfileRepo object with git info
-def checkout_puppetfile_repo(puppetfile_branch, module_info, control_repo)
+def checkout_puppetfile_repo(puppetfile_branch, module_info)
 
   repo = PuppetfileRepo.new
-  puppetfile_git_repo = control_repo
+  puppetfile_git_repo = module_info.module_control_repo
   git_work_dir = File.expand_path(module_info.module_workspace + "/p_file_repo")
   git_dir = git_work_dir + "/.git"
   repo.git_work_dir = git_work_dir

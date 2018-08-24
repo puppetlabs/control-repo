@@ -93,7 +93,7 @@ def update_puppetfile_module_ref(puppetfile_repo, module_info)
   begin
     contents = File.read("#{puppetfile_repo.git_work_dir}/Puppetfile")
     puts "original file contents = #{contents}"
-    regex = /mod (["'])#{module_info.module_name}\1(.*?)[\n]\s*:ref\s*=>\s*(['"])(\w+|\w+\.\d+\.\d+)\3/m
+    regex = /mod (["'])#{module_info.module_name}\1(.*?)[\n]\s*:commit\s*=>\s*(['"])(\w+|\w+\.\d+\.\d+)\3/m
 
     new_contents = contents.gsub(regex, """
 mod '#{module_info.module_name}'\\2

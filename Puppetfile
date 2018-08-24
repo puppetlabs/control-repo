@@ -61,4 +61,4 @@ mod 'autosign_example',
 
 mod 'beersy-win_proxy',
   :git    => 'https://github.com/maju6406/puppet-win_proxy.git',
-  :ref => '898890b1d5b959c64492971d0542f952bae1237b'
+  :commit => '898890b1d5b959c64492971d0542f952bae1237b'

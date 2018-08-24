@@ -58,7 +58,3 @@ mod 'liamjbennett-win_facts', '0.0.2'
 
 mod 'autosign_example',
   :git => 'https://github.com/puppetlabs/puppet-vro-autosign_example'
-
-mod 'beersy-win_proxy',
-  :git    => 'https://github.com/maju6406/puppet-win_proxy.git',
-  :branch => 'master'

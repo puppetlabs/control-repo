@@ -1,0 +1,151 @@
+#!/usr/bin/env ruby
+
+USAGE = <<-EOS
+--------------------------------------------------------------------------------
+  update_puppetfile <puppetfile_branch> <module_name> <git_ref> <module_workspace>
+--------------------------------------------------------------------------------
+  <puppetfile_branch>
+    Name of the branch to checkout for puppetfile repo (in dynamic environments, this 
+    will be the same as the git_ref for the module)
+
+  <module_name>
+    Name of the module to update in the Puppetfile
+
+  <git_ref>
+    The git ref (branch, tag, sha) that we want to set for the module_name in
+    the Puppetfile.
+    NOTE: production Puppetfile will only have release tags as git refs
+
+  <module_workspace>
+    The module's workspace where we will clone the puppetfile repo into
+
+EOS
+
+class PuppetfileRepo
+  attr_accessor :git_work_dir, :git_dir, :git_branch
+
+  def puppetfile_exists?() File.file?("#{git_work_dir}/Puppetfile") end
+
+end
+
+class ModuleInfo
+  attr_accessor :module_name, :module_git_ref, :module_workspace
+end
+
+# instantiate ModuleInfo class with arguments passed in to this script at runtime
+def get_module_info_from_args(mod_name, mod_git_ref, mod_workspace)
+  module_info = ModuleInfo.new
+  module_info.module_name = mod_name
+  module_info.module_git_ref = mod_git_ref
+  module_info.module_workspace = mod_workspace
+  puts "#{module_info.module_git_ref}"
+  return module_info
+end
+
+# instantiate and return a PuppetfileRepo object with git info
+def checkout_puppetfile_repo(puppetfile_branch, module_info)
+
+  repo = PuppetfileRepo.new
+  puppetfile_git_repo = "git@github.webapps.rr.com:fylgia/puppetfile.git"
+  git_work_dir = File.expand_path(module_info.module_workspace + "/p_file_repo")
+  git_dir = git_work_dir + "/.git"
+  repo.git_work_dir = git_work_dir
+  repo.git_dir = git_dir
+  repo.git_branch = puppetfile_branch
+  git_checkout_production_cmd = "git --git-dir=#{git_dir} --work-tree=#{git_work_dir} checkout production"
+  git_checkout_new_branch_cmd = "git --git-dir=#{git_dir} --work-tree=#{git_work_dir} checkout -b #{puppetfile_branch}"
+  git_checkout_existing_branch_cmd = "git --git-dir=#{git_dir} --work-tree=#{git_work_dir} checkout #{puppetfile_branch}"
+  git_clone_cmd = "git clone #{puppetfile_git_repo} #{module_info.module_workspace}/p_file_repo"
+  git_pull_cmd = "git --git-dir=#{git_dir} --work-tree=#{git_work_dir} pull origin #{puppetfile_branch}"
+  git_fetch_cmd = "git --git-dir=#{git_dir} --work-tree=#{git_work_dir} fetch --prune"
+  git_merge_prod_cmd = "git --git-dir=#{git_dir} --work-tree=#{git_work_dir} merge origin/production -X ours --no-edit"
+  # if the puppetfile repo doesn't exist yet, clone it
+  if(!repo.puppetfile_exists?)
+    puts "Puppetfile repo doesn't exist. Cloning it now..."
+    clone_out = `#{git_clone_cmd}`
+    puts "clone output: \n#{clone_out}" 
+  end
+  # see if module's branch name exists in puppetfile repo
+  git_remote_branch_cmd = "git ls-remote --heads #{puppetfile_git_repo} | grep #{puppetfile_branch}"
+  puts "\n#{git_remote_branch_cmd}\n"
+  `#{git_remote_branch_cmd}`
+  if($?.success?) # branch already exists, so check it out
+    `#{git_checkout_production_cmd}`
+    `#{git_fetch_cmd}`
+    puts "The puppetfile repo already has a branch called #{puppetfile_branch}, so checking it out."
+    `#{git_checkout_existing_branch_cmd}`
+    puts "pull to ensure latest"
+    `#{git_pull_cmd}`
+    puts "merge production to get latest production version"
+    `#{git_merge_prod_cmd}`
+  else # branch not found, need to create it and check it out
+    puts "The puppetfile repo does not have a branch called #{puppetfile_branch}, so creating it."
+    `#{git_checkout_production_cmd}`
+    `#{git_checkout_new_branch_cmd}`
+  end
+  return repo
+
+end
+
+# This is how the Puppetfile with our module def gets its git :ref value automatically updated.
+def update_puppetfile_module_ref(puppetfile_repo, module_info)
+
+  begin
+    contents = File.read("#{puppetfile_repo.git_work_dir}/Puppetfile")
+    puts "original file contents = #{contents}"
+    regex = /mod (["'])#{module_info.module_name}\1(.*?)[\n]\s*:ref\s*=>\s*(['"])(\w+|\w+\.\d+\.\d+)\3/m
+
+    new_contents = contents.gsub(regex, """
+mod '#{module_info.module_name}'\\2
+  :ref => '#{module_info.module_git_ref}'
+""".strip)
+
+    puts "after regex, file contents = #{new_contents}"
+    
+    file = File.open("#{puppetfile_repo.git_work_dir}/Puppetfile", "w")
+    file.write(new_contents)
+    file.close()
+    p_file_after_write = `cat #{puppetfile_repo.git_work_dir}/Puppetfile`
+    puts "\npuppetfile after writing: #{p_file_after_write}"
+
+    commit_msg = "changing :ref for #{module_info.module_name} to #{module_info.module_git_ref}"
+    git_commit_cmd = "git --git-dir=#{puppetfile_repo.git_dir} --work-tree=#{puppetfile_repo.git_work_dir}"
+    git_commit_cmd += " add #{puppetfile_repo.git_work_dir}/Puppetfile"
+    git_commit_cmd += " && "
+    git_commit_cmd += "git --git-dir=#{puppetfile_repo.git_dir} --work-tree=#{puppetfile_repo.git_work_dir}"
+    git_commit_cmd += " commit -m \"#{commit_msg}\""
+    git_commit_cmd += " && "
+    git_commit_cmd += "git --git-dir=#{puppetfile_repo.git_dir} --work-tree=#{puppetfile_repo.git_work_dir}"
+    git_commit_cmd += " push origin #{puppetfile_repo.git_branch}"
+    puts "executing git commands:\n#{git_commit_cmd}"
+    puts ""
+    commit_result = `#{git_commit_cmd}`
+    puts "commit results:\n#{commit_result}\n"
+
+    exit(true)
+
+  rescue RuntimeError => e
+    puts "!!! ERROR: " + e.message
+    exit(false)
+  end
+end
+
+def update_puppetfile(args)
+
+  if(args == nil || args[0] == nil)
+    puts USAGE
+    exit(false)
+  elsif (args[0].include?("help"))
+    puts USAGE
+    exit(true)
+  end
+
+  begin
+    module_info = get_module_info_from_args(args[1], args[2], args[3])
+    puppetfile_repo = checkout_puppetfile_repo(args[0], module_info)
+    update_puppetfile_module_ref(puppetfile_repo, module_info)
+  end
+
+end
+
+update_puppetfile(ARGV)

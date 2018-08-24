@@ -33,7 +33,7 @@ class PuppetfileRepo
 end
 
 class ModuleInfo
-  attr_accessor :module_name, :module_git_ref, :module_workspace
+  attr_accessor :module_name, :module_git_ref, :module_workspace, :module_control_repo
 end
 
 # instantiate ModuleInfo class with arguments passed in to this script at runtime
@@ -42,7 +42,7 @@ def get_module_info_from_args(mod_name, mod_git_ref, mod_workspace, mod_control_
   module_info.module_name = mod_name
   module_info.module_git_ref = mod_git_ref
   module_info.module_workspace = mod_workspace
-  module_info.control_repo = mod_control_repo  
+  module_info.module_control_repo = mod_control_repo  
   puts "#{module_info.module_git_ref}"
   return module_info
 end

@@ -2,7 +2,7 @@
 profile::sample_website::windows::webserver_port: 80
 profile::sample_website::windows::doc_root: 'C:\inetpub\wwwroot\sample_website'
 
-profile::sample_website::linux::webserver_port: 80
+profile::sample_website::linux::webserver_port 80
 profile::sample_website::linux::doc_root: '/var/www/sample_website'
 
 profile::sample_data::database_content: 'puppet:///modules/profile/sample_data.sql'

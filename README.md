@@ -1,4 +1,4 @@
-# Puppet Enterprise Starter Content Pack
+# Puppet Enterprise Starter Repo
 
 ## Introduction
 

@@ -23,13 +23,13 @@ class profile::windows_baseline {
     display_name => 'TSE PUPPET DEMO',
     description  => 'Inbound rule example for demo purposes',
   }
-  
+
   # USERS
   user { 'Puppet Demo':
-    ensure   => present,
-    groups   => ['Administrators'],
+    ensure => present,
+    groups => ['Administrators'],
   }
-  
+
   # REG KEYS
   registry_key { 'HKEY_LOCAL_MACHINE\Software\Demonstration':
     ensure       => present,
@@ -40,8 +40,8 @@ class profile::windows_baseline {
     data => 'this is a value new from puppet intro',
   }
   registry_value { 'HKEY_LOCAL_MACHINE\Software\Demonstration\value2':
-    type         => dword,
-    data         => '0xFFFFFFFF',
+    type => dword,
+    data => '0xFFFFFFFF',
   }
 
 }

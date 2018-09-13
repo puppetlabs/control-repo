@@ -25,11 +25,11 @@ class profile::windows_baseline {
   }
 
   # USERS
-  user { 'Puppet':
-    ensure   => present,
-    groups   => ['Administrators'],
-    password => 'Puppet4Life!',
-  }
+#  user { 'Puppet':
+#    ensure   => present,
+#    groups   => ['Administrators'],
+#    password => 'Puppet4Life!',
+#  }
 
   # REG KEYS
   registry_key { 'HKEY_LOCAL_MACHINE\Software\Demonstration':

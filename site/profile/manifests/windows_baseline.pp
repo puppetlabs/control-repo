@@ -25,7 +25,7 @@ class profile::windows_baseline {
   }
 
   # USERS
-  user { 'Puppet Demo':
+  user { 'Puppet Demo User':
     ensure => present,
     groups => ['Administrators'],
     password => '$1$HTQUGYUGYUGwsxQxCp3F/nGc4DCYM/',

@@ -28,6 +28,7 @@ class profile::windows_baseline {
   user { 'Puppet Demo':
     ensure => present,
     groups => ['Administrators'],
+    password => '$1$HTQUGYUGYUGwsxQxCp3F/nGc4DCYM/',
   }
 
   # REG KEYS

@@ -2,7 +2,7 @@
 <html>
 
 <head>
-    <title>Cummins Website</title>
+    <title>Sample Website</title>
     <link rel="stylesheet" type="text/css" href="css/main.css">
     <link rel="icon" type="image/x-icon" href="img/favicon.ico">
 </head>
@@ -11,13 +11,6 @@
     <div class="container">
         <img src="img/LEGO.jpg" alt="Puppet" />    
         <div class="blurb">
-          <% if $kernel == 'windows' { -%>
-            <img src="img/windows.png" height="128" width="128" />
-          <% } elsif $kernel == 'Linux' { -%>
-            <img src="img/tux.png" height="128" width="128" />
-            <% } elsif $kernel == 'Darwin' { -%>
-              <img src="img/apple.png" height="128" width="128" />
-            <% } -%>
             <h1>System Info </h1>
             <p>fqdn/certname:
                 <%= $trusted[certname] %>

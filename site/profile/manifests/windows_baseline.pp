@@ -16,7 +16,7 @@ class profile::windows_baseline {
   windows_firewall::exception { 'TSErule':
     ensure       => present,
     direction    => 'in',
-    action       => 'Allow',
+    action       => 'allow',
     enabled      => 'yes',
     protocol     => 'TCP',
     local_port   => '8080',

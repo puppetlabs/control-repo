@@ -17,9 +17,9 @@ class profile::windows_baseline {
     ensure       => present,
     direction    => 'in',
     action       => 'allow',
-    enabled      => 'yes',
+    enabled      => true,
     protocol     => 'TCP',
-    local_port   => '8080',
+    local_port   => 8080,
     display_name => 'TSE PUPPET DEMO',
     description  => 'Inbound rule example for demo purposes',
   }

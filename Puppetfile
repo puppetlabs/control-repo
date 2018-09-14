@@ -34,7 +34,7 @@ mod 'puppetlabs-bolt_shim', '0.1.1'
 mod 'puppetlabs-reboot', '2.0.0'
 
 mod 'puppet-iis', '2.0.2'
-mod 'puppet-windows_firewall', '1.0.3'
+mod 'puppet-windows_firewall', '2.0.1'
 mod 'puppet-windowsfeature', '2.0.0'
 mod 'puppet-hiera', '2.1.2'
 mod 'puppet-archive', '3.2.0'

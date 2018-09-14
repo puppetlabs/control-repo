@@ -27,8 +27,8 @@ class profile::sample_website::windows (
   windows_firewall::exception { 'IIS':
     ensure       => present,
     direction    => 'in',
-    action       => 'Allow',
-    enabled      => 'yes',
+    action       => 'allow',
+    enabled      => true,
     protocol     => 'TCP',
     local_port   => $webserver_port,
     display_name => 'HTTP Inbound',

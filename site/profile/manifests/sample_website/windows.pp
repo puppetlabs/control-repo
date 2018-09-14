@@ -28,7 +28,7 @@ class profile::sample_website::windows (
     ensure       => present,
     direction    => 'in',
     action       => 'allow',
-    enabled      => 'yes',
+    enabled      => true,
     protocol     => 'TCP',
     local_port   => $webserver_port,
     display_name => 'HTTP Inbound',

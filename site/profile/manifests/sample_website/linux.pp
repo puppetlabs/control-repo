@@ -15,7 +15,7 @@ class profile::sample_website::linux (
     error_documents => [
       { 'error_code' => '404', 'document' => '/404.html' },
       { 'error_code' => '403', 'document' => '/403.html' }
-    ]    
+    ]
   }
 
   firewalld_port { 'Open port for web':

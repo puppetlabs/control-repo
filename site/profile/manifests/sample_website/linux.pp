@@ -8,9 +8,9 @@ class profile::sample_website::linux (
 
   # configure apache
   apache::vhost { $::fqdn:
-    port    => $webserver_port,
-    docroot => $doc_root,
-    require => File[$doc_root],
+    port             => $webserver_port,
+    docroot          => $doc_root,
+    require          => File[$doc_root],
     options          => ['-Indexes'],
     error_documents  => [
       { 'error_code' => '404', 'document' => '/404.html' },

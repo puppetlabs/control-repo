@@ -11,6 +11,11 @@ class profile::sample_website::linux (
     port    => $webserver_port,
     docroot => $doc_root,
     require => File[$doc_root],
+    options          => ['-Indexes'],
+    error_documents  => [
+      { 'error_code' => '404', 'document' => '/404.html' },
+      { 'error_code' => '403', 'document' => '/403.html' }
+    ]    
   }
 
   firewalld_port { 'Open port for web':

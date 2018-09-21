@@ -2,7 +2,7 @@
 class profile::linux_baseline {
 
   include ntp
-  
+
   package { 'unzip':
     ensure => installed,
   }

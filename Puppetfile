@@ -32,6 +32,7 @@ mod 'puppetlabs-mysql', '5.1.0'
 mod 'puppetlabs-gcc', '0.3.0'
 mod 'puppetlabs-bolt_shim', '0.1.1'
 mod 'puppetlabs-reboot', '2.0.0'
+mod 'puppetlabs-ntp', '7.2.0'
 
 mod 'puppet-iis', '2.0.2'
 mod 'puppet-windows_firewall', '2.0.1'

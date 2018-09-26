@@ -4,7 +4,7 @@ class profile::sample_website::linux (
     $webserver_port,
 ) {
   require profile::apache
-  include firewalld
+#  include firewalld
 
   # configure apache
   apache::vhost { $::fqdn:
@@ -18,12 +18,12 @@ class profile::sample_website::linux (
     ]
   }
 
-  firewalld_port { 'Open port for web':
-    ensure   => present,
-    zone     => 'public',
-    port     => $webserver_port,
-    protocol => 'tcp',
-  }
+#  firewalld_port { 'Open port for web':
+#    ensure   => present,
+#    zone     => 'public',
+#    port     => $webserver_port,
+#    protocol => 'tcp',
+#  }
 
   # deploy website
   $website_source_dir  = lookup('website_source_dir')

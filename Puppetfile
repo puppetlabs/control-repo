@@ -14,14 +14,12 @@ forge "https://forgeapi.puppetlabs.com"
 
 mod 'puppetlabs-apache', '3.2.0'
 mod 'puppetlabs-chocolatey', '2.0.0'
-mod 'puppetlabs-mysql', '3.10.0'
 mod 'puppetlabs-powershell', '1.0.6'
 mod 'puppetlabs-registry', '2.0.2'
 mod 'puppetlabs-inifile', '1.6.0'
 mod 'puppetlabs-puppetserver_gem', '0.2.0'
 mod 'puppetlabs-motd', '1.4.0'
 mod 'puppetlabs-java', '2.1.0'
-mod 'puppetlabs-stdlib', '4.25.1'
 mod 'puppetlabs-puppet_agent', '1.4.1'
 mod 'puppetlabs-exec', '0.1.0'
 mod 'puppetlabs-resource', '0.1.0'
@@ -56,8 +54,6 @@ mod 'beersy-hiera_lookup', '0.1.0'
 mod 'crayfishx-firewalld', '3.1.4'
 mod 'reidmv-unzip', '0.1.2'
 mod 'stahnma-epel', '1.3.0'
-mod 'herculesteam-augeasproviders_core', '2.1.3'
-mod 'herculesteam-augeasproviders_ssh', '2.5.0'
 mod 'liamjbennett-win_facts', '0.0.2'
 mod 'maestrodev-maven', '1.4.0'
 mod 'puppetlabs-docker', '1.0.5'
@@ -82,7 +78,7 @@ mod 'yelp-uchiwa', '2.0.0'
 mod 'computology-packagecloud', '0.3.2'
 mod 'herculesteam-augeasproviders_core', '2.1.4'
 mod 'herculesteam-augeasproviders_sysctl', '2.2.0'
-mod 'beersy-pe_code_manager_easy_setup', '2.0.0'
+mod 'herculesteam-augeasproviders_ssh', '2.5.0'
 mod 'tspy-code_deploy', '1.0.2'
 
 # Module Content from git
@@ -104,14 +100,6 @@ mod 'beersy-exports',
   
 mod 'beersy-cert_sign', 
   :git    => 'https://github.com/maju6406/cert_sign.git',
-  :branch => 'master' 
-  
-mod 'beersy-hiera_lookup', 
-  :git    => 'https://github.com/maju6406/hiera_lookup.git',
-  :branch => 'master'   
-  
-mod 'tspy-code_deploy', 
-  :git    => 'https://github.com/maju6406/puppet-code_deploy.git',
   :branch => 'master' 
   
 mod 'beersy-hiera_eyaml_setup', 

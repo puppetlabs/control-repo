@@ -15,8 +15,6 @@ forge "https://forgeapi.puppetlabs.com"
 mod 'puppetlabs-apache', '3.2.0'
 mod 'puppetlabs-chocolatey', '2.0.0'
 mod 'puppetlabs-mysql', '3.10.0'
-mod 'puppetlabs-stdlib', '4.12.0'
-mod 'puppetlabs-concat', '2.2.0'
 mod 'puppetlabs-powershell', '1.0.6'
 mod 'puppetlabs-registry', '2.0.2'
 mod 'puppetlabs-inifile', '1.6.0'
@@ -44,6 +42,13 @@ mod 'puppet-staging', '3.2.0'
 mod 'puppet-nginx', '0.11.0'
 mod 'puppet-rabbitmq', '8.2.2'
 mod 'puppet-rundeck', '5.0.0'
+
+mod 'puppetlabs-cd4pe', :latest
+# Requirements for cd4pe
+mod 'puppetlabs-concat', '4.2.1'
+mod 'puppetlabs-hocon', '1.0.1'
+mod 'puppetlabs-puppet_authorization', '0.4.0'
+mod 'puppetlabs-stdlib', '4.25.1'
 
 # Forge Community Modules
 

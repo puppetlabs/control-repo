@@ -2,12 +2,13 @@
 <html>
 
 <head>
-    <title>Hello World - Hooray!</title>
+    <title>Hello World</title>
     <link rel="stylesheet" type="text/css" href="css/main.css">
     <link rel="icon" type="image/x-icon" href="img/favicon.ico">
 </head>
 
 <body>
+    <p>Hello!</p>
     <div class="container">
         <img src="img/LEGO.jpg" alt="Puppet" />    
         <div class="blurb">
@@ -20,9 +21,6 @@
             </p>
             <p>total system memory:
                 <%= $memory[system][total] %>
-            </p>
-            <p>vm uuid:
-                <%= $trusted[extensions][pp_uuid] %>
             </p>
         </div>
     </div>

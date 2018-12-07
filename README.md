@@ -42,7 +42,7 @@ control-repo/
 ├── LICENSE
 ├── Puppetfile                            # A list of external Puppet modules to deploy with an environment.
 ├── README.md
-├── environment.conf                      # Environment-specific settings. Configures the moduelpath and config_version.
+├── environment.conf                      # Environment-specific settings. Configures the modulepath and config_version.
 └── hiera.yaml                            # Hiera's configuration file. The Hiera hierarchy is defined here.
 ```
 
@@ -113,7 +113,7 @@ To get started with using the control-repo template in your own environment and 
 
 ## Code Manager Setup
 
-If you use Puppet Enterprise and have not yet enabled and configured Code Manager, in addition to reading the official [documentation](https://puppet.com/docs/pe/latest/code_management/code_mgr.html) for enabling it, you may want to look at the Ramp-Up Program's control repository instead of this one. It's similar to this repo except that it has batteries includes, so to speak. There are pre-built profiles for configuring Code Manager, generating SSH keys, and setting up your Git server to work with Code Manager.
+If you use Puppet Enterprise and have not yet enabled and configured Code Manager, in addition to reading the official [documentation](https://puppet.com/docs/pe/latest/code_management/code_mgr.html) for enabling it, you may want to look at the Ramp-Up Program's control repository instead of this one. It's similar to this repo except that it has batteries included, so to speak. There are pre-built profiles for configuring Code Manager, generating SSH keys, and setting up your Git server to work with Code Manager.
 
 * <https://github.com/Puppet-RampUpProgram/control-repo>
 

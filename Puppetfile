@@ -12,7 +12,7 @@ forge "https://forgeapi.puppetlabs.com"
 
 # Forge Modules from Puppet
 
-mod 'puppetlabs-apache', '3.2.0'
+mod 'puppetlabs-apache', '3.5.0'
 mod 'puppetlabs-chocolatey', '2.0.0'
 mod 'puppetlabs-powershell', '1.0.6'
 mod 'puppetlabs-registry', '2.0.2'
@@ -30,7 +30,7 @@ mod 'puppetlabs-bolt_shim', '0.1.1'
 mod 'puppetlabs-reboot', '2.0.0'
 mod 'puppetlabs-ntp', '7.2.0'
 mod 'puppetlabs-tagmail', '2.5.0'
-
+mod 'puppetlabs-firewall', '1.14.0'
 mod 'puppet-iis', '2.0.2'
 mod 'puppet-windows_firewall', '2.0.1'
 mod 'puppet-windowsfeature', '2.0.0'

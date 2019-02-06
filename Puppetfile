@@ -42,7 +42,7 @@ mod 'puppet-nginx', '0.11.0'
 mod 'puppet-rabbitmq', '8.2.2'
 mod 'puppet-rundeck', '5.0.0'
 
-mod 'puppetlabs-cd4pe', :latest
+mod 'puppetlabs-cd4pe', '1.1.0'
 # Requirements for cd4pe
 mod 'puppetlabs-concat', '4.2.1'
 mod 'puppetlabs-hocon', '1.0.1'

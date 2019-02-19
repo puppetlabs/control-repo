@@ -33,6 +33,8 @@ mod 'puppetlabs-tagmail', '2.5.0'
 mod 'puppetlabs-firewall', '1.14.0'
 #mod 'puppet-iis', '2.0.2'
 mod 'puppetlabs-iis', '4.5.0'
+mod 'puppetlabs-bolt_shim', '0.3.0'
+
 mod 'puppet-windows_firewall', '2.0.1'
 mod 'puppet-windowsfeature', '2.0.0'
 mod 'puppet-hiera', '2.1.2'

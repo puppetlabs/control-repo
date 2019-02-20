@@ -13,8 +13,4 @@ class profile::iis {
     ensure => present,
   }
 
-  iis::manage_site { 'Default Web Site':
-    ensure => absent,
-  }
-
 }

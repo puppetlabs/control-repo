@@ -14,7 +14,7 @@ forge "https://forgeapi.puppetlabs.com"
 
 mod 'puppetlabs-apache', '3.5.0'
 mod 'puppetlabs-chocolatey', '2.0.0'
-mod 'puppetlabs-powershell', '1.0.6'
+mod 'puppetlabs-powershell', '2.2.0'
 mod 'puppetlabs-registry', '2.0.2'
 mod 'puppetlabs-inifile', '1.6.0'
 mod 'puppetlabs-puppetserver_gem', '0.2.0'

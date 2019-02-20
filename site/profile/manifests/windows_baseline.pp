@@ -72,8 +72,6 @@ class profile::windows_baseline {
       timeout   => 0,
     }
 
-  }
-
   registry::value { 'enable insecure winrm':
     key    => 'HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\WinRM\Service',
     value  => 'AllowUnencryptedTraffic',

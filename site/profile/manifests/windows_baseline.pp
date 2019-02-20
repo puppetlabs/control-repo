@@ -45,9 +45,6 @@ class profile::windows_baseline {
     data => '0xFFFFFFFF',
   }
   
-    #if Puppet::Util::Package.versioncmp($::powershell_version, '5.1.0') <= 0 {
-    #notify{"version was less than":}
-
     # service needs to be running to install the update
     service { 'wuauserv':
       ensure => 'running',

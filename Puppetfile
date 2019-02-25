@@ -35,7 +35,7 @@ mod 'puppetlabs-iis', '4.5.0'
 mod 'puppetlabs-bolt_shim', '0.3.0'
 
 mod 'puppet-windows_firewall', '2.0.1'
-mod 'puppet-windowsfeature', '2.0.0'
+mod 'puppet-windowsfeature', '3.2.2'
 mod 'puppet-hiera', '2.1.2'
 mod 'puppet-archive', '3.2.0'
 #mod 'puppet-staging', '3.2.0'

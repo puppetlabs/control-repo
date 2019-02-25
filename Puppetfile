@@ -12,7 +12,7 @@ forge "https://forgeapi.puppetlabs.com"
 
 # Forge Modules from Puppet
 
-mod 'puppetlabs-apache', '4.0.0'
+mod 'puppetlabs-apache', '3.5.0'
 mod 'puppetlabs-chocolatey', '2.0.0'
 mod 'puppetlabs-powershell', '2.2.0'
 mod 'puppetlabs-registry', '2.0.2'

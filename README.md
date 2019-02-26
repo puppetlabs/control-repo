@@ -19,9 +19,9 @@ The important files and items in this template are as follows:
 * An example Hiera configuration file and data directory with pre-created common.yaml and nodes directory.
   * These match the default hierarchy that ships with PE.
 * An [environment.conf](https://puppet.com/docs/puppet/5.3/config_file_environment.html) that correctly implements:
-  * A site directory for roles, profiles, and any custom modules for your organization.
-  * A config_version script.
-* An example [config_version](https://puppet.com/docs/puppet/5.3/config_file_environment.html#configversion) script that outputs the git commit ID of the code that was used during a Puppet run.
+  * A site-modules directory for roles, profiles, and any custom modules for your organization.
+  * A config\_version script.
+* An example [config\_version](https://puppet.com/docs/puppet/5.3/config_file_environment.html#configversion) script that outputs the git commit ID of the code that was used during a Puppet run.
 
 Here's a visual representation of the structure of this repository:
 
@@ -36,7 +36,7 @@ control-repo/
 │   ├── code_manager_config_version.rb    # A config_version script for Code Manager.
 │   ├── config_version.rb                 # A config_version script for r10k.
 │   └── config_version.sh                 # A wrapper that chooses the appropriate config_version script.
-├── site/                                 # This directory contains site-specific modules and is added to $modulepath.
+├── site-modules/                         # This directory contains site-specific modules and is added to $modulepath.
 │   ├── profile/                          # The profile module.
 │   └── role/                             # The role module.
 ├── LICENSE

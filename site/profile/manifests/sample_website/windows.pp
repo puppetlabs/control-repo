@@ -9,7 +9,6 @@ class profile::sample_website::windows (
   iis::manage_app_pool {'sample_website':
     require => [
       Windowsfeature[$profile::iis::iis_features],
-      Iis::Manage_site['Default Web Site'],
     ],
   }
 

@@ -93,7 +93,7 @@ mod 'beersy-win_proxy',
 
 mod 'beersy-pql_query', 
   :git    => 'https://github.com/maju6406/pql_query.git',
-  :branch => 'reporter'
+  :branch => 'master'
 
 mod 'beersy-exports', 
   :git    => 'https://github.com/maju6406/exports.git',

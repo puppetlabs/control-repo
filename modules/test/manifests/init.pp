@@ -1,5 +1,5 @@
 class test (
 
 ) {
-  notify { 'HELLO WORLD'}
+  notify { 'HELLO WORLD':}
 }

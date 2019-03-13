@@ -6,21 +6,24 @@ class profile::sample_website::windows (
   require ::profile::iis
 
   # configure iis
-  iis::manage_app_pool {'sample_website':
-    require => [
-      Windowsfeature[$profile::iis::iis_features],
-    ],
+  iis_application_pool { 'sample_website':
+    ensure                  => 'present',
+    state                   => 'started',
+    managed_pipeline_mode   => 'Integrated',
+    managed_runtime_version => 'v4.0',
   }
 
-  iis::manage_site { $::fqdn:
-    site_path  => $doc_root,
-    port       => $webserver_port,
-    ip_address => '*',
-    app_pool   => 'sample_website',
-    require    => [
-      Windowsfeature[$profile::iis::iis_features],
-      Iis::Manage_app_pool['sample_website']
+  iis_site { $::fqdn:
+    ensure          => 'started',
+    physicalpath    => $doc_root,
+    applicationpool => 'sample_website',
+    bindings        => [
+      {
+        'bindinginformation' => '*:80:',
+        'protocol'           => 'http',
+      },
     ],
+    require         => File[$website_source_dir],
   }
 
   windows_firewall::exception { 'IIS':

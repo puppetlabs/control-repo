@@ -13,4 +13,9 @@ class profile::iis {
     ensure => present,
   }
 
+  # Delete the default website to prevent a port binding conflict.
+  iis_site {'Default Web Site':
+    ensure  => absent,
+    require => Iis_feature['Web-WebServer'],
+  }
 }

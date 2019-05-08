@@ -2,9 +2,10 @@ class test (
 
 ) {
 
-  class { 'test':
-    message => 1
-  }
+  info('Hello')
+  #class { 'test':
+    #message => 1
+  #}
   #fail('Hello world')
 
 

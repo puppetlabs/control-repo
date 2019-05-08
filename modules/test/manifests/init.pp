@@ -1,7 +1,7 @@
 class test (
 
 ) {
-  include something,
+  include something
   #fail('Hello world')
 
 

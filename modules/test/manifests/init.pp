@@ -2,7 +2,7 @@ class test (
 
 ) {
 
-  info('Hello')
+  info(facter['hostname'])
   #class { 'test':
     #message => 1
   #}

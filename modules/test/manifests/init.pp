@@ -1,7 +1,7 @@
 class test (
 
 ) {
-  include something
+  include test::test
   #fail('Hello world')
 
 

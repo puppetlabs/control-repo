@@ -1,8 +1,8 @@
 class test (
-
+  String $hostname = $facts['hostname'],
 ) {
 
-  info(fact['hostname'])
+  info($hostname)
   #class { 'test':
     #message => 1
   #}

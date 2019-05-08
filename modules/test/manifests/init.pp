@@ -2,7 +2,7 @@ class test (
 
 ) {
 
-  class { 'test::test':
+  class { '::test':
     message => 1
   }
   #fail('Hello world')

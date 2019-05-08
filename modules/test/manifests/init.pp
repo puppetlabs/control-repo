@@ -1,7 +1,10 @@
 class test (
 
 ) {
-  include test::test
+
+  class { 'test::test':
+    message => 'Hello'
+  }
   #fail('Hello world')
 
 

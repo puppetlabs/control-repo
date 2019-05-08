@@ -3,7 +3,7 @@ class test (
 ) {
 
   class { 'test::test':
-    message => 'Hello'
+    message => 1
   }
   #fail('Hello world')
 

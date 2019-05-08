@@ -1,5 +1,7 @@
 class test (
 
 ) {
-  notify { 'HELLO WORLD':}
+  fail { 'HELLO WORLD':}
+
+
 }

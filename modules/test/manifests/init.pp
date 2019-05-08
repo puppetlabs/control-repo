@@ -1,7 +1,7 @@
 class test (
 
 ) {
-  fail { 'HELLO WORLD':}
+  fail('Hello world')
 
 
 }

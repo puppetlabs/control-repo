@@ -16,6 +16,7 @@ mod 'puppetlabs-apt',                  '6.2.1'
 mod 'puppetlabs-translate',            '1.1.0'
 mod 'puppetlabs-sqlserver',            '2.5.0'
 mod 'puppetlabs-chocolatey',           '3.3.0'
+mod 'puppetlabs-dsc',                  '1.9.2'
 
 # Modules from Git
 # Examples: https://github.com/puppetlabs/r10k/blob/master/doc/puppetfile.mkd#examples

@@ -17,6 +17,7 @@ mod 'puppetlabs-translate',            '1.1.0'
 mod 'puppetlabs-sqlserver',            '2.5.0'
 mod 'puppetlabs-chocolatey',           '3.3.0'
 mod 'puppetlabs-dsc',                  '1.9.2'
+mod 'puppetlabs-iis', '4.5.1'
 
 # Modules from Git
 # Examples: https://github.com/puppetlabs/r10k/blob/master/doc/puppetfile.mkd#examples

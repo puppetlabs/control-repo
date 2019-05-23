@@ -12,6 +12,11 @@ class iis_demo::iis (
 
   include chocolatey
 
+  package { 'powershell':
+    ensure   => installed,
+    provider => chocolatey,
+  }
+
   dsc_windowsfeature { 'IIS':
     dsc_ensure => 'present',
     dsc_name   => 'Web-Server',

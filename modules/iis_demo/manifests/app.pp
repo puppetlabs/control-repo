@@ -17,6 +17,7 @@ class iis_demo::app (
   String $message                  = '23/05/2019',
 ) {
 
+  include iis_demo::iis_prereqs
   include iis_demo::iis
 
   ############################################################################

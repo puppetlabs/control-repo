@@ -81,7 +81,10 @@ class iis_demo::app (
         'digest'                      => false,
         'clientCertificateMapping'    => false
       },
-      bindings             => '443',
+      bindings             => {
+        'bindinginformation' => '*:80:',
+        'protocol'           => 'http',
+      },
       enabledprotocols     => 'https',
       limits               => {
         'maxconnections'    => 4294967295,

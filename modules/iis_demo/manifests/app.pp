@@ -63,7 +63,7 @@ class iis_demo::app (
     startup_time_limit                 => '00:01:30',
     state                              => 'started',
     user_name                          => $service_account_username,
-    require                            => Class['iis::iis'],
+    require                            => Class['iis_demo::iis'],
   }
   ############################################################################
   # Create IIS sites                                                         #

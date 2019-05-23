@@ -14,6 +14,7 @@ class iis_demo::app (
   String $iis_webapp_name          = 'TestWebSite',
   String $path                     = 'C:\\inetpub\\wwwroot\\Test',
   String $logpath                  = 'C:\\inetpub\\logs\\Test',
+  String $message                  = '23/05/2019',
 ) {
 
   include iis_demo::iis
@@ -109,7 +110,7 @@ class iis_demo::app (
 
   file { "${path}\\Website\\index.html":
     ensure  => file,
-    content => template('iis/index.html.erb'),
+    content => template('iis_demo/index.html.erb'),
   }
 
   iis_application { "${iis_site_name}\\${iis_webapp_name}":

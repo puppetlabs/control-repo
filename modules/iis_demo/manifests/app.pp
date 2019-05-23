@@ -73,7 +73,7 @@ class iis_demo::app (
     ensure  => directory,
   }
 
-  if !defined(Iis_site[$iis_site_name]) {
+  #if !defined(Iis_site[$iis_site_name]) {
     iis_site { $iis_site_name:
       ensure               => 'started',
       applicationpool      => $app_pool_name,
@@ -103,7 +103,7 @@ class iis_demo::app (
       physicalpath         => $path,
       preloadenabled       => 'false',
     }
-  }
+  #}
 
   exec { "Start iis_site ${iis_site_name}":
     command  => "Start-Website ${iis_site_name}",

@@ -82,7 +82,7 @@ class iis_demo::app (
         'clientCertificateMapping'    => false
       },
       bindings             => {
-        'bindinginformation' => '*:80:',
+        'bindinginformation' => '*:81:',
         'protocol'           => 'http',
       },
       enabledprotocols     => 'https',

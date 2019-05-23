@@ -13,17 +13,17 @@ class iis_demo::uninstall_iis (
 
 ) {
 
-  iis_application { "${iis_site_name}\\${iis_webapp_name}":
-    ensure => 'absent',
-  }
+  #iis_application { "${iis_site_name}\\${iis_webapp_name}":
+    #ensure => 'absent',
+  #}
 
-  iis_site { $iis_site_name:
-    ensure => 'absent',
-  }
+  #iis_site { $iis_site_name:
+    #ensure => 'absent',
+  #}
 
-  iis_application_pool { $app_pool_name:
-    ensure => 'absent',
-  }
+  #iis_application_pool { $app_pool_name:
+    #ensure => 'absent',
+  #}
 
   dsc_windowsfeature { 'IIS':
     dsc_ensure => 'absent',

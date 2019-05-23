@@ -17,10 +17,10 @@ class sqlserver_install::sqlserver (
 
   include chocolatey
 
-  reboot { 'reboot_powershell':
-    when    => pending,
-    timeout => 15,
-  }
+  #reboot { 'reboot_powershell':
+    #when    => pending,
+    #timeout => 15,
+  #}
 
   package { 'dotnet4.5':
     ensure   => latest,
@@ -31,7 +31,7 @@ class sqlserver_install::sqlserver (
     ensure   => installed,
     provider => 'chocolatey',
     require  => Package['dotnet4.5'],
-    notify   => Reboot['reboot_powershell'],
+    #notify   => Reboot['reboot_powershell'],
   }
 
   package { 'sql2014-powershell':

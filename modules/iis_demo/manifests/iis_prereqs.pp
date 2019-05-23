@@ -10,7 +10,7 @@ class iis_demo::iis_prereqs (
 ) {
 
   include chocolatey
-  include iis_demo::iis
+  #include iis_demo::iis
 
   dsc_windowsfeature { '.NET Framework 4.5':
     dsc_ensure => 'present',

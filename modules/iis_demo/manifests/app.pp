@@ -111,6 +111,14 @@ class iis_demo::app (
   # Create application                                                       #
   ############################################################################
 
+  file { $path:
+    ensure  => directory,
+  }
+
+  file { "${path}\\Website":
+    ensure  => directory,
+  }
+
   file { "${path}\\Website\\index.html":
     ensure  => file,
     content => template('iis_demo/index.html.erb'),

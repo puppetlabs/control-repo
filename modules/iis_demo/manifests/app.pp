@@ -138,6 +138,7 @@ class iis_demo::app (
     enabledprotocols   => 'http',
     physicalpath       => "${path}\\${iis_webapp_name}",
     sitename           => $iis_site_name,
+    require            => Iis_site[$iis_site_name],
   }
 
 }

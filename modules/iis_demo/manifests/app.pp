@@ -69,6 +69,10 @@ class iis_demo::app (
   # Create IIS sites                                                         #
   ############################################################################
 
+  file { $path:
+    ensure  => directory,
+  }
+
   if !defined(Iis_site[$iis_site_name]) {
     iis_site { $iis_site_name:
       ensure               => 'started',
@@ -110,10 +114,6 @@ class iis_demo::app (
   ############################################################################
   # Create application                                                       #
   ############################################################################
-
-  file { $path:
-    ensure  => directory,
-  }
 
   file { "${path}\\Website":
     ensure  => directory,

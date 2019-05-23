@@ -6,7 +6,7 @@
 # Date:        April 2018
 ###
 
-define iis (
+define iis_demo (
   String[1] $app_pool_name            = 'TestAppPool',
   String[1] $service_account_password = undef,
   String[1] $service_account_username = undef,
@@ -15,10 +15,9 @@ define iis (
   String[1] $path                     = 'C:\\inetpub\\wwwroot\\Test',
   String[1] $logpath                  = 'C:\\inetpub\\logs\\Test',
 
-
 ) {
 
-  include iis::iis
+  include iis_demo::iis
 
   ############################################################################
   # Create application pool and applicationpool                              #

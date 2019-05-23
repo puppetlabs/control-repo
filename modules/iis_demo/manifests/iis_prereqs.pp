@@ -6,11 +6,11 @@
 # Date:        April 2018
 ###
 
-class iis::iis_prereqs (
+class iis_demo::iis_prereqs (
 ) {
 
   include chocolatey
-  include iis::iis
+  include iis_demo::iis
 
   dsc_windowsfeature { '.NET Framework 4.5':
     dsc_ensure => 'present',

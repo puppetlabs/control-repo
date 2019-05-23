@@ -19,7 +19,7 @@ class sqlserver_install (
     sqlserversysadminaccounts => $sqlserversysadminaccounts,
     sqlserveradminaccount     => $sqlserveradminaccount,
     sqlserveradminpassword    => $sqlserveradminpassword,
-    sqlserverdbname           => $sqlserverdbname,
+    #sqlserverdbname           => $sqlserverdbname,
   }
 
   #-> class { 'sqlserver_install::centraladministrationdbsetup':

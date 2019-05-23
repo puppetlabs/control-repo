@@ -131,4 +131,8 @@ class iis_demo::iis_prereqs (
     notify     => Reboot['reboot_iis'],
   }
 
+  reboot { 'reboot_iis':
+    when    => refreshed,
+    timeout => 15,
+  }
 }

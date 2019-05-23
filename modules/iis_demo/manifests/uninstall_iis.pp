@@ -17,16 +17,15 @@ class iis_demo::uninstall_iis (
     notify     => Reboot['dsc_reboot'],
   }
 
+  reboot { 'dsc_reboot':
+    when    => refreshed,
+    timeout => 10,
+  }
+
   file { 'C:\\inetpub':
     ensure  => directory,
     recurse => true,
     purge   => true,
     force   => true,
   }
-
-  reboot { 'dsc_reboot':
-    when    => refreshed,
-    timeout => 15,
-  }
-
 }

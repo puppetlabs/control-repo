@@ -103,12 +103,12 @@ class iis_demo::iis (
     notify     => Reboot['reboot_iis'],
   }
 #############################################################################
-  #dsc_windowsfeature { '.NET Framework 4.5':
-    #dsc_ensure => 'present',
-    #dsc_name   => 'AS-NET-Framework',
-    #require    => Package['powershell'],
-    #notify     => Reboot['reboot_iis'],
-  #}
+  dsc_windowsfeature { '.NET Framework 4.5':
+    dsc_ensure => 'present',
+    dsc_name   => 'AS-NET-Framework',
+    require    => Package['powershell'],
+    notify     => Reboot['reboot_iis'],
+  }
 
   dsc_windowsfeature { 'Web Server (IIS) Support':
     dsc_ensure => 'present',

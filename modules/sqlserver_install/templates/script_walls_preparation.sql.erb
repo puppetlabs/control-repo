@@ -1,0 +1,3898 @@
+USE [master]
+GO
+/****** Object:  Database [<%=@sqlserverdbname%>]    Script Date: 2/6/2018 1:34:16 PM ******/
+--CREATE DATABASE [<%=@sqlserverdbname%>]
+-- CONTAINMENT = NONE
+-- ON  PRIMARY
+--( NAME = N'WALLSstgSit', FILENAME = N'C:\Program Files\Microsoft SQL Server\MSSQL12.MSSQLSERVER\MSSQL\DATA\<%=@sqlserverdbname%>.mdf' , SIZE = 6336KB , MAXSIZE = UNLIMITED, FILEGROWTH = 1024KB )
+-- LOG ON
+--( NAME = N'WALLSstgSit_log', FILENAME = N'C:\Program Files\Microsoft SQL Server\MSSQL12.MSSQLSERVER\MSSQL\DATA\<%=@sqlserverdbname%>_log.ldf' , SIZE = 3520KB , MAXSIZE = 2048GB , FILEGROWTH = 10%)
+--GO
+ALTER DATABASE [<%=@sqlserverdbname%>] SET COMPATIBILITY_LEVEL = 100
+GO
+IF (1 = FULLTEXTSERVICEPROPERTY('IsFullTextInstalled'))
+begin
+EXEC [<%=@sqlserverdbname%>].[dbo].[sp_fulltext_database] @action = 'enable'
+end
+GO
+ALTER DATABASE [<%=@sqlserverdbname%>] SET ANSI_NULL_DEFAULT OFF
+GO
+ALTER DATABASE [<%=@sqlserverdbname%>] SET ANSI_NULLS OFF
+GO
+ALTER DATABASE [<%=@sqlserverdbname%>] SET ANSI_PADDING OFF
+GO
+ALTER DATABASE [<%=@sqlserverdbname%>] SET ANSI_WARNINGS OFF
+GO
+ALTER DATABASE [<%=@sqlserverdbname%>] SET ARITHABORT OFF
+GO
+ALTER DATABASE [<%=@sqlserverdbname%>] SET AUTO_CLOSE OFF
+GO
+ALTER DATABASE [<%=@sqlserverdbname%>] SET AUTO_SHRINK OFF
+GO
+ALTER DATABASE [<%=@sqlserverdbname%>] SET AUTO_UPDATE_STATISTICS ON
+GO
+ALTER DATABASE [<%=@sqlserverdbname%>] SET CURSOR_CLOSE_ON_COMMIT OFF
+GO
+ALTER DATABASE [<%=@sqlserverdbname%>] SET CURSOR_DEFAULT  GLOBAL
+GO
+ALTER DATABASE [<%=@sqlserverdbname%>] SET CONCAT_NULL_YIELDS_NULL OFF
+GO
+ALTER DATABASE [<%=@sqlserverdbname%>] SET NUMERIC_ROUNDABORT OFF
+GO
+ALTER DATABASE [<%=@sqlserverdbname%>] SET QUOTED_IDENTIFIER OFF
+GO
+ALTER DATABASE [<%=@sqlserverdbname%>] SET RECURSIVE_TRIGGERS OFF
+GO
+ALTER DATABASE [<%=@sqlserverdbname%>] SET  ENABLE_BROKER
+GO
+ALTER DATABASE [<%=@sqlserverdbname%>] SET AUTO_UPDATE_STATISTICS_ASYNC OFF
+GO
+ALTER DATABASE [<%=@sqlserverdbname%>] SET DATE_CORRELATION_OPTIMIZATION OFF
+GO
+ALTER DATABASE [<%=@sqlserverdbname%>] SET TRUSTWORTHY OFF
+GO
+ALTER DATABASE [<%=@sqlserverdbname%>] SET ALLOW_SNAPSHOT_ISOLATION OFF
+GO
+ALTER DATABASE [<%=@sqlserverdbname%>] SET PARAMETERIZATION SIMPLE
+GO
+ALTER DATABASE [<%=@sqlserverdbname%>] SET READ_COMMITTED_SNAPSHOT OFF
+GO
+ALTER DATABASE [<%=@sqlserverdbname%>] SET HONOR_BROKER_PRIORITY OFF
+GO
+ALTER DATABASE [<%=@sqlserverdbname%>] SET RECOVERY FULL
+GO
+ALTER DATABASE [<%=@sqlserverdbname%>] SET  MULTI_USER
+GO
+ALTER DATABASE [<%=@sqlserverdbname%>] SET PAGE_VERIFY CHECKSUM
+GO
+ALTER DATABASE [<%=@sqlserverdbname%>] SET DB_CHAINING OFF
+GO
+ALTER DATABASE [<%=@sqlserverdbname%>] SET FILESTREAM( NON_TRANSACTED_ACCESS = OFF )
+GO
+ALTER DATABASE [<%=@sqlserverdbname%>] SET TARGET_RECOVERY_TIME = 0 SECONDS
+GO
+ALTER DATABASE [<%=@sqlserverdbname%>] SET DELAYED_DURABILITY = DISABLED
+GO
+EXEC sys.sp_db_vardecimal_storage_format N'<%=@sqlserverdbname%>', N'ON'
+GO
+USE [<%=@sqlserverdbname%>]
+GO
+/****** Object:  FullTextCatalog [WallsFTSCatalog]    Script Date: 2/6/2018 1:34:16 PM ******/
+CREATE FULLTEXT CATALOG [WallsFTSCatalog] WITH ACCENT_SENSITIVITY = ON
+GO
+/****** Object:  UserDefinedFunction [dbo].[LogSearch]    Script Date: 2/6/2018 1:34:16 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+CREATE FUNCTION [dbo].[LogSearch]
+	  (@column NVARCHAR(4000), @searchText NVARCHAR(4000))
+RETURNS @tbl TABLE (ErrorLogId int NOT NULL) AS
+  BEGIN
+    IF (@column = 'LogException')
+      BEGIN
+        INSERT INTO @tbl SELECT [ErrorLogId]
+			FROM ErrorLog WHERE CONTAINS(ErrorLog.LogException, @searchText)
+      END
+    ELSE IF (@column = 'LogMessage')
+      BEGIN
+        INSERT INTO @tbl SELECT [ErrorLogId]
+			FROM ErrorLog WHERE CONTAINS(ErrorLog.LogMessage, @searchText)
+      END
+    ELSE
+      BEGIN
+        INSERT INTO @tbl SELECT [ErrorLogId]
+			FROM ErrorLog WHERE CONTAINS(ErrorLog.*, @searchText)
+      END
+    RETURN
+  END
+GO
+/****** Object:  UserDefinedFunction [dbo].[SplitUdf]    Script Date: 2/6/2018 1:34:16 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+-- =============================================
+-- Description:	Splits the @sourceString by the delimiter (currently char(13) + char(10))
+-- Parameter:	@sourceString - The input string to split
+-- Parameter:	@udfIsDate - Indicates, whether the @sourceString is of date type. This causes an additional check.
+-- Returns:	DataTable with values
+-- =============================================
+CREATE FUNCTION [dbo].[SplitUdf] (@sourceString nvarchar(200), @udfIsDate bit)
+RETURNS @tbl TABLE (Value nvarchar(200) NULL) AS
+BEGIN
+    DECLARE @pos			int,
+            @nextpos		int,
+            @valuelen		int,
+            @delimiterlen	int,
+            @offset			int,
+            @delimiter      nchar(2),
+            @value          nvarchar(50)
+
+    SELECT	@pos = 0,
+            @nextpos = 1,
+            @delimiter = char(13) + char(10), -- the current multi-valued UDF delimiter
+            @delimiterlen = 2 -- the length of the current delimiter
+
+    SELECT @value = LTRIM(RTRIM(@sourceString))
+    -- if the source string contains the delimiter, split the string
+    IF (@sourceString LIKE '%' + @delimiter + '%')
+    BEGIN
+        WHILE @nextpos > 0
+        BEGIN
+            SELECT @offset = CASE WHEN @pos > 0 THEN @delimiterlen ELSE 1 END
+            SELECT @nextpos = CHARINDEX(@delimiter, @sourceString, @pos + 1)
+            SELECT @valuelen = CASE WHEN @nextpos > 0 THEN @nextpos ELSE LEN(@sourceString) + 1 END - @pos - @offset
+            SELECT @value = LTRIM(RTRIM(SUBSTRING(@sourceString, @pos + @offset, @valuelen)))
+            IF (LEN(@value) > 0)
+            BEGIN
+                -- if UDF is of date type, check, whether @value is date
+                IF (@udfIsDate > 0)
+                BEGIN
+                    IF (ISDATE(@value) > 0)
+                    BEGIN
+                        INSERT INTO @tbl (Value) VALUES (@value)
+                    END
+                END
+                ELSE
+                    INSERT INTO @tbl (Value) VALUES (@value)
+            END
+            SELECT @pos = @nextpos
+        END
+        RETURN
+    END
+    -- if the source string does not contain the delimiter, just return it
+    ELSE IF (LEN(@value) > 0)
+    BEGIN
+        -- if UDF is of date type, check, whether @value is date
+        IF (@udfIsDate > 0)
+        BEGIN
+            IF (ISDATE(@value) > 0)
+            BEGIN
+                INSERT INTO @tbl (Value) VALUES (@value)
+            END
+        END
+        ELSE
+            INSERT INTO @tbl (Value) VALUES (@value)
+    END
+    RETURN
+END
+GO
+/****** Object:  Table [dbo].[AccessHistory]    Script Date: 2/6/2018 1:34:16 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[AccessHistory](
+	[AccessHistoryId] [int] IDENTITY(1,1) NOT NULL,
+	[WallId] [int] NOT NULL,
+	[WallSideId] [int] NOT NULL,
+	[UserEntityId] [int] NULL,
+	[ActivityType] [nvarchar](10) NOT NULL,
+	[IsPending] [bit] NOT NULL,
+ CONSTRAINT [PK_AccessHistory] PRIMARY KEY CLUSTERED
+(
+	[AccessHistoryId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[Activities]    Script Date: 2/6/2018 1:34:16 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[Activities](
+	[ActivityId] [int] IDENTITY(1,1) NOT NULL,
+	[RepositoryTypeId] [int] NOT NULL,
+	[ActivityName] [nvarchar](255) NOT NULL,
+	[ActivityRemoteLabel] [nvarchar](255) NOT NULL,
+	[ActivityCategoryId] [int] NOT NULL,
+ CONSTRAINT [PK_Activities] PRIMARY KEY CLUSTERED
+(
+	[ActivityId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[ActivityCategories]    Script Date: 2/6/2018 1:34:16 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[ActivityCategories](
+	[ActivityCategoryId] [int] IDENTITY(1,1) NOT NULL,
+	[ActivityCategoryName] [nvarchar](255) NOT NULL,
+ CONSTRAINT [PK_ActivityCategories] PRIMARY KEY CLUSTERED
+(
+	[ActivityCategoryId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[AlertDetails]    Script Date: 2/6/2018 1:34:16 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[AlertDetails](
+	[AlertDetailId] [int] IDENTITY(1,1) NOT NULL,
+	[AlertId] [int] NOT NULL,
+	[ActivityRemoteLabel] [nvarchar](255) NULL,
+	[ActivityName] [nvarchar](255) NOT NULL,
+	[RepositoryRemoteLabel] [nvarchar](255) NOT NULL,
+	[RepositoryName] [nvarchar](255) NOT NULL,
+	[RemoteObjectId] [nvarchar](100) NULL,
+	[RemoteObjectName] [nvarchar](255) NULL,
+	[RemoteObjectType] [nvarchar](255) NULL,
+	[RemoteObjectOwner] [nvarchar](255) NULL,
+	[ClientName] [nvarchar](255) NULL,
+	[MatterName] [nvarchar](255) NULL,
+	[EventTime] [datetime] NOT NULL,
+	[Custom1] [nvarchar](255) NULL,
+	[Custom2] [nvarchar](255) NULL,
+	[Custom3] [nvarchar](255) NULL,
+	[Custom4] [nvarchar](255) NULL,
+	[Custom5] [nvarchar](255) NULL,
+	[Created] [datetime] NOT NULL,
+	[RemoteObjectVersion] [nvarchar](10) NULL,
+	[ClientId] [nvarchar](100) NULL,
+	[MatterId] [nvarchar](100) NULL,
+ CONSTRAINT [PK_TrackerAlertDetails] PRIMARY KEY CLUSTERED
+(
+	[AlertDetailId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[AlertDetailsCustomFields]    Script Date: 2/6/2018 1:34:16 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[AlertDetailsCustomFields](
+	[FieldId] [nvarchar](255) NOT NULL,
+	[FieldName] [varchar](50) NOT NULL,
+	[IsEnabled] [bit] NOT NULL,
+	[AlertDetailsCustomFieldId] [int] IDENTITY(1,1) NOT NULL,
+	[RepositoryTypeId] [int] NULL,
+ CONSTRAINT [PK_CustomFields] PRIMARY KEY CLUSTERED
+(
+	[AlertDetailsCustomFieldId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[Alerts]    Script Date: 2/6/2018 1:34:16 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[Alerts](
+	[AlertId] [int] IDENTITY(1,1) NOT NULL,
+	[TrackerExecutionId] [int] NOT NULL,
+	[UserEntityId] [int] NOT NULL,
+	[UserName] [nvarchar](255) NULL,
+	[ActivityCount] [int] NOT NULL,
+	[StatisticsValue] [decimal](10, 2) NULL,
+ CONSTRAINT [PK_TrackerAlerts] PRIMARY KEY CLUSTERED
+(
+	[AlertId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[ApplicationRolesAT]    Script Date: 2/6/2018 1:34:16 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[ApplicationRolesAT](
+	[RoleId] [int] IDENTITY(1,1) NOT NULL,
+	[RoleName] [nvarchar](50) NOT NULL,
+ CONSTRAINT [PK_ApplicationRolesAT] PRIMARY KEY CLUSTERED
+(
+	[RoleId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[ApplicationRolesMTM]    Script Date: 2/6/2018 1:34:16 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[ApplicationRolesMTM](
+	[RoleId] [int] IDENTITY(1,1) NOT NULL,
+	[RoleName] [nvarchar](50) NOT NULL,
+ CONSTRAINT [PK_ApplicationRolesMTM] PRIMARY KEY CLUSTERED
+(
+	[RoleId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[ApplicationRolesWB]    Script Date: 2/6/2018 1:34:16 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[ApplicationRolesWB](
+	[RoleId] [int] IDENTITY(1,1) NOT NULL,
+	[RoleName] [nvarchar](50) NOT NULL,
+ CONSTRAINT [PK_Roles] PRIMARY KEY CLUSTERED
+(
+	[RoleId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[ApplicationUsers]    Script Date: 2/6/2018 1:34:16 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[ApplicationUsers](
+	[UserId] [int] IDENTITY(1,1) NOT NULL,
+	[WBRoleId] [int] NULL,
+	[UserName] [nvarchar](50) NOT NULL,
+	[Password] [nvarchar](50) NOT NULL,
+	[Name] [nvarchar](100) NULL,
+	[Email] [nvarchar](100) NULL,
+	[IsEnabled] [bit] NOT NULL,
+	[IsDeleted] [bit] NOT NULL,
+	[Created] [datetime] NOT NULL,
+	[Modified] [datetime] NOT NULL,
+	[LastLogin] [datetime] NULL,
+	[MTMRoleId] [int] NULL,
+	[ATRoleId] [int] NULL,
+	[InsidersModuleAccess] [bit] NOT NULL,
+ CONSTRAINT [PK_ApplicationUsers] PRIMARY KEY CLUSTERED
+(
+	[UserId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[Attachments]    Script Date: 2/6/2018 1:34:16 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[Attachments](
+	[AttachmentId] [int] IDENTITY(1,1) NOT NULL,
+	[WallId] [int] NOT NULL,
+	[FileName] [nvarchar](255) NOT NULL,
+	[FileSize] [int] NOT NULL,
+	[FileContentType] [nvarchar](75) NULL,
+	[FileContent] [image] NULL,
+	[CreatorId] [int] NOT NULL,
+	[Created] [datetime] NOT NULL,
+	[Notes] [ntext] NULL,
+ CONSTRAINT [PK_Attachments] PRIMARY KEY CLUSTERED
+(
+	[AttachmentId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[AttorneyAcknowledgments]    Script Date: 2/6/2018 1:34:16 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[AttorneyAcknowledgments](
+	[AcknowledgmentId] [int] IDENTITY(1,1) NOT NULL,
+	[WallSideId] [int] NOT NULL,
+	[EntityId] [int] NOT NULL,
+	[isAcknowledged] [bit] NOT NULL,
+	[DateOfAcceptance] [datetime] NULL,
+	[DateOfNotice] [datetime] NULL,
+	[isArchived] [bit] NOT NULL,
+ CONSTRAINT [PK_AttorneyAcknowledgments] PRIMARY KEY CLUSTERED
+(
+	[AcknowledgmentId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[CommonTerms]    Script Date: 2/6/2018 1:34:16 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[CommonTerms](
+	[OriginalValue] [nvarchar](50) NOT NULL,
+	[ReplacedValue] [nvarchar](50) NOT NULL
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[Config]    Script Date: 2/6/2018 1:34:16 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[Config](
+	[ConfigId] [int] IDENTITY(1,1) NOT NULL,
+	[ConfigVariable] [nvarchar](255) NOT NULL,
+	[ConfigValue1] [nvarchar](max) NULL,
+	[ConfigValue2] [nvarchar](4000) NULL,
+	[Category] [nvarchar](64) NULL,
+	[ConfigType] [nvarchar](50) NULL,
+	[MetaData] [nvarchar](max) NULL,
+	[SubCategoryOf] [nvarchar](255) NULL,
+ CONSTRAINT [PK_Config] PRIMARY KEY CLUSTERED
+(
+	[ConfigId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[DefaultNotifications]    Script Date: 2/6/2018 1:34:16 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[DefaultNotifications](
+	[NotificationId] [int] NOT NULL,
+	[WallAccessTypeId] [int] NOT NULL,
+ CONSTRAINT [PK_DefaultNotifications] PRIMARY KEY CLUSTERED
+(
+	[NotificationId] ASC,
+	[WallAccessTypeId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[DefaultTrackers]    Script Date: 2/6/2018 1:34:16 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[DefaultTrackers](
+	[TrackerId] [int] NOT NULL,
+	[WallAccessTypeId] [int] NOT NULL,
+ CONSTRAINT [PK_DefaultTrackers] PRIMARY KEY CLUSTERED
+(
+	[TrackerId] ASC,
+	[WallAccessTypeId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[DigestNotificationAttachments]    Script Date: 2/6/2018 1:34:16 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[DigestNotificationAttachments](
+	[NotificationAttachmentId] [int] NOT NULL,
+	[DigestNotificationId] [bigint] NOT NULL,
+ CONSTRAINT [PK_DigestNotificationAttachments] PRIMARY KEY CLUSTERED
+(
+	[NotificationAttachmentId] ASC,
+	[DigestNotificationId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[DigestNotificationContent]    Script Date: 2/6/2018 1:34:16 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[DigestNotificationContent](
+	[DigestNotificationContentId] [int] IDENTITY(1,1) NOT NULL,
+	[NotificationText] [ntext] NULL,
+	[Subject] [nvarchar](1000) NULL,
+	[From] [nvarchar](1000) NULL,
+ CONSTRAINT [PK_DigestNotificationInfo] PRIMARY KEY CLUSTERED
+(
+	[DigestNotificationContentId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[DigestNotifications]    Script Date: 2/6/2018 1:34:16 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[DigestNotifications](
+	[DigestNotificationId] [bigint] IDENTITY(1,1) NOT NULL,
+	[NotificationId] [int] NOT NULL,
+	[EmailAddress] [nvarchar](50) NULL,
+	[CreatedDate] [datetime] NOT NULL,
+	[DigestNotificationContentId] [int] NOT NULL,
+	[NotificationHistoryId] [int] NULL,
+ CONSTRAINT [PK_DigestNotifications] PRIMARY KEY CLUSTERED
+(
+	[DigestNotificationId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[DynamicEntityGroupDefinitions]    Script Date: 2/6/2018 1:34:16 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[DynamicEntityGroupDefinitions](
+	[EntityId] [int] NOT NULL,
+	[DefinitionXml] [nvarchar](4000) NOT NULL,
+	[CreatedBy] [int] NULL,
+ CONSTRAINT [PK_DDynamicEntityGroupDefinitions] PRIMARY KEY CLUSTERED
+(
+	[EntityId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[DynamicEntityGroupExceptions]    Script Date: 2/6/2018 1:34:16 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[DynamicEntityGroupExceptions](
+	[DynamicGroupEntityId] [int] NOT NULL,
+	[EntityId] [int] NOT NULL,
+	[CreatorId] [int] NOT NULL,
+	[DateAdded] [datetime] NOT NULL,
+	[Notes] [ntext] NULL,
+ CONSTRAINT [PK_DynamicEntityGroupExceptions] PRIMARY KEY CLUSTERED
+(
+	[DynamicGroupEntityId] ASC,
+	[EntityId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[Entities]    Script Date: 2/6/2018 1:34:17 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[Entities](
+	[EntityId] [int] IDENTITY(1,1) NOT NULL,
+	[EntityTypeId] [int] NOT NULL,
+	[EntityRemoteSystemId] [nvarchar](100) NULL,
+	[EntityDescription] [nvarchar](255) NULL,
+	[ParentTypeId] [int] NULL,
+	[ParentRemoteSystemId] [nvarchar](100) NULL,
+	[ParentDescription] [nvarchar](255) NULL,
+	[EntityCustomData] [nvarchar](255) NULL,
+	[RecordsSystemId] [nvarchar](100) NULL,
+	[FinancialSystemId] [nvarchar](100) NULL,
+	[TimeEntrySystemId] [nvarchar](100) NULL,
+	[WindowsNetworkLogon] [nvarchar](100) NULL,
+	[CustomField1] [nvarchar](1000) NULL,
+	[CustomField2] [nvarchar](1000) NULL,
+	[CustomField3] [nvarchar](1000) NULL,
+	[CustomField4] [nvarchar](1000) NULL,
+	[CustomField5] [nvarchar](1000) NULL,
+	[CustomField6] [nvarchar](1000) NULL,
+	[CustomField7] [nvarchar](1000) NULL,
+	[CustomField8] [nvarchar](1000) NULL,
+	[CustomField9] [nvarchar](1000) NULL,
+	[CustomField10] [nvarchar](1000) NULL,
+	[IsEnabledForSearch] [bit] NOT NULL,
+	[Modified] [datetime] NULL,
+	[Created] [datetime] NULL,
+	[MatterOpenStatus] [bit] NULL,
+	[MatterConfidentialityStatus] [nvarchar](255) NULL,
+	[MatterTeamEntityId] [int] NULL,
+	[CustomField11] [nvarchar](1000) NULL,
+	[CustomField12] [nvarchar](1000) NULL,
+	[CustomField13] [nvarchar](1000) NULL,
+	[CustomField14] [nvarchar](1000) NULL,
+	[CustomField15] [nvarchar](1000) NULL,
+	[CustomField16] [nvarchar](1000) NULL,
+	[CustomField17] [nvarchar](1000) NULL,
+	[CustomField18] [nvarchar](1000) NULL,
+	[CustomField19] [nvarchar](1000) NULL,
+	[CustomField20] [nvarchar](1000) NULL,
+	[CustomField21] [nvarchar](1000) NULL,
+	[CustomField22] [nvarchar](1000) NULL,
+	[CustomField23] [nvarchar](1000) NULL,
+	[CustomField24] [nvarchar](1000) NULL,
+	[CustomField25] [nvarchar](1000) NULL,
+	[CustomField26] [nvarchar](1000) NULL,
+	[CustomField27] [nvarchar](1000) NULL,
+	[CustomField28] [nvarchar](1000) NULL,
+	[CustomField29] [nvarchar](1000) NULL,
+	[CustomField30] [nvarchar](1000) NULL,
+	[EntityDisplayId] [nvarchar](100) NULL,
+	[CrmSystemId] [nvarchar](100) NULL,
+	[TimeBuilderSystemId] [nvarchar](100) NULL,
+	[FileshareRemoteSystemId] [nvarchar](100) NULL,
+	[OpenSystemId] [nvarchar](100) NULL,
+	[NotificationRoleId] [int] NOT NULL,
+ CONSTRAINT [PK_Entities] PRIMARY KEY CLUSTERED
+(
+	[EntityId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[EntitiesMatterTeamFields]    Script Date: 2/6/2018 1:34:17 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[EntitiesMatterTeamFields](
+	[MatterTeamEntityId] [int] NOT NULL,
+	[IsSelfMaintained] [bit] NOT NULL,
+	[SelfMaintainingMinHours] [int] NULL,
+	[SelfMaintainingPeriod] [int] NULL,
+	[SelfMaintainingPeriodUnit] [nvarchar](32) NULL,
+	[IsRelationshipPaired] [bit] NOT NULL,
+	[SelfMaintainingPeriodStart] [datetime] NULL,
+	[SelfMaintainingPeriodEnd] [datetime] NULL,
+ CONSTRAINT [PK_EntitiesMatterTeamFields] PRIMARY KEY CLUSTERED
+(
+	[MatterTeamEntityId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[EntitiesUserFields]    Script Date: 2/6/2018 1:34:17 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[EntitiesUserFields](
+	[UserEntityId] [int] NOT NULL,
+	[IsExceptedFromActiveDirectoryGroups] [bit] NOT NULL,
+	[IsExceptedFromJoiningMatterTeam] [bit] NOT NULL,
+ CONSTRAINT [PK_EntitiesUserFields] PRIMARY KEY CLUSTERED
+(
+	[UserEntityId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[EntityCustomComboValues]    Script Date: 2/6/2018 1:34:17 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[EntityCustomComboValues](
+	[Field] [nvarchar](32) NOT NULL,
+	[EntityTypeId] [int] NOT NULL,
+	[Value] [nvarchar](200) NOT NULL,
+ CONSTRAINT [PK_EntityCustomComboValues] PRIMARY KEY CLUSTERED
+(
+	[Field] ASC,
+	[EntityTypeId] ASC,
+	[Value] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[EntityCustomFieldConfig]    Script Date: 2/6/2018 1:34:17 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[EntityCustomFieldConfig](
+	[Field] [nvarchar](32) NOT NULL,
+	[EntityTypeId] [int] NOT NULL,
+	[DisplayName] [nvarchar](64) NOT NULL,
+	[Type] [nvarchar](32) NOT NULL,
+	[Description] [nvarchar](100) NOT NULL,
+	[IsIncludedInNotifications] [bit] NOT NULL,
+	[IsIncludedInEntityTooltip] [bit] NOT NULL,
+	[IsMultiValued] [bit] NOT NULL,
+	[IsIncludedInExtendedValidation] [bit] NOT NULL,
+	[IsIncludedInGeneralInformation] [bit] NOT NULL,
+	[IsConfidential] [bit] NOT NULL,
+	[DateTimeFormat] [nvarchar](50) NULL,
+ CONSTRAINT [PK_EntityCustomFieldConfig] PRIMARY KEY CLUSTERED
+(
+	[Field] ASC,
+	[EntityTypeId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[EntityKeyMap]    Script Date: 2/6/2018 1:34:17 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[EntityKeyMap](
+	[EntityId] [int] NOT NULL,
+	[ParentEntityId] [int] NOT NULL,
+	[RoleId] [int] NULL,
+	[Reason] [nvarchar](250) NULL,
+	[ExpirationDate] [datetime] NULL,
+	[IsActive] [bit] NOT NULL,
+	[DemotionRoleId] [int] NULL,
+	[IsMTHistoryConflict] [bit] NOT NULL,
+ CONSTRAINT [PK_EntityKeyMap] PRIMARY KEY CLUSTERED
+(
+	[EntityId] ASC,
+	[ParentEntityId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[EntityRelationshipTypes]    Script Date: 2/6/2018 1:34:17 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[EntityRelationshipTypes](
+	[EntityRelationshipTypeId] [int] IDENTITY(1,1) NOT NULL,
+	[Description] [nvarchar](200) NOT NULL,
+	[PrimaryType] [nvarchar](100) NOT NULL,
+	[SubordinateType] [nvarchar](100) NOT NULL,
+	[IsDirectRelationshipValidated] [bit] NOT NULL,
+	[IsSharedRelationshipValidated] [bit] NOT NULL,
+ CONSTRAINT [PK_EntityRelationshipTypes] PRIMARY KEY CLUSTERED
+(
+	[EntityRelationshipTypeId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[EntityToEntityRelationships]    Script Date: 2/6/2018 1:34:17 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[EntityToEntityRelationships](
+	[EntityRelationshipTypeId] [int] NOT NULL,
+	[PrimaryEntityId] [int] NOT NULL,
+	[SubordinateEntityId] [int] NOT NULL,
+ CONSTRAINT [PK_EntityToEntityRelationships] PRIMARY KEY CLUSTERED
+(
+	[EntityRelationshipTypeId] ASC,
+	[PrimaryEntityId] ASC,
+	[SubordinateEntityId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[EntityTypes]    Script Date: 2/6/2018 1:34:17 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[EntityTypes](
+	[EntityTypeId] [int] IDENTITY(1,1) NOT NULL,
+	[EntityType] [nvarchar](100) NOT NULL,
+	[EntityTypePl] [nvarchar](100) NOT NULL,
+	[IsUserType] [bit] NOT NULL,
+ CONSTRAINT [PK_EntityTypes] PRIMARY KEY CLUSTERED
+(
+	[EntityTypeId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[ErrorLog]    Script Date: 2/6/2018 1:34:17 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[ErrorLog](
+	[ErrorLogId] [int] IDENTITY(1,1) NOT NULL,
+	[ServiceType] [nvarchar](64) NOT NULL,
+	[ServiceId] [nvarchar](255) NULL,
+	[LogLevel] [nvarchar](32) NOT NULL,
+	[LogMessage] [ntext] NOT NULL,
+	[LogException] [ntext] NULL,
+	[Created] [datetime] NOT NULL,
+ CONSTRAINT [PK_ErrorLog] PRIMARY KEY CLUSTERED
+(
+	[ErrorLogId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[ExtensionQueryResults]    Script Date: 2/6/2018 1:34:17 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[ExtensionQueryResults](
+	[ExtensionQueryResultId] [int] IDENTITY(1,1) NOT NULL,
+	[RequestId] [nvarchar](128) NOT NULL,
+	[ExtensionServiceName] [nvarchar](255) NOT NULL,
+	[Status] [nvarchar](64) NOT NULL,
+	[ResultXml] [nvarchar](max) NULL,
+	[LastUpdateTime] [datetime] NOT NULL,
+	[Messages] [nvarchar](max) NULL,
+ CONSTRAINT [PK_ExtensionQueryResults] PRIMARY KEY CLUSTERED
+(
+	[ExtensionQueryResultId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[ExtensionServiceJobs]    Script Date: 2/6/2018 1:34:17 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[ExtensionServiceJobs](
+	[ExtensionServiceJobsId] [int] IDENTITY(1,1) NOT NULL,
+	[ExtensionServiceName] [nvarchar](255) NOT NULL,
+	[ExtensionType] [nvarchar](64) NULL,
+	[LibraryName] [nvarchar](128) NULL,
+	[JobType] [nvarchar](255) NOT NULL,
+	[JobXML] [ntext] NULL,
+	[JobState] [nvarchar](32) NOT NULL,
+	[FinalStatus] [nvarchar](32) NULL,
+	[Retries] [int] NOT NULL,
+	[QueueTime] [datetime] NOT NULL,
+	[StateLastChangedTime] [datetime] NOT NULL,
+	[StartTime] [datetime] NULL,
+	[EndTime] [datetime] NULL,
+	[Messages] [ntext] NULL,
+	[OperationId] [uniqueidentifier] NULL,
+ CONSTRAINT [PK_ExtensionServiceJobs] PRIMARY KEY CLUSTERED
+(
+	[ExtensionServiceJobsId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[ExtensionServiceLocks]    Script Date: 2/6/2018 1:34:17 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[ExtensionServiceLocks](
+	[LockName] [nvarchar](256) NOT NULL,
+	[LockTime] [datetime] NOT NULL,
+ CONSTRAINT [PK_ExtensionServiceLocks] PRIMARY KEY CLUSTERED
+(
+	[LockName] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[ExternalUserFields]    Script Date: 2/6/2018 1:34:17 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[ExternalUserFields](
+	[ExternalUserEntityId] [int] NOT NULL,
+	[CreatedBy] [int] NOT NULL,
+ CONSTRAINT [PK_ExternalUserFields] PRIMARY KEY CLUSTERED
+(
+	[ExternalUserEntityId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[ExternalUsersAccessHistory]    Script Date: 2/6/2018 1:34:17 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[ExternalUsersAccessHistory](
+	[AccessHistoryId] [int] IDENTITY(1,1) NOT NULL,
+	[ExternalUserEntityId] [int] NOT NULL,
+	[MatterEntityId] [int] NOT NULL,
+	[ActivityType] [nvarchar](10) NOT NULL,
+	[ActivityDate] [datetime] NOT NULL,
+	[ActivityReason] [nvarchar](1000) NULL,
+ CONSTRAINT [PK_ExternalUsersAccessHistory] PRIMARY KEY CLUSTERED
+(
+	[AccessHistoryId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[FileShareADGroupStatuses]    Script Date: 2/6/2018 1:34:17 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[FileShareADGroupStatuses](
+	[GroupName] [nvarchar](256) NOT NULL,
+	[LastAccessTime] [datetime] NOT NULL,
+	[LastModificationTime] [datetime] NULL,
+	[SecurityId] [varchar](184) NULL,
+ CONSTRAINT [PK_FileShareADGroupStatuses] PRIMARY KEY CLUSTERED
+(
+	[GroupName] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[GlobalExceptions]    Script Date: 2/6/2018 1:34:17 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[GlobalExceptions](
+	[EntityId] [int] NOT NULL,
+	[CreatorId] [int] NOT NULL,
+	[DateAdded] [datetime] NOT NULL,
+	[Notes] [ntext] NULL,
+ CONSTRAINT [PK_GlobalExceptions] PRIMARY KEY CLUSTERED
+(
+	[EntityId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[GroupEntityLog]    Script Date: 2/6/2018 1:34:17 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[GroupEntityLog](
+	[LogId] [int] IDENTITY(1,1) NOT NULL,
+	[User] [nvarchar](255) NOT NULL,
+	[GroupEntityId] [int] NOT NULL,
+	[LogMessageType] [nvarchar](50) NOT NULL,
+	[LogMessage] [ntext] NULL,
+	[Created] [datetime] NOT NULL,
+ CONSTRAINT [PK_GroupEntityLog] PRIMARY KEY CLUSTERED
+(
+	[LogId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[HiddenMatterTeams]    Script Date: 2/6/2018 1:34:17 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[HiddenMatterTeams](
+	[HiddenMatterTeamId] [int] IDENTITY(1,1) NOT NULL,
+	[UserId] [int] NOT NULL,
+	[UserIdType] [nvarchar](10) NOT NULL,
+	[MatterTeamEntityId] [int] NOT NULL,
+ CONSTRAINT [PK_HiddenMatterTeams] PRIMARY KEY CLUSTERED
+(
+	[HiddenMatterTeamId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[InsidersReportFields]    Script Date: 2/6/2018 1:34:17 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[InsidersReportFields](
+	[InsidersReportFieldsId] [int] NOT NULL,
+	[FieldName] [nvarchar](128) NULL,
+	[FieldType] [nvarchar](255) NOT NULL,
+	[Description] [nvarchar](255) NOT NULL,
+	[TableName] [nvarchar](255) NULL,
+	[ColumnName] [nvarchar](255) NULL,
+	[EntityTypeId] [int] NULL,
+	[OrderId] [int] NOT NULL,
+	[EmptyText] [nvarchar](100) NULL,
+	[IsHeaderField] [bit] NOT NULL,
+	[DateTimeFormat] [nvarchar](50) NULL,
+	[IsPermanentInsiders] [bit] NOT NULL,
+ CONSTRAINT [PK_InsidersReportFields] PRIMARY KEY CLUSTERED
+(
+	[InsidersReportFieldsId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[InsidersReportLogs]    Script Date: 2/6/2018 1:34:17 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[InsidersReportLogs](
+	[InsidersReportLogId] [int] IDENTITY(1,1) NOT NULL,
+	[ApplicationUserId] [int] NOT NULL,
+	[MatterEntityId] [int] NULL,
+	[LogMessage] [nvarchar](max) NOT NULL,
+	[Created] [datetime] NOT NULL,
+ CONSTRAINT [PK_InsidersReportLogs] PRIMARY KEY CLUSTERED
+(
+	[InsidersReportLogId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[InsidersReports]    Script Date: 2/6/2018 1:34:17 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[InsidersReports](
+	[InsidersReportsId] [int] IDENTITY(1,1) NOT NULL,
+	[MatterEntityID] [int] NULL,
+	[Created] [datetime] NOT NULL,
+	[Modified] [datetime] NOT NULL,
+	[LastRun] [datetime] NOT NULL,
+	[ReportXML] [ntext] NOT NULL,
+ CONSTRAINT [PK_InsidersReports] PRIMARY KEY CLUSTERED
+(
+	[InsidersReportsId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[Log]    Script Date: 2/6/2018 1:34:17 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[Log](
+	[LogId] [int] IDENTITY(1,1) NOT NULL,
+	[UserId] [int] NULL,
+	[WallId] [int] NOT NULL,
+	[Created] [datetime] NOT NULL,
+	[LogMessage] [ntext] NULL,
+	[LogMessageType] [nvarchar](50) NOT NULL,
+ CONSTRAINT [PK_Log] PRIMARY KEY CLUSTERED
+(
+	[LogId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[MatterAccessHistory]    Script Date: 2/6/2018 1:34:17 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[MatterAccessHistory](
+	[AccessHistoryId] [int] NOT NULL,
+	[MatterEntityId] [int] NOT NULL,
+	[ActivityDate] [datetime] NOT NULL,
+	[ActivityReason] [nvarchar](1000) NULL,
+	[WasAddedBySelfMaintaining] [bit] NOT NULL,
+ CONSTRAINT [PK_MatterAccessHistory] PRIMARY KEY CLUSTERED
+(
+	[AccessHistoryId] ASC,
+	[MatterEntityId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[MatterTeamExceptions]    Script Date: 2/6/2018 1:34:17 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[MatterTeamExceptions](
+	[MatterTeamEntityId] [int] NOT NULL,
+	[EntityId] [int] NOT NULL,
+	[Creator] [nvarchar](255) NOT NULL,
+	[DateAdded] [datetime] NOT NULL,
+	[Notes] [ntext] NULL,
+ CONSTRAINT [PK_MatterTeamExceptions] PRIMARY KEY CLUSTERED
+(
+	[MatterTeamEntityId] ASC,
+	[EntityId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[MatterTeamHistories]    Script Date: 2/6/2018 1:34:17 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[MatterTeamHistories](
+	[MatterTeamHistoryId] [int] IDENTITY(1,1) NOT NULL,
+	[MatterEntityId] [int] NOT NULL,
+	[UserEntityId] [int] NOT NULL,
+	[RoleId] [int] NOT NULL,
+	[Reason] [nvarchar](max) NULL,
+	[ActivityDate] [datetime] NOT NULL,
+	[ActivityTypeId] [tinyint] NOT NULL,
+	[Creator] [nvarchar](255) NOT NULL,
+	[IsActive] [bit] NOT NULL,
+ CONSTRAINT [PK_MatterTeamHistories] PRIMARY KEY CLUSTERED
+(
+	[MatterTeamHistoryId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[MatterTeamHistoryActivityTypes]    Script Date: 2/6/2018 1:34:17 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[MatterTeamHistoryActivityTypes](
+	[ActivityTypeId] [tinyint] IDENTITY(0,1) NOT NULL,
+	[ActivityTypeName] [nvarchar](100) NOT NULL,
+ CONSTRAINT [PK_MatterTeamHistoryActivityTypes] PRIMARY KEY CLUSTERED
+(
+	[ActivityTypeId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[MatterTeamRole]    Script Date: 2/6/2018 1:34:17 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[MatterTeamRole](
+	[RoleId] [int] IDENTITY(1,1) NOT NULL,
+	[RoleDescription] [nvarchar](100) NOT NULL,
+	[IsAdmin] [bit] NOT NULL,
+	[IsDelegate] [bit] NOT NULL,
+	[WallRoleId] [int] NOT NULL,
+	[IsExceptedFromInactiveStatus] [bit] NOT NULL,
+	[IsRestrictedToGlobalAdmins] [bit] NOT NULL,
+	[CanRemoveUsers] [bit] NOT NULL,
+	[CanSubscribeUsers] [bit] NOT NULL,
+ CONSTRAINT [PK_MatterTeamRole] PRIMARY KEY CLUSTERED
+(
+	[RoleId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[MatterTeamSubscriptionRequests]    Script Date: 2/6/2018 1:34:17 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[MatterTeamSubscriptionRequests](
+	[RequestId] [int] IDENTITY(1,1) NOT NULL,
+	[MatterTeamId] [int] NOT NULL,
+	[UserEntityId] [int] NOT NULL,
+	[RequestDate] [datetime] NOT NULL,
+	[ResponseDate] [datetime] NULL,
+	[Status] [bit] NULL,
+	[Reason] [nvarchar](255) NULL,
+	[AdminEntityId] [int] NULL,
+ CONSTRAINT [PK_MatterTeamSubscriptionRequests] PRIMARY KEY CLUSTERED
+(
+	[RequestId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[NotificationAttachments]    Script Date: 2/6/2018 1:34:17 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[NotificationAttachments](
+	[NotificationId] [int] NOT NULL,
+	[AttachmentId] [int] NOT NULL,
+ CONSTRAINT [PK_NotificationAttachments] PRIMARY KEY CLUSTERED
+(
+	[NotificationId] ASC,
+	[AttachmentId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[NotificationHistory]    Script Date: 2/6/2018 1:34:17 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[NotificationHistory](
+	[NotificationHistoryId] [int] IDENTITY(1,1) NOT NULL,
+	[UserEntityId] [int] NOT NULL,
+	[NotificationId] [int] NOT NULL,
+	[NotificationSentDate] [datetime] NULL,
+	[AcknowledgmentId] [int] NULL,
+ CONSTRAINT [PK_NotificationHistory] PRIMARY KEY CLUSTERED
+(
+	[NotificationHistoryId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[NotificationRoles]    Script Date: 2/6/2018 1:34:17 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[NotificationRoles](
+	[NotificationRoleId] [int] NOT NULL,
+	[WallAccessTypeId] [int] NOT NULL,
+	[IsExceptedFromNotifications] [bit] NOT NULL,
+	[IsExceptedFromAcknowledgements] [bit] NOT NULL,
+ CONSTRAINT [PK_NotificationRoles] PRIMARY KEY CLUSTERED
+(
+	[NotificationRoleId] ASC,
+	[WallAccessTypeId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[Notifications]    Script Date: 2/6/2018 1:34:17 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[Notifications](
+	[NotificationId] [int] IDENTITY(1,1) NOT NULL,
+	[WallId] [int] NOT NULL,
+	[RecipientList] [nvarchar](1000) NOT NULL,
+	[NotificationText] [ntext] NULL,
+	[ForceNotification] [bit] NOT NULL,
+	[IsEnabled] [bit] NOT NULL,
+	[LastNotification] [datetime] NULL,
+	[IncludeAcknowledgments] [bit] NOT NULL,
+	[NotificationType] [nvarchar](50) NOT NULL,
+	[NextNotification] [datetime] NULL,
+	[TimeNumber] [int] NULL,
+	[TimeUnit] [nvarchar](30) NULL,
+	[Scope] [nvarchar](40) NOT NULL,
+	[CcList] [nvarchar](1000) NULL,
+	[BccList] [nvarchar](1000) NULL,
+	[From] [nvarchar](1000) NULL,
+	[NotificationName] [nvarchar](150) NOT NULL,
+	[Subject] [nvarchar](255) NULL,
+	[CreatorId] [int] NOT NULL,
+	[TriggerEvents] [smallint] NOT NULL,
+	[IsDeleted] [bit] NOT NULL,
+	[IsDigest] [bit] NOT NULL,
+ CONSTRAINT [PK_Notifications] PRIMARY KEY CLUSTERED
+(
+	[NotificationId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[ObjectReleaseExceptions]    Script Date: 2/6/2018 1:34:17 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[ObjectReleaseExceptions](
+	[ObjectReleaseExceptionId] [int] IDENTITY(1,1) NOT NULL,
+	[ExtensionType] [nvarchar](64) NOT NULL,
+	[LibraryName] [nvarchar](255) NOT NULL,
+	[EntityId] [int] NOT NULL,
+	[ObjectType] [nvarchar](32) NOT NULL,
+	[ObjectId] [nvarchar](64) NOT NULL,
+	[ObjectName] [nvarchar](512) NULL,
+	[PrincipalName] [nvarchar](512) NOT NULL,
+	[PrincipalType] [nvarchar](32) NOT NULL,
+	[PrincipalId] [nvarchar](255) NOT NULL,
+	[Reason] [ntext] NULL,
+	[ExpirationDate] [datetime] NULL,
+ CONSTRAINT [PK_ObjectReleaseExceptions] PRIMARY KEY CLUSTERED
+(
+	[ObjectReleaseExceptionId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[ObjectTemplate]    Script Date: 2/6/2018 1:34:17 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[ObjectTemplate](
+	[ObjectTemplateId] [int] IDENTITY(1,1) NOT NULL,
+	[EntityTypeId] [int] NOT NULL,
+	[Name] [nvarchar](150) NOT NULL,
+	[TemplateText] [ntext] NULL,
+	[CreatorId] [int] NOT NULL,
+	[SeparatorType] [int] NOT NULL,
+	[Separator] [nvarchar](100) NULL,
+ CONSTRAINT [PK_ObjectTemplate] PRIMARY KEY CLUSTERED
+(
+	[ObjectTemplateId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[PermanentInsidersAccessHistory]    Script Date: 2/6/2018 1:34:17 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[PermanentInsidersAccessHistory](
+	[AccessHistoryId] [int] IDENTITY(1,1) NOT NULL,
+	[UserEntityId] [int] NOT NULL,
+	[ActivityType] [nvarchar](10) NOT NULL,
+	[ActivityDate] [datetime] NOT NULL,
+	[ActivityReason] [nvarchar](1000) NULL,
+ CONSTRAINT [PK_PermanentInsidersAccessHistory] PRIMARY KEY CLUSTERED
+(
+	[AccessHistoryId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[PolicyCategories]    Script Date: 2/6/2018 1:34:17 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[PolicyCategories](
+	[PolicyCategoryId] [int] IDENTITY(1,1) NOT NULL,
+	[Name] [nvarchar](255) NOT NULL,
+	[DisplayName] [nvarchar](255) NOT NULL,
+	[PolicyCategoryGroupId] [int] NOT NULL,
+ CONSTRAINT [PK_PolicyCategories] PRIMARY KEY CLUSTERED
+(
+	[PolicyCategoryId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[PolicyCategoryGroups]    Script Date: 2/6/2018 1:34:17 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[PolicyCategoryGroups](
+	[PolicyCategoryGroupId] [int] IDENTITY(1,1) NOT NULL,
+	[Name] [nvarchar](255) NOT NULL,
+ CONSTRAINT [PK_PolicyCategoryGroups] PRIMARY KEY CLUSTERED
+(
+	[PolicyCategoryGroupId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[ReportConflictingAccessExplicit]    Script Date: 2/6/2018 1:34:17 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[ReportConflictingAccessExplicit](
+	[UserEntityId] [int] NOT NULL,
+	[ClientEntityId] [int] NOT NULL,
+	[MatterEntityId] [int] NULL,
+	[AllowingWallId] [int] NOT NULL,
+	[DenyingWallId] [int] NOT NULL,
+	[AddedDate] [datetime] NOT NULL
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[ReportConflictingAccessImplicit]    Script Date: 2/6/2018 1:34:17 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[ReportConflictingAccessImplicit](
+	[UserEntityId] [int] NOT NULL,
+	[ClientEntityId] [int] NOT NULL,
+	[MatterEntityId] [int] NULL,
+	[ConflictingWallId] [int] NOT NULL,
+	[DenyingWallId] [int] NOT NULL,
+	[AddedDate] [datetime] NOT NULL
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[ReportConflictingSharedResourcesExplicit]    Script Date: 2/6/2018 1:34:17 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[ReportConflictingSharedResourcesExplicit](
+	[AllowedUserEntityId] [int] NOT NULL,
+	[DeniedUserEntityId] [int] NOT NULL,
+	[ClientEntityID] [int] NOT NULL,
+	[MatterEntityID] [int] NULL,
+	[AllowingWallId] [int] NOT NULL,
+	[DenyingWallId] [int] NOT NULL,
+	[AddedDate] [datetime] NOT NULL,
+	[Resource] [nvarchar](200) NOT NULL,
+	[ResourceType] [nvarchar](200) NOT NULL
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[ReportConflictingSharedResourcesImplicit]    Script Date: 2/6/2018 1:34:17 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[ReportConflictingSharedResourcesImplicit](
+	[ConflictingUserEntityId] [int] NOT NULL,
+	[DeniedUserEntityId] [int] NOT NULL,
+	[ClientEntityID] [int] NOT NULL,
+	[MatterEntityID] [int] NULL,
+	[ConflictingWallId] [int] NOT NULL,
+	[DenyingWallId] [int] NOT NULL,
+	[AddedDate] [datetime] NOT NULL,
+	[Resource] [nvarchar](200) NOT NULL,
+	[ResourceType] [nvarchar](200) NOT NULL
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[ReportFields]    Script Date: 2/6/2018 1:34:17 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[ReportFields](
+	[ReportFieldId] [int] NOT NULL,
+	[FieldName] [nvarchar](128) NULL,
+	[ReportTypeId] [int] NOT NULL,
+	[FieldType] [nvarchar](255) NOT NULL,
+	[Description] [nvarchar](255) NOT NULL,
+	[TableName] [nvarchar](255) NOT NULL,
+	[ColumnName] [nvarchar](255) NULL,
+	[IsQueryable] [bit] NOT NULL,
+	[IsSearchable] [bit] NOT NULL,
+	[IsDefault] [bit] NOT NULL,
+	[OrderId] [int] NOT NULL,
+ CONSTRAINT [PK_ReportFields] PRIMARY KEY CLUSTERED
+(
+	[ReportFieldId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[Reports]    Script Date: 2/6/2018 1:34:17 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[Reports](
+	[ReportId] [int] IDENTITY(1,1) NOT NULL,
+	[UserId] [int] NOT NULL,
+	[ReportTypeId] [int] NOT NULL,
+	[Name] [nvarchar](100) NOT NULL,
+	[Created] [datetime] NOT NULL,
+	[IsDeleted] [bit] NOT NULL,
+	[ReportXml] [ntext] NULL,
+ CONSTRAINT [PK_Reports] PRIMARY KEY CLUSTERED
+(
+	[ReportId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[ReportSchedules]    Script Date: 2/6/2018 1:34:17 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[ReportSchedules](
+	[ReportScheduleID] [int] IDENTITY(1,1) NOT NULL,
+	[ReportID] [int] NOT NULL,
+	[Subject] [nvarchar](1000) NULL,
+	[RecipientList] [nvarchar](1000) NOT NULL,
+	[RecipientAppUsers] [bit] NOT NULL,
+	[FrequencyType] [nvarchar](50) NOT NULL,
+	[FrequencyInterval] [int] NULL,
+	[FrequencyUnit] [nvarchar](50) NULL,
+	[SkipIfNoData] [bit] NOT NULL,
+	[IsEnabled] [bit] NOT NULL,
+	[NextTimeDue] [datetime] NULL,
+	[LastTimeRun] [datetime] NULL,
+ CONSTRAINT [PK_ReportSchedules] PRIMARY KEY CLUSTERED
+(
+	[ReportScheduleID] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[ReportsConflictingLatestUpdateDate]    Script Date: 2/6/2018 1:34:17 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[ReportsConflictingLatestUpdateDate](
+	[ReportTypeId] [int] NOT NULL,
+	[LatestUpdateDate] [datetime] NOT NULL,
+	[UpdateStartTime] [datetime] NULL
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[ReportTypes]    Script Date: 2/6/2018 1:34:17 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[ReportTypes](
+	[ReportTypeId] [int] IDENTITY(1,1) NOT NULL,
+	[ReportTypeName] [nvarchar](100) NOT NULL,
+	[ReportTypeDescription] [nvarchar](255) NULL,
+	[ParentReportTypeId] [int] NULL,
+	[PolicyCategoryGroupId] [int] NULL,
+ CONSTRAINT [PK_ReportTypes] PRIMARY KEY CLUSTERED
+(
+	[ReportTypeId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[Repositories]    Script Date: 2/6/2018 1:34:17 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[Repositories](
+	[RepositoryId] [int] IDENTITY(1,1) NOT NULL,
+	[RepositoryTypeId] [int] NOT NULL,
+	[RepositoryName] [nvarchar](255) NOT NULL,
+	[RepositoryRemoteLabel] [nvarchar](255) NOT NULL,
+ CONSTRAINT [PK_Repositories] PRIMARY KEY CLUSTERED
+(
+	[RepositoryId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[RepositoryTypes]    Script Date: 2/6/2018 1:34:17 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[RepositoryTypes](
+	[RepositoryTypeId] [int] IDENTITY(1,1) NOT NULL,
+	[RepositoryType] [nvarchar](255) NOT NULL,
+ CONSTRAINT [PK_RepositoryTypes] PRIMARY KEY CLUSTERED
+(
+	[RepositoryTypeId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[ScheduledSecurityRepairStatus]    Script Date: 2/6/2018 1:34:17 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[ScheduledSecurityRepairStatus](
+	[ScheduledSecurityRepairStatusId] [int] IDENTITY(1,1) NOT NULL,
+	[ExtensionType] [nvarchar](64) NOT NULL,
+	[LibraryName] [nvarchar](255) NOT NULL,
+	[ObjectType] [nvarchar](32) NOT NULL,
+	[LastRepairTime] [datetime] NULL,
+	[Status] [nvarchar](32) NOT NULL,
+	[LastRepairId] [nvarchar](64) NULL,
+ CONSTRAINT [PK_ScheduledSecurityRepairStatus] PRIMARY KEY CLUSTERED
+(
+	[ExtensionType] ASC,
+	[LibraryName] ASC,
+	[ObjectType] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[SCHEDULER_BLOB_TRIGGERS]    Script Date: 2/6/2018 1:34:17 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[SCHEDULER_BLOB_TRIGGERS](
+	[TRIGGER_NAME] [varchar](200) NOT NULL,
+	[TRIGGER_GROUP] [varchar](200) NOT NULL,
+	[BLOB_DATA] [image] NULL
+) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[SCHEDULER_CALENDARS]    Script Date: 2/6/2018 1:34:17 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[SCHEDULER_CALENDARS](
+	[CALENDAR_NAME] [varchar](200) NOT NULL,
+	[CALENDAR] [image] NOT NULL,
+ CONSTRAINT [PK_SCHEDULER_CALENDARS] PRIMARY KEY CLUSTERED
+(
+	[CALENDAR_NAME] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[SCHEDULER_CRON_TRIGGERS]    Script Date: 2/6/2018 1:34:17 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[SCHEDULER_CRON_TRIGGERS](
+	[TRIGGER_NAME] [varchar](200) NOT NULL,
+	[TRIGGER_GROUP] [varchar](200) NOT NULL,
+	[CRON_EXPRESSION] [varchar](120) NOT NULL,
+	[TIME_ZONE_ID] [varchar](80) NULL,
+ CONSTRAINT [PK_SCHEDULER_CRON_TRIGGERS] PRIMARY KEY CLUSTERED
+(
+	[TRIGGER_NAME] ASC,
+	[TRIGGER_GROUP] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[SCHEDULER_FIRED_TRIGGERS]    Script Date: 2/6/2018 1:34:17 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[SCHEDULER_FIRED_TRIGGERS](
+	[ENTRY_ID] [varchar](95) NOT NULL,
+	[TRIGGER_NAME] [varchar](200) NOT NULL,
+	[TRIGGER_GROUP] [varchar](200) NOT NULL,
+	[IS_VOLATILE] [varchar](1) NOT NULL,
+	[INSTANCE_NAME] [varchar](200) NOT NULL,
+	[FIRED_TIME] [bigint] NOT NULL,
+	[PRIORITY] [int] NOT NULL,
+	[STATE] [varchar](16) NOT NULL,
+	[JOB_NAME] [varchar](200) NULL,
+	[JOB_GROUP] [varchar](200) NULL,
+	[IS_STATEFUL] [varchar](1) NULL,
+	[REQUESTS_RECOVERY] [varchar](1) NULL,
+ CONSTRAINT [PK_SCHEDULER_FIRED_TRIGGERS] PRIMARY KEY CLUSTERED
+(
+	[ENTRY_ID] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[SCHEDULER_JOB_DETAILS]    Script Date: 2/6/2018 1:34:17 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[SCHEDULER_JOB_DETAILS](
+	[JOB_NAME] [varchar](200) NOT NULL,
+	[JOB_GROUP] [varchar](200) NOT NULL,
+	[DESCRIPTION] [varchar](250) NULL,
+	[JOB_CLASS_NAME] [varchar](250) NOT NULL,
+	[IS_DURABLE] [varchar](1) NOT NULL,
+	[IS_VOLATILE] [varchar](1) NOT NULL,
+	[IS_STATEFUL] [varchar](1) NOT NULL,
+	[REQUESTS_RECOVERY] [varchar](1) NOT NULL,
+	[JOB_DATA] [image] NULL,
+ CONSTRAINT [PK_SCHEDULER_JOB_DETAILS] PRIMARY KEY CLUSTERED
+(
+	[JOB_NAME] ASC,
+	[JOB_GROUP] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[SCHEDULER_JOB_LISTENERS]    Script Date: 2/6/2018 1:34:17 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[SCHEDULER_JOB_LISTENERS](
+	[JOB_NAME] [varchar](200) NOT NULL,
+	[JOB_GROUP] [varchar](200) NOT NULL,
+	[JOB_LISTENER] [varchar](200) NOT NULL,
+ CONSTRAINT [PK_SCHEDULER_JOB_LISTENERS] PRIMARY KEY CLUSTERED
+(
+	[JOB_NAME] ASC,
+	[JOB_GROUP] ASC,
+	[JOB_LISTENER] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[SCHEDULER_LOCKS]    Script Date: 2/6/2018 1:34:17 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[SCHEDULER_LOCKS](
+	[LOCK_NAME] [varchar](40) NOT NULL,
+ CONSTRAINT [PK_SCHEDULER_LOCKS] PRIMARY KEY CLUSTERED
+(
+	[LOCK_NAME] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[SCHEDULER_PAUSED_TRIGGER_GRPS]    Script Date: 2/6/2018 1:34:17 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[SCHEDULER_PAUSED_TRIGGER_GRPS](
+	[TRIGGER_GROUP] [varchar](200) NOT NULL,
+ CONSTRAINT [PK_SCHEDULER_PAUSED_TRIGGER_GRPS] PRIMARY KEY CLUSTERED
+(
+	[TRIGGER_GROUP] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[SCHEDULER_SCHEDULER_STATE]    Script Date: 2/6/2018 1:34:17 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[SCHEDULER_SCHEDULER_STATE](
+	[INSTANCE_NAME] [varchar](200) NOT NULL,
+	[LAST_CHECKIN_TIME] [bigint] NOT NULL,
+	[CHECKIN_INTERVAL] [bigint] NOT NULL,
+ CONSTRAINT [PK_SCHEDULER_SCHEDULER_STATE] PRIMARY KEY CLUSTERED
+(
+	[INSTANCE_NAME] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[SCHEDULER_SIMPLE_TRIGGERS]    Script Date: 2/6/2018 1:34:18 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[SCHEDULER_SIMPLE_TRIGGERS](
+	[TRIGGER_NAME] [varchar](200) NOT NULL,
+	[TRIGGER_GROUP] [varchar](200) NOT NULL,
+	[REPEAT_COUNT] [bigint] NOT NULL,
+	[REPEAT_INTERVAL] [bigint] NOT NULL,
+	[TIMES_TRIGGERED] [bigint] NOT NULL,
+ CONSTRAINT [PK_SCHEDULER_SIMPLE_TRIGGERS] PRIMARY KEY CLUSTERED
+(
+	[TRIGGER_NAME] ASC,
+	[TRIGGER_GROUP] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[SCHEDULER_TRIGGER_LISTENERS]    Script Date: 2/6/2018 1:34:18 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[SCHEDULER_TRIGGER_LISTENERS](
+	[TRIGGER_NAME] [varchar](200) NOT NULL,
+	[TRIGGER_GROUP] [varchar](200) NOT NULL,
+	[TRIGGER_LISTENER] [varchar](200) NOT NULL,
+ CONSTRAINT [PK_SCHEDULER_TRIGGER_LISTENERS] PRIMARY KEY CLUSTERED
+(
+	[TRIGGER_NAME] ASC,
+	[TRIGGER_GROUP] ASC,
+	[TRIGGER_LISTENER] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[SCHEDULER_TRIGGERS]    Script Date: 2/6/2018 1:34:18 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[SCHEDULER_TRIGGERS](
+	[TRIGGER_NAME] [varchar](200) NOT NULL,
+	[TRIGGER_GROUP] [varchar](200) NOT NULL,
+	[JOB_NAME] [varchar](200) NOT NULL,
+	[JOB_GROUP] [varchar](200) NOT NULL,
+	[IS_VOLATILE] [varchar](1) NOT NULL,
+	[DESCRIPTION] [varchar](250) NULL,
+	[NEXT_FIRE_TIME] [bigint] NULL,
+	[PREV_FIRE_TIME] [bigint] NULL,
+	[PRIORITY] [int] NULL,
+	[TRIGGER_STATE] [varchar](16) NOT NULL,
+	[TRIGGER_TYPE] [varchar](8) NOT NULL,
+	[START_TIME] [bigint] NOT NULL,
+	[END_TIME] [bigint] NULL,
+	[CALENDAR_NAME] [varchar](200) NULL,
+	[MISFIRE_INSTR] [smallint] NULL,
+	[JOB_DATA] [image] NULL,
+ CONSTRAINT [PK_SCHEDULER_TRIGGERS] PRIMARY KEY CLUSTERED
+(
+	[TRIGGER_NAME] ASC,
+	[TRIGGER_GROUP] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[ScreeningLawyerKeyMap]    Script Date: 2/6/2018 1:34:18 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[ScreeningLawyerKeyMap](
+	[EntityId] [int] NOT NULL,
+	[WallId] [int] NOT NULL,
+ CONSTRAINT [PK_ScreeningLawyerKeyMap] PRIMARY KEY CLUSTERED
+(
+	[EntityId] ASC,
+	[WallId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[SummaryDetails]    Script Date: 2/6/2018 1:34:18 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[SummaryDetails](
+	[SummaryDetailId] [int] IDENTITY(1,1) NOT NULL,
+	[TrackerExecutionId] [int] NOT NULL,
+	[UserName] [nvarchar](255) NULL,
+	[UserEntityId] [int] NOT NULL,
+	[Activity] [nvarchar](1000) NOT NULL,
+	[Repository] [nvarchar](255) NOT NULL,
+	[ActivityCount] [int] NOT NULL,
+ CONSTRAINT [PK_SummaryDetails] PRIMARY KEY CLUSTERED
+(
+	[SummaryDetailId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[TrackerActivities]    Script Date: 2/6/2018 1:34:18 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[TrackerActivities](
+	[TrackerId] [int] NOT NULL,
+	[ActivityId] [int] NOT NULL,
+ CONSTRAINT [PK_TrackerActivities] PRIMARY KEY CLUSTERED
+(
+	[TrackerId] ASC,
+	[ActivityId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[TrackerCategories]    Script Date: 2/6/2018 1:34:18 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[TrackerCategories](
+	[TrackerCategoryId] [int] NOT NULL,
+	[Name] [nvarchar](255) NOT NULL,
+ CONSTRAINT [PK_TrackerCategories] PRIMARY KEY CLUSTERED
+(
+	[TrackerCategoryId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[TrackerClientsAndMatters]    Script Date: 2/6/2018 1:34:18 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[TrackerClientsAndMatters](
+	[TrackerId] [int] NOT NULL,
+	[EntityId] [int] NOT NULL,
+	[IsInclude] [bit] NOT NULL,
+	[TrackerSideId] [int] NOT NULL,
+ CONSTRAINT [PK_TrackerClientsAndMatters] PRIMARY KEY CLUSTERED
+(
+	[TrackerSideId] ASC,
+	[EntityId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[TrackerExecutionActivities]    Script Date: 2/6/2018 1:34:18 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[TrackerExecutionActivities](
+	[TrackerExecutionId] [int] NOT NULL,
+	[ActivityId] [int] NOT NULL,
+ CONSTRAINT [PK_TrackerExecutionActivities] PRIMARY KEY CLUSTERED
+(
+	[TrackerExecutionId] ASC,
+	[ActivityId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[TrackerExecutionClientsAndMatters]    Script Date: 2/6/2018 1:34:18 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[TrackerExecutionClientsAndMatters](
+	[TrackerExecutionId] [int] NOT NULL,
+	[EntityId] [int] NOT NULL,
+	[IsInclude] [bit] NOT NULL,
+ CONSTRAINT [PK_TrackerExecutionClientsAndMatters] PRIMARY KEY CLUSTERED
+(
+	[TrackerExecutionId] ASC,
+	[EntityId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[TrackerExecutionLibraries]    Script Date: 2/6/2018 1:34:18 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[TrackerExecutionLibraries](
+	[TrackerExecutionId] [int] NOT NULL,
+	[LibraryId] [int] NOT NULL,
+ CONSTRAINT [PK_TrackerExecutionLibraries] PRIMARY KEY CLUSTERED
+(
+	[TrackerExecutionId] ASC,
+	[LibraryId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[TrackerExecutions]    Script Date: 2/6/2018 1:34:18 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[TrackerExecutions](
+	[TrackerExecutionId] [int] IDENTITY(1,1) NOT NULL,
+	[TrackerId] [int] NOT NULL,
+	[TrackerTypeId] [int] NOT NULL,
+	[LinkedPolicyId] [int] NULL,
+	[IntervalNumber] [int] NOT NULL,
+	[IntervalUnit] [nvarchar](50) NOT NULL,
+	[TrackerLimit] [decimal](8, 2) NULL,
+	[Created] [datetime] NOT NULL,
+	[IntervalEndDate] [datetime] NOT NULL,
+	[IntervalStartDate] [datetime] NOT NULL,
+	[OnlyPrivate] [bit] NOT NULL,
+	[OnlyDidNotAuthor] [bit] NOT NULL,
+	[DistinctDocuments] [bit] NOT NULL,
+	[GeneratesAlerts] [bit] NOT NULL,
+	[TrackerSideId] [int] NULL,
+	[IsCompleted] [bit] NOT NULL,
+	[TrackActivityCategories] [bit] NOT NULL,
+	[ThresholdType] [int] NOT NULL,
+ CONSTRAINT [PK_TrackerExecutions] PRIMARY KEY CLUSTERED
+(
+	[TrackerExecutionId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[TrackerRepositories]    Script Date: 2/6/2018 1:34:18 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[TrackerRepositories](
+	[TrackerId] [int] NOT NULL,
+	[RepositoryId] [int] NOT NULL,
+ CONSTRAINT [PK_ThresholdRepositories] PRIMARY KEY CLUSTERED
+(
+	[TrackerId] ASC,
+	[RepositoryId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[Trackers]    Script Date: 2/6/2018 1:34:18 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[Trackers](
+	[TrackerId] [int] IDENTITY(1,1) NOT NULL,
+	[TrackerName] [nvarchar](255) NOT NULL,
+	[TrackerDesc] [nvarchar](1000) NULL,
+	[IsEnabled] [bit] NOT NULL,
+	[IsDeleted] [bit] NOT NULL,
+	[TrackerTypeId] [int] NOT NULL,
+	[Limit] [decimal](8, 2) NULL,
+	[StartDate] [datetime] NOT NULL,
+	[IntervalNumber] [int] NOT NULL,
+	[IntervalUnit] [nvarchar](50) NOT NULL,
+	[Notify] [nvarchar](1000) NULL,
+	[NotifyAppUsers] [bit] NOT NULL,
+	[DeliverIfNoAlert] [bit] NOT NULL,
+	[Created] [datetime] NOT NULL,
+	[Modified] [datetime] NOT NULL,
+	[NextTimeDue] [datetime] NOT NULL,
+	[CreatorId] [int] NOT NULL,
+	[OnlyPrivate] [bit] NOT NULL,
+	[OnlyDidNotAuthor] [bit] NOT NULL,
+	[DistinctDocuments] [bit] NOT NULL,
+	[ModifierId] [int] NOT NULL,
+	[GeneratesAlerts] [bit] NOT NULL,
+	[LinkedPolicyId] [int] NULL,
+	[TrackActivityCategories] [bit] NOT NULL,
+	[ThresholdType] [int] NOT NULL,
+ CONSTRAINT [PK_Thresholds] PRIMARY KEY CLUSTERED
+(
+	[TrackerId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[TrackerSides]    Script Date: 2/6/2018 1:34:18 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[TrackerSides](
+	[TrackerSideId] [int] IDENTITY(1,1) NOT NULL,
+	[TrackerId] [int] NOT NULL,
+	[WallSideId] [int] NULL,
+	[TrackerSideName] [nvarchar](250) NOT NULL,
+	[IsDeleted] [bit] NOT NULL,
+ CONSTRAINT [PK_TrackerSides] PRIMARY KEY CLUSTERED
+(
+	[TrackerSideId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[TrackerTypes]    Script Date: 2/6/2018 1:34:18 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[TrackerTypes](
+	[TrackerTypeId] [int] IDENTITY(1,1) NOT NULL,
+	[TrackerType] [nvarchar](255) NOT NULL,
+	[TrackerCategoryId] [int] NOT NULL,
+	[Icon] [nvarchar](255) NULL,
+	[Description] [ntext] NULL,
+	[IsVisible] [bit] NOT NULL,
+ CONSTRAINT [PK_TrackerTypes] PRIMARY KEY CLUSTERED
+(
+	[TrackerTypeId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[TrackerWatchList]    Script Date: 2/6/2018 1:34:18 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[TrackerWatchList](
+	[TrackerId] [int] NOT NULL,
+	[UserEntityId] [int] NOT NULL,
+	[IsInclude] [bit] NOT NULL,
+	[TrackerSideId] [int] NOT NULL,
+ CONSTRAINT [PK_TrackerWatchList] PRIMARY KEY CLUSTERED
+(
+	[TrackerSideId] ASC,
+	[UserEntityId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[UserActivityCounts]    Script Date: 2/6/2018 1:34:18 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[UserActivityCounts](
+	[UserActivityId] [int] IDENTITY(1,1) NOT NULL,
+	[TrackerExecutionId] [int] NOT NULL,
+	[UserEntityId] [int] NOT NULL,
+	[ActivityCount] [int] NOT NULL,
+ CONSTRAINT [PK_UserActivityCounts] PRIMARY KEY CLUSTERED
+(
+	[UserActivityId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[WallAccessTypes]    Script Date: 2/6/2018 1:34:18 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[WallAccessTypes](
+	[WallAccessTypeId] [int] IDENTITY(1,1) NOT NULL,
+	[WallAccessType] [nvarchar](50) NOT NULL,
+	[SelfMaintaining] [nvarchar](64) NOT NULL,
+	[RequireAckForAccess] [nvarchar](64) NOT NULL,
+	[OrderId] [int] NOT NULL,
+	[Icon] [nvarchar](200) NULL,
+	[Description] [ntext] NULL,
+	[SideConfig] [nvarchar](4000) NULL,
+	[AutoAddMatterTeams] [nvarchar](64) NOT NULL,
+	[RelationshipPairing] [nvarchar](64) NOT NULL,
+	[PolicyCategoryId] [int] NOT NULL,
+	[DefaultSelfMaintainingIntervalType] [nvarchar](50) NULL,
+ CONSTRAINT [PK_WallAccessTypes] PRIMARY KEY CLUSTERED
+(
+	[WallAccessTypeId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[WallCustomComboValues]    Script Date: 2/6/2018 1:34:18 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[WallCustomComboValues](
+	[Field] [nvarchar](32) NOT NULL,
+	[Value] [nvarchar](200) NOT NULL,
+	[PolicyCategoryGroupId] [int] NOT NULL,
+ CONSTRAINT [PK_WallCustomComboValues] PRIMARY KEY CLUSTERED
+(
+	[Field] ASC,
+	[Value] ASC,
+	[PolicyCategoryGroupId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[WallCustomFieldConfig]    Script Date: 2/6/2018 1:34:18 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[WallCustomFieldConfig](
+	[Field] [nvarchar](32) NOT NULL,
+	[DisplayName] [nvarchar](64) NOT NULL,
+	[IsRequired] [bit] NOT NULL,
+	[Type] [nvarchar](32) NOT NULL,
+	[Description] [nvarchar](100) NOT NULL,
+	[PolicyCategoryGroupId] [int] NOT NULL,
+ CONSTRAINT [PK_WallCustomFieldConfig] PRIMARY KEY CLUSTERED
+(
+	[Field] ASC,
+	[PolicyCategoryGroupId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[WallExceptions]    Script Date: 2/6/2018 1:34:18 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[WallExceptions](
+	[WallId] [int] NOT NULL,
+	[EntityId] [int] NOT NULL,
+	[CreatorId] [int] NOT NULL,
+	[DateAdded] [datetime] NOT NULL,
+	[Notes] [ntext] NULL,
+ CONSTRAINT [PK_WallExceptions] PRIMARY KEY CLUSTERED
+(
+	[WallId] ASC,
+	[EntityId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[WallRoles]    Script Date: 2/6/2018 1:34:18 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[WallRoles](
+	[WallRoleId] [int] IDENTITY(1,1) NOT NULL,
+	[WallRoleName] [nvarchar](100) NOT NULL,
+	[WallRoleXML] [ntext] NULL,
+ CONSTRAINT [PK_WallRoles] PRIMARY KEY CLUSTERED
+(
+	[WallRoleId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[Walls]    Script Date: 2/6/2018 1:34:18 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[Walls](
+	[WallId] [int] IDENTITY(1,1) NOT NULL,
+	[Name] [nvarchar](250) NULL,
+	[WallAccessTypeId] [int] NOT NULL,
+	[Notes] [ntext] NULL,
+	[CreatorId] [int] NOT NULL,
+	[Created] [datetime] NOT NULL,
+	[Modified] [datetime] NOT NULL,
+	[IsEnabled] [bit] NOT NULL,
+	[IsDeleted] [bit] NOT NULL,
+	[ExpirationDate] [datetime] NULL,
+	[IsSelfMaintaining] [bit] NOT NULL,
+	[IsRequireAcknowledgement] [bit] NOT NULL,
+	[CustomField1] [nvarchar](200) NULL,
+	[CustomField2] [nvarchar](200) NULL,
+	[CustomField3] [nvarchar](200) NULL,
+	[CustomField4] [nvarchar](200) NULL,
+	[CustomField5] [nvarchar](200) NULL,
+	[CustomField6] [nvarchar](200) NULL,
+	[CustomField7] [nvarchar](200) NULL,
+	[CustomField8] [nvarchar](200) NULL,
+	[CustomField9] [nvarchar](200) NULL,
+	[CustomField10] [nvarchar](200) NULL,
+	[CustomDate1] [datetime] NULL,
+	[CustomDate2] [datetime] NULL,
+	[CustomDate3] [datetime] NULL,
+	[CustomDate4] [datetime] NULL,
+	[CustomDate5] [datetime] NULL,
+	[SelfMaintainingPeriod] [int] NULL,
+	[SelfMaintainingPeriodUnit] [nvarchar](32) NULL,
+	[SelfMaintainingMinHours] [int] NULL,
+	[EffectiveDate] [datetime] NULL,
+	[ModifierId] [int] NULL,
+	[SecurityStatus] [nvarchar](32) NULL,
+	[SelfMaintainingPeriodStart] [datetime] NULL,
+	[SelfMaintainingPeriodEnd] [datetime] NULL,
+	[SecurityStartDate] [datetime] NULL,
+	[SecurityEndDate] [datetime] NULL,
+	[IsRelationshipPaired] [bit] NOT NULL,
+	[ExtLegalHoldID] [varchar](20) NULL,
+	[FoundationalGroupId] [nvarchar](20) NULL,
+ CONSTRAINT [PK_Walls] PRIMARY KEY CLUSTERED
+(
+	[WallId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[WallSecurityStatus]    Script Date: 2/6/2018 1:34:18 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[WallSecurityStatus](
+	[WallSecurityStatusId] [int] IDENTITY(1,1) NOT NULL,
+	[WallId] [int] NOT NULL,
+	[ExtensionType] [nvarchar](64) NOT NULL,
+	[LibraryName] [nvarchar](255) NOT NULL,
+	[EntityId] [int] NOT NULL,
+	[Status] [nvarchar](32) NOT NULL,
+	[SecuredObjectCount] [int] NOT NULL,
+	[TotalObjectCount] [int] NOT NULL,
+	[Errors] [ntext] NULL,
+	[LastRecalculationDate] [datetime] NULL,
+ CONSTRAINT [PK_WallSecurityStatus] PRIMARY KEY CLUSTERED
+(
+	[WallId] ASC,
+	[ExtensionType] ASC,
+	[LibraryName] ASC,
+	[EntityId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[WallSideEntities]    Script Date: 2/6/2018 1:34:18 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[WallSideEntities](
+	[WallSideId] [int] NOT NULL,
+	[EntityId] [int] NOT NULL,
+	[WallId] [int] NOT NULL,
+	[DateAdded] [datetime] NULL,
+	[WasAddedBySelfMaintaining] [bit] NULL,
+	[WallRoleId] [int] NULL,
+ CONSTRAINT [PK_WallSideEntities] PRIMARY KEY CLUSTERED
+(
+	[WallSideId] ASC,
+	[EntityId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[WallSides]    Script Date: 2/6/2018 1:34:18 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[WallSides](
+	[WallSideId] [int] IDENTITY(1,1) NOT NULL,
+	[WallId] [int] NOT NULL,
+	[IsDeleted] [bit] NOT NULL,
+	[WallSideName] [nvarchar](250) NOT NULL,
+ CONSTRAINT [PK_WallSides] PRIMARY KEY CLUSTERED
+(
+	[WallSideId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[Widget]    Script Date: 2/6/2018 1:34:18 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[Widget](
+	[Id] [int] IDENTITY(1,1) NOT NULL,
+	[Name] [nvarchar](50) NOT NULL,
+	[Description] [nvarchar](250) NULL,
+	[Url] [nvarchar](2083) NOT NULL,
+	[OrderNumber] [int] NOT NULL,
+	[Editable] [bit] NOT NULL,
+	[SupportRedirection] [bit] NOT NULL,
+ CONSTRAINT [PK_Widget] PRIMARY KEY CLUSTERED
+(
+	[Id] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[WidgetInstance]    Script Date: 2/6/2018 1:34:18 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[WidgetInstance](
+	[Id] [int] IDENTITY(1,1) NOT NULL,
+	[WidgetZoneId] [int] NOT NULL,
+	[WidgetId] [int] NOT NULL,
+	[OrderNumber] [int] NOT NULL,
+	[Expanded] [bit] NOT NULL,
+	[Maximized] [bit] NOT NULL,
+	[Resized] [bit] NOT NULL,
+	[Width] [int] NOT NULL,
+	[Height] [int] NOT NULL,
+	[Title] [nvarchar](250) NOT NULL,
+	[WidgetProperties] [nvarchar](4000) NOT NULL,
+ CONSTRAINT [PK_WidgetZoneWidgets] PRIMARY KEY CLUSTERED
+(
+	[Id] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[WidgetZone]    Script Date: 2/6/2018 1:34:18 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[WidgetZone](
+	[Id] [int] IDENTITY(1,1) NOT NULL,
+	[WidgetZoneTypeId] [int] NOT NULL,
+	[UserId] [int] NOT NULL,
+	[OrderNumber] [int] NOT NULL,
+	[Title] [nvarchar](250) NULL,
+ CONSTRAINT [PK_WidgetZone] PRIMARY KEY CLUSTERED
+(
+	[Id] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[WidgetZoneType]    Script Date: 2/6/2018 1:34:18 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[WidgetZoneType](
+	[Id] [int] IDENTITY(1,1) NOT NULL,
+	[WidgetZoneType] [nvarchar](50) NOT NULL,
+	[WidgetZoneTypeDescription] [nvarchar](250) NULL,
+ CONSTRAINT [PK_WidgetZoneType] PRIMARY KEY CLUSTERED
+(
+	[Id] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  View [dbo].[ConfigRestricted]    Script Date: 2/6/2018 1:34:18 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+    CREATE VIEW [dbo].[ConfigRestricted] AS
+        SELECT ConfigId, ConfigVariable, ConfigValue1, ConfigValue2, Category, IsVisible
+        FROM [Config]
+        WHERE (ConfigVariable NOT LIKE '%Password')
+        AND (ConfigVariable NOT LIKE '%Username')
+        AND (ConfigVariable NOT LIKE '%Server')
+        AND (ConfigVariable NOT LIKE '%Name')
+        AND (ConfigVariable NOT LIKE '%Domain')
+        AND (ConfigVariable NOT LIKE '%Url')
+        AND (ConfigVariable NOT LIKE '%LibraryXML')
+        AND (ConfigVariable NOT LIKE '%LicenseKey')
+        AND (ConfigVariable NOT LIKE '%ConnectionString')
+        AND (ConfigVariable NOT LIKE '%PowerUserGroupsXML')
+        AND (ConfigVariable NOT LIKE '%RootDirectoryXML')
+        AND (ConfigVariable NOT LIKE '%ConnectionString')
+        AND (ConfigVariable NOT LIKE 'Mail::SMTPHost')
+        AND (ConfigVariable NOT LIKE '%PublicGroupDN')
+        AND (ConfigVariable NOT LIKE '%AdminUsersXML')
+        AND (ConfigVariable NOT LIKE 'MessageBus::ReceiverXML')
+        AND (ConfigVariable NOT LIKE '%ApiKey')
+        AND (ConfigVariable NOT LIKE '%AuthToken')
+GO
+
+/****** Object:  Index [IX_TrackerAlertDetails_1]    Script Date: 2/6/2018 1:34:18 PM ******/
+CREATE NONCLUSTERED INDEX [IX_TrackerAlertDetails_1] ON [dbo].[AlertDetails]
+(
+	[AlertId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+GO
+SET ANSI_PADDING ON
+GO
+/****** Object:  Index [IX_CustomFields_FieldId]    Script Date: 2/6/2018 1:34:18 PM ******/
+CREATE UNIQUE NONCLUSTERED INDEX [IX_CustomFields_FieldId] ON [dbo].[AlertDetailsCustomFields]
+(
+	[FieldId] ASC,
+	[RepositoryTypeId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, IGNORE_DUP_KEY = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+GO
+SET ANSI_PADDING ON
+GO
+/****** Object:  Index [IX_CustomFields_FieldName]    Script Date: 2/6/2018 1:34:18 PM ******/
+CREATE UNIQUE NONCLUSTERED INDEX [IX_CustomFields_FieldName] ON [dbo].[AlertDetailsCustomFields]
+(
+	[FieldName] ASC,
+	[RepositoryTypeId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, IGNORE_DUP_KEY = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+GO
+/****** Object:  Index [IX_TrackerAlerts_1]    Script Date: 2/6/2018 1:34:18 PM ******/
+CREATE NONCLUSTERED INDEX [IX_TrackerAlerts_1] ON [dbo].[Alerts]
+(
+	[TrackerExecutionId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+GO
+/****** Object:  Index [IX_AttorneyAcknowledgments_WallSideId_isAcknowledged_isArchived]    Script Date: 2/6/2018 1:34:18 PM ******/
+CREATE NONCLUSTERED INDEX [IX_AttorneyAcknowledgments_WallSideId_isAcknowledged_isArchived] ON [dbo].[AttorneyAcknowledgments]
+(
+	[WallSideId] ASC,
+	[isAcknowledged] ASC,
+	[isArchived] ASC
+)
+INCLUDE ( 	[EntityId]) WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+GO
+SET ANSI_PADDING ON
+GO
+/****** Object:  Index [IX_Config_ConfigVariable]    Script Date: 2/6/2018 1:34:18 PM ******/
+CREATE UNIQUE NONCLUSTERED INDEX [IX_Config_ConfigVariable] ON [dbo].[Config]
+(
+	[ConfigVariable] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, IGNORE_DUP_KEY = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+GO
+/****** Object:  Index [IX_Entities_1]    Script Date: 2/6/2018 1:34:18 PM ******/
+CREATE NONCLUSTERED INDEX [IX_Entities_1] ON [dbo].[Entities]
+(
+	[EntityTypeId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+GO
+SET ANSI_PADDING ON
+GO
+/****** Object:  Index [IX_Entities_2]    Script Date: 2/6/2018 1:34:18 PM ******/
+CREATE NONCLUSTERED INDEX [IX_Entities_2] ON [dbo].[Entities]
+(
+	[EntityRemoteSystemId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+GO
+SET ANSI_PADDING ON
+GO
+/****** Object:  Index [IX_Entities_3]    Script Date: 2/6/2018 1:34:18 PM ******/
+CREATE NONCLUSTERED INDEX [IX_Entities_3] ON [dbo].[Entities]
+(
+	[ParentRemoteSystemId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+GO
+/****** Object:  Index [IX_Entities_4]    Script Date: 2/6/2018 1:34:18 PM ******/
+CREATE NONCLUSTERED INDEX [IX_Entities_4] ON [dbo].[Entities]
+(
+	[IsEnabledForSearch] ASC,
+	[EntityTypeId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+GO
+/****** Object:  Index [IX_Entities_5]    Script Date: 2/6/2018 1:34:18 PM ******/
+CREATE NONCLUSTERED INDEX [IX_Entities_5] ON [dbo].[Entities]
+(
+	[MatterTeamEntityId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+GO
+SET ANSI_PADDING ON
+GO
+/****** Object:  Index [IX_Entities_6]    Script Date: 2/6/2018 1:34:18 PM ******/
+CREATE NONCLUSTERED INDEX [IX_Entities_6] ON [dbo].[Entities]
+(
+	[WindowsNetworkLogon] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+GO
+/****** Object:  Index [IX_Entities_7]    Script Date: 2/6/2018 1:34:18 PM ******/
+CREATE NONCLUSTERED INDEX [IX_Entities_7] ON [dbo].[Entities]
+(
+	[Modified] DESC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+GO
+SET ANSI_PADDING ON
+GO
+/****** Object:  Index [IX_Entities_EntityDisplayId]    Script Date: 2/6/2018 1:34:18 PM ******/
+CREATE NONCLUSTERED INDEX [IX_Entities_EntityDisplayId] ON [dbo].[Entities]
+(
+	[EntityDisplayId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+GO
+SET ANSI_PADDING ON
+GO
+/****** Object:  Index [IX_EntityCustomFieldConfig_1]    Script Date: 2/6/2018 1:34:18 PM ******/
+CREATE UNIQUE NONCLUSTERED INDEX [IX_EntityCustomFieldConfig_1] ON [dbo].[EntityCustomFieldConfig]
+(
+	[EntityTypeId] ASC,
+	[DisplayName] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, IGNORE_DUP_KEY = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+GO
+/****** Object:  Index [IX_EntityKeyMap_ParentEntityId_IsActive]    Script Date: 2/6/2018 1:34:18 PM ******/
+CREATE NONCLUSTERED INDEX [IX_EntityKeyMap_ParentEntityId_IsActive] ON [dbo].[EntityKeyMap]
+(
+	[ParentEntityId] ASC,
+	[IsActive] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+GO
+SET ANSI_PADDING ON
+GO
+/****** Object:  Index [IX_ErrorLog_1]    Script Date: 2/6/2018 1:34:18 PM ******/
+CREATE NONCLUSTERED INDEX [IX_ErrorLog_1] ON [dbo].[ErrorLog]
+(
+	[ServiceType] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+GO
+SET ANSI_PADDING ON
+GO
+/****** Object:  Index [IX_ErrorLog_2]    Script Date: 2/6/2018 1:34:18 PM ******/
+CREATE NONCLUSTERED INDEX [IX_ErrorLog_2] ON [dbo].[ErrorLog]
+(
+	[LogLevel] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+GO
+/****** Object:  Index [IX_ErrorLog_3]    Script Date: 2/6/2018 1:34:18 PM ******/
+CREATE NONCLUSTERED INDEX [IX_ErrorLog_3] ON [dbo].[ErrorLog]
+(
+	[Created] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+GO
+SET ANSI_PADDING ON
+GO
+/****** Object:  Index [IX_ExtensionQueryResults_RequestId]    Script Date: 2/6/2018 1:34:18 PM ******/
+CREATE NONCLUSTERED INDEX [IX_ExtensionQueryResults_RequestId] ON [dbo].[ExtensionQueryResults]
+(
+	[RequestId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+GO
+SET ANSI_PADDING ON
+GO
+/****** Object:  Index [IX_ExtensionServiceJobs_1]    Script Date: 2/6/2018 1:34:18 PM ******/
+CREATE NONCLUSTERED INDEX [IX_ExtensionServiceJobs_1] ON [dbo].[ExtensionServiceJobs]
+(
+	[ExtensionServiceName] ASC,
+	[ExtensionType] ASC,
+	[LibraryName] ASC,
+	[FinalStatus] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+GO
+SET ANSI_PADDING ON
+GO
+/****** Object:  Index [ExternalUsersAccessHistory_SearchFields]    Script Date: 2/6/2018 1:34:18 PM ******/
+CREATE NONCLUSTERED INDEX [ExternalUsersAccessHistory_SearchFields] ON [dbo].[ExternalUsersAccessHistory]
+(
+	[MatterEntityId] ASC,
+	[ExternalUserEntityId] ASC,
+	[ActivityType] ASC,
+	[ActivityDate] ASC
+)
+INCLUDE ( 	[AccessHistoryId],
+	[ActivityReason]) WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+GO
+/****** Object:  Index [IX_InsidersReports_MatterEntityID]    Script Date: 2/6/2018 1:34:18 PM ******/
+CREATE UNIQUE NONCLUSTERED INDEX [IX_InsidersReports_MatterEntityID] ON [dbo].[InsidersReports]
+(
+	[MatterEntityID] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, IGNORE_DUP_KEY = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+GO
+/****** Object:  Index [IX_Log_1]    Script Date: 2/6/2018 1:34:18 PM ******/
+CREATE NONCLUSTERED INDEX [IX_Log_1] ON [dbo].[Log]
+(
+	[UserId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+GO
+/****** Object:  Index [IX_Log_2]    Script Date: 2/6/2018 1:34:18 PM ******/
+CREATE NONCLUSTERED INDEX [IX_Log_2] ON [dbo].[Log]
+(
+	[WallId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+GO
+SET ANSI_PADDING ON
+GO
+/****** Object:  Index [IX_Log_3]    Script Date: 2/6/2018 1:34:18 PM ******/
+CREATE NONCLUSTERED INDEX [IX_Log_3] ON [dbo].[Log]
+(
+	[LogMessageType] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+GO
+/****** Object:  Index [IX_MatterTeamHistories]    Script Date: 2/6/2018 1:34:18 PM ******/
+CREATE NONCLUSTERED INDEX [IX_MatterTeamHistories] ON [dbo].[MatterTeamHistories]
+(
+	[MatterEntityId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+GO
+/****** Object:  Index [IX_MatterTeamHistories_UserEntityId_IsActive_MatterEntityId]    Script Date: 2/6/2018 1:34:18 PM ******/
+CREATE NONCLUSTERED INDEX [IX_MatterTeamHistories_UserEntityId_IsActive_MatterEntityId] ON [dbo].[MatterTeamHistories]
+(
+	[UserEntityId] ASC,
+	[IsActive] ASC,
+	[MatterEntityId] ASC
+)
+INCLUDE ( 	[MatterTeamHistoryId]) WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+GO
+/****** Object:  Index [IX_MatterTeamSubscriptionRequests_1]    Script Date: 2/6/2018 1:34:18 PM ******/
+CREATE NONCLUSTERED INDEX [IX_MatterTeamSubscriptionRequests_1] ON [dbo].[MatterTeamSubscriptionRequests]
+(
+	[MatterTeamId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+GO
+/****** Object:  Index [IX_MatterTeamSubscriptionRequests_2]    Script Date: 2/6/2018 1:34:18 PM ******/
+CREATE NONCLUSTERED INDEX [IX_MatterTeamSubscriptionRequests_2] ON [dbo].[MatterTeamSubscriptionRequests]
+(
+	[UserEntityId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+GO
+/****** Object:  Index [IX_MatterTeamSubscriptionRequests_3]    Script Date: 2/6/2018 1:34:18 PM ******/
+CREATE NONCLUSTERED INDEX [IX_MatterTeamSubscriptionRequests_3] ON [dbo].[MatterTeamSubscriptionRequests]
+(
+	[AdminEntityId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+GO
+/****** Object:  Index [IX_Notifications]    Script Date: 2/6/2018 1:34:18 PM ******/
+CREATE NONCLUSTERED INDEX [IX_Notifications] ON [dbo].[Notifications]
+(
+	[WallId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+GO
+SET ANSI_PADDING ON
+GO
+/****** Object:  Index [IX_ObjectReleaseExceptions_1]    Script Date: 2/6/2018 1:34:18 PM ******/
+CREATE NONCLUSTERED INDEX [IX_ObjectReleaseExceptions_1] ON [dbo].[ObjectReleaseExceptions]
+(
+	[ExtensionType] ASC,
+	[LibraryName] ASC,
+	[EntityId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+GO
+/****** Object:  Index [IX_ObjectReleaseExceptions_2]    Script Date: 2/6/2018 1:34:18 PM ******/
+CREATE NONCLUSTERED INDEX [IX_ObjectReleaseExceptions_2] ON [dbo].[ObjectReleaseExceptions]
+(
+	[EntityId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+GO
+/****** Object:  Index [IX_ObjectReleaseExceptions_3]    Script Date: 2/6/2018 1:34:18 PM ******/
+CREATE NONCLUSTERED INDEX [IX_ObjectReleaseExceptions_3] ON [dbo].[ObjectReleaseExceptions]
+(
+	[ExpirationDate] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+GO
+SET ANSI_PADDING ON
+GO
+/****** Object:  Index [IX_ObjectReleaseExceptions_4]    Script Date: 2/6/2018 1:34:18 PM ******/
+CREATE NONCLUSTERED INDEX [IX_ObjectReleaseExceptions_4] ON [dbo].[ObjectReleaseExceptions]
+(
+	[ObjectId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+GO
+SET ANSI_PADDING ON
+GO
+/****** Object:  Index [PermanentInsidersAccessHistory_SearchFields]    Script Date: 2/6/2018 1:34:18 PM ******/
+CREATE NONCLUSTERED INDEX [PermanentInsidersAccessHistory_SearchFields] ON [dbo].[PermanentInsidersAccessHistory]
+(
+	[UserEntityId] ASC,
+	[ActivityType] ASC,
+	[ActivityDate] ASC
+)
+INCLUDE ( 	[AccessHistoryId],
+	[ActivityReason]) WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+GO
+/****** Object:  Index [IX_ReportFields_1]    Script Date: 2/6/2018 1:34:18 PM ******/
+CREATE NONCLUSTERED INDEX [IX_ReportFields_1] ON [dbo].[ReportFields]
+(
+	[ReportTypeId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+GO
+/****** Object:  Index [IX_Reports]    Script Date: 2/6/2018 1:34:18 PM ******/
+CREATE NONCLUSTERED INDEX [IX_Reports] ON [dbo].[Reports]
+(
+	[UserId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+GO
+/****** Object:  Index [IX_ReportSchedules_1]    Script Date: 2/6/2018 1:34:18 PM ******/
+CREATE NONCLUSTERED INDEX [IX_ReportSchedules_1] ON [dbo].[ReportSchedules]
+(
+	[ReportID] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+GO
+/****** Object:  Index [IX_ReportSchedules_3]    Script Date: 2/6/2018 1:34:18 PM ******/
+CREATE NONCLUSTERED INDEX [IX_ReportSchedules_3] ON [dbo].[ReportSchedules]
+(
+	[IsEnabled] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+GO
+/****** Object:  Index [IX_ReportSchedules_4]    Script Date: 2/6/2018 1:34:18 PM ******/
+CREATE NONCLUSTERED INDEX [IX_ReportSchedules_4] ON [dbo].[ReportSchedules]
+(
+	[NextTimeDue] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+GO
+/****** Object:  Index [IX_SummaryDetails_1]    Script Date: 2/6/2018 1:34:18 PM ******/
+CREATE NONCLUSTERED INDEX [IX_SummaryDetails_1] ON [dbo].[SummaryDetails]
+(
+	[TrackerExecutionId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+GO
+/****** Object:  Index [IX_TrackerClientsAndMatters_1]    Script Date: 2/6/2018 1:34:18 PM ******/
+CREATE NONCLUSTERED INDEX [IX_TrackerClientsAndMatters_1] ON [dbo].[TrackerClientsAndMatters]
+(
+	[TrackerId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+GO
+/****** Object:  Index [IX_TrackerExecutionClientsAndMatters_1]    Script Date: 2/6/2018 1:34:18 PM ******/
+CREATE NONCLUSTERED INDEX [IX_TrackerExecutionClientsAndMatters_1] ON [dbo].[TrackerExecutionClientsAndMatters]
+(
+	[TrackerExecutionId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+GO
+/****** Object:  Index [IX_TrackerExecutions_1]    Script Date: 2/6/2018 1:34:18 PM ******/
+CREATE NONCLUSTERED INDEX [IX_TrackerExecutions_1] ON [dbo].[TrackerExecutions]
+(
+	[TrackerId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+GO
+/****** Object:  Index [IX_Thresholds_1]    Script Date: 2/6/2018 1:34:18 PM ******/
+CREATE NONCLUSTERED INDEX [IX_Thresholds_1] ON [dbo].[Trackers]
+(
+	[Modified] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+GO
+/****** Object:  Index [IX_Thresholds_2]    Script Date: 2/6/2018 1:34:18 PM ******/
+CREATE NONCLUSTERED INDEX [IX_Thresholds_2] ON [dbo].[Trackers]
+(
+	[IsDeleted] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+GO
+/****** Object:  Index [IX_Thresholds_3]    Script Date: 2/6/2018 1:34:18 PM ******/
+CREATE NONCLUSTERED INDEX [IX_Thresholds_3] ON [dbo].[Trackers]
+(
+	[IsEnabled] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+GO
+/****** Object:  Index [IX_ThresholdWatchList_1]    Script Date: 2/6/2018 1:34:18 PM ******/
+CREATE NONCLUSTERED INDEX [IX_ThresholdWatchList_1] ON [dbo].[TrackerWatchList]
+(
+	[TrackerId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+GO
+SET ANSI_PADDING ON
+GO
+/****** Object:  Index [IX_WallCustomFieldConfig_1]    Script Date: 2/6/2018 1:34:18 PM ******/
+CREATE UNIQUE NONCLUSTERED INDEX [IX_WallCustomFieldConfig_1] ON [dbo].[WallCustomFieldConfig]
+(
+	[DisplayName] ASC,
+	[PolicyCategoryGroupId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, IGNORE_DUP_KEY = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+GO
+SET ANSI_PADDING ON
+GO
+/****** Object:  Index [IX_WallRoles_Name]    Script Date: 2/6/2018 1:34:18 PM ******/
+CREATE NONCLUSTERED INDEX [IX_WallRoles_Name] ON [dbo].[WallRoles]
+(
+	[WallRoleName] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+GO
+/****** Object:  Index [IX_Walls_1]    Script Date: 2/6/2018 1:34:18 PM ******/
+CREATE NONCLUSTERED INDEX [IX_Walls_1] ON [dbo].[Walls]
+(
+	[CreatorId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+GO
+/****** Object:  Index [IX_Walls_2]    Script Date: 2/6/2018 1:34:18 PM ******/
+CREATE NONCLUSTERED INDEX [IX_Walls_2] ON [dbo].[Walls]
+(
+	[WallAccessTypeId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+GO
+SET ANSI_PADDING ON
+GO
+/****** Object:  Index [UIX_Walls_FoundationalGroupId]    Script Date: 2/6/2018 1:34:18 PM ******/
+CREATE UNIQUE NONCLUSTERED INDEX [UIX_Walls_FoundationalGroupId] ON [dbo].[Walls]
+(
+	[FoundationalGroupId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, IGNORE_DUP_KEY = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+GO
+SET ANSI_PADDING ON
+GO
+/****** Object:  Index [IX_WallSecurityStatus_Entity]    Script Date: 2/6/2018 1:34:18 PM ******/
+CREATE NONCLUSTERED INDEX [IX_WallSecurityStatus_Entity] ON [dbo].[WallSecurityStatus]
+(
+	[EntityId] ASC
+)
+INCLUDE ( 	[WallId],
+	[Status]) WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+GO
+/****** Object:  Index [IX_WallSecurityStatus_WallId]    Script Date: 2/6/2018 1:34:18 PM ******/
+CREATE NONCLUSTERED INDEX [IX_WallSecurityStatus_WallId] ON [dbo].[WallSecurityStatus]
+(
+	[WallId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+GO
+/****** Object:  Index [IX_WallSecurityStatus_WallSecurityStatusId]    Script Date: 2/6/2018 1:34:18 PM ******/
+CREATE NONCLUSTERED INDEX [IX_WallSecurityStatus_WallSecurityStatusId] ON [dbo].[WallSecurityStatus]
+(
+	[WallSecurityStatusId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+GO
+/****** Object:  Index [IX_WallSideEntities_EntityIdsForWallId]    Script Date: 2/6/2018 1:34:18 PM ******/
+CREATE NONCLUSTERED INDEX [IX_WallSideEntities_EntityIdsForWallId] ON [dbo].[WallSideEntities]
+(
+	[WallId] ASC
+)
+INCLUDE ( 	[WallSideId],
+	[EntityId]) WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+GO
+/****** Object:  Index [IX_WallSideEntities_WasAddedBySelfMaintaining]    Script Date: 2/6/2018 1:34:18 PM ******/
+CREATE NONCLUSTERED INDEX [IX_WallSideEntities_WasAddedBySelfMaintaining] ON [dbo].[WallSideEntities]
+(
+	[WasAddedBySelfMaintaining] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+GO
+/****** Object:  Index [IX_WallSides]    Script Date: 2/6/2018 1:34:18 PM ******/
+CREATE NONCLUSTERED INDEX [IX_WallSides] ON [dbo].[WallSides]
+(
+	[WallId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+GO
+SET ANSI_PADDING ON
+GO
+/****** Object:  Index [IX_Widget_Name]    Script Date: 2/6/2018 1:34:18 PM ******/
+CREATE UNIQUE NONCLUSTERED INDEX [IX_Widget_Name] ON [dbo].[Widget]
+(
+	[Name] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, IGNORE_DUP_KEY = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+GO
+SET ANSI_PADDING ON
+GO
+/****** Object:  Index [IX_WidgetZone]    Script Date: 2/6/2018 1:34:18 PM ******/
+CREATE UNIQUE NONCLUSTERED INDEX [IX_WidgetZone] ON [dbo].[WidgetZone]
+(
+	[Title] ASC,
+	[UserId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, IGNORE_DUP_KEY = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+GO
+ALTER TABLE [dbo].[AlertDetails] ADD  CONSTRAINT [DF_AlertDetails_Created]  DEFAULT (getdate()) FOR [Created]
+GO
+ALTER TABLE [dbo].[ApplicationUsers] ADD  CONSTRAINT [DF_Users_IsEnabled]  DEFAULT ((1)) FOR [IsEnabled]
+GO
+ALTER TABLE [dbo].[ApplicationUsers] ADD  CONSTRAINT [DF_Users_IsDeleted]  DEFAULT ((0)) FOR [IsDeleted]
+GO
+ALTER TABLE [dbo].[ApplicationUsers] ADD  CONSTRAINT [DF_Users_CreationDate]  DEFAULT (getdate()) FOR [Created]
+GO
+ALTER TABLE [dbo].[ApplicationUsers] ADD  CONSTRAINT [DF_Users_ModifiedTime]  DEFAULT (getdate()) FOR [Modified]
+GO
+ALTER TABLE [dbo].[ApplicationUsers] ADD  DEFAULT ((0)) FOR [InsidersModuleAccess]
+GO
+ALTER TABLE [dbo].[Attachments] ADD  CONSTRAINT [DF_Attachments_Created]  DEFAULT (getdate()) FOR [Created]
+GO
+ALTER TABLE [dbo].[AttorneyAcknowledgments] ADD  DEFAULT ((0)) FOR [isAcknowledged]
+GO
+ALTER TABLE [dbo].[AttorneyAcknowledgments] ADD  DEFAULT ((0)) FOR [isArchived]
+GO
+ALTER TABLE [dbo].[DynamicEntityGroupExceptions] ADD  CONSTRAINT [DF_DynamicEntityGroupExceptions_CreatorId]  DEFAULT ((1)) FOR [CreatorId]
+GO
+ALTER TABLE [dbo].[DynamicEntityGroupExceptions] ADD  CONSTRAINT [DF_DynamicEntityGroupExceptions_DateAdded]  DEFAULT (getdate()) FOR [DateAdded]
+GO
+ALTER TABLE [dbo].[Entities] ADD  DEFAULT ((1)) FOR [IsEnabledForSearch]
+GO
+ALTER TABLE [dbo].[Entities] ADD  DEFAULT ((1)) FOR [NotificationRoleId]
+GO
+ALTER TABLE [dbo].[EntitiesMatterTeamFields] ADD  DEFAULT ((0)) FOR [IsRelationshipPaired]
+GO
+ALTER TABLE [dbo].[EntitiesUserFields] ADD  DEFAULT ((0)) FOR [IsExceptedFromActiveDirectoryGroups]
+GO
+ALTER TABLE [dbo].[EntitiesUserFields] ADD  DEFAULT ((0)) FOR [IsExceptedFromJoiningMatterTeam]
+GO
+ALTER TABLE [dbo].[EntityCustomFieldConfig] ADD  DEFAULT ('Custom Field') FOR [Description]
+GO
+ALTER TABLE [dbo].[EntityCustomFieldConfig] ADD  CONSTRAINT [DF_EntityCustomFieldConfig_IsIncludedInNotifications]  DEFAULT ((0)) FOR [IsIncludedInNotifications]
+GO
+ALTER TABLE [dbo].[EntityCustomFieldConfig] ADD  DEFAULT ((1)) FOR [IsIncludedInEntityTooltip]
+GO
+ALTER TABLE [dbo].[EntityCustomFieldConfig] ADD  CONSTRAINT [DF_EntityCustomFieldConfig_IsMultiValued]  DEFAULT ((0)) FOR [IsMultiValued]
+GO
+ALTER TABLE [dbo].[EntityCustomFieldConfig] ADD  CONSTRAINT [DF_EntityCustomFieldConfig_IsIncludedInExtendedValidation]  DEFAULT ((0)) FOR [IsIncludedInExtendedValidation]
+GO
+ALTER TABLE [dbo].[EntityCustomFieldConfig] ADD  DEFAULT ((1)) FOR [IsIncludedInGeneralInformation]
+GO
+ALTER TABLE [dbo].[EntityCustomFieldConfig] ADD  CONSTRAINT [DF_EntityCustomFieldConfig_IsConfidential]  DEFAULT ((0)) FOR [IsConfidential]
+GO
+ALTER TABLE [dbo].[EntityCustomFieldConfig] ADD  DEFAULT (NULL) FOR [DateTimeFormat]
+GO
+ALTER TABLE [dbo].[EntityKeyMap] ADD  CONSTRAINT [DF_EntityKeyMap_IsActive]  DEFAULT ((1)) FOR [IsActive]
+GO
+ALTER TABLE [dbo].[EntityKeyMap] ADD  CONSTRAINT [DF_EntityKeyMap_IsMTHistoryConflict]  DEFAULT ((0)) FOR [IsMTHistoryConflict]
+GO
+ALTER TABLE [dbo].[EntityRelationshipTypes] ADD  CONSTRAINT [DF_EntityRelationshipTypes_IsDirectRelationshipValidated]  DEFAULT ((0)) FOR [IsDirectRelationshipValidated]
+GO
+ALTER TABLE [dbo].[EntityRelationshipTypes] ADD  CONSTRAINT [DF_EntityRelationshipTypes_IsSharedRelationshipValidated]  DEFAULT ((0)) FOR [IsSharedRelationshipValidated]
+GO
+ALTER TABLE [dbo].[ErrorLog] ADD  DEFAULT (getdate()) FOR [Created]
+GO
+ALTER TABLE [dbo].[ExtensionServiceLocks] ADD  CONSTRAINT [DF_LockTime_GETUTCDATE]  DEFAULT (getutcdate()) FOR [LockTime]
+GO
+ALTER TABLE [dbo].[FileShareADGroupStatuses] ADD  DEFAULT (getutcdate()) FOR [LastAccessTime]
+GO
+ALTER TABLE [dbo].[GlobalExceptions] ADD  CONSTRAINT [DF_GlobalExceptions_CreatorId]  DEFAULT ((1)) FOR [CreatorId]
+GO
+ALTER TABLE [dbo].[GlobalExceptions] ADD  CONSTRAINT [DF_GlobalExceptions_DateAdded]  DEFAULT (getdate()) FOR [DateAdded]
+GO
+ALTER TABLE [dbo].[GroupEntityLog] ADD  CONSTRAINT [DF_GroupEntityLog]  DEFAULT (getdate()) FOR [Created]
+GO
+ALTER TABLE [dbo].[InsidersReportFields] ADD  CONSTRAINT [DF_InsidersReportFields_IsHeaderField]  DEFAULT ((0)) FOR [IsHeaderField]
+GO
+ALTER TABLE [dbo].[InsidersReportFields] ADD  DEFAULT (NULL) FOR [DateTimeFormat]
+GO
+ALTER TABLE [dbo].[InsidersReportFields] ADD  CONSTRAINT [DF_InsidersReportFields_IsPermanentInsiders]  DEFAULT ((0)) FOR [IsPermanentInsiders]
+GO
+ALTER TABLE [dbo].[Log] ADD  CONSTRAINT [DF_Log_LogMessageCreated]  DEFAULT (getdate()) FOR [Created]
+GO
+ALTER TABLE [dbo].[MatterAccessHistory] ADD  CONSTRAINT [DF_MatterAccessHistory_WasAddedBySelfMaintaining]  DEFAULT ((0)) FOR [WasAddedBySelfMaintaining]
+GO
+ALTER TABLE [dbo].[MatterTeamExceptions] ADD  CONSTRAINT [DF_MatterTeamExceptions_DateAdded]  DEFAULT (getdate()) FOR [DateAdded]
+GO
+ALTER TABLE [dbo].[MatterTeamHistories] ADD  CONSTRAINT [DF_MatterTeamHistories_ActivityDate]  DEFAULT (getdate()) FOR [ActivityDate]
+GO
+ALTER TABLE [dbo].[MatterTeamRole] ADD  CONSTRAINT [DF_MatterTeamRole_IsAdmin]  DEFAULT ((0)) FOR [IsAdmin]
+GO
+ALTER TABLE [dbo].[MatterTeamRole] ADD  CONSTRAINT [DF_MatterTeamRole_IsDelegate]  DEFAULT ((0)) FOR [IsDelegate]
+GO
+ALTER TABLE [dbo].[MatterTeamRole] ADD  CONSTRAINT [DF_MatterTeamRole_WallRoleId]  DEFAULT ((1)) FOR [WallRoleId]
+GO
+ALTER TABLE [dbo].[MatterTeamRole] ADD  CONSTRAINT [DF_MatterTeamRole_IsExceptedFromInactiveStatus]  DEFAULT ((0)) FOR [IsExceptedFromInactiveStatus]
+GO
+ALTER TABLE [dbo].[MatterTeamRole] ADD  CONSTRAINT [DF_MatterTeamRole_IsRestrictedToGlobalAdmins]  DEFAULT ((0)) FOR [IsRestrictedToGlobalAdmins]
+GO
+ALTER TABLE [dbo].[MatterTeamRole] ADD  CONSTRAINT [DF_MatterTeamRole_CanRemoveUsers]  DEFAULT ((0)) FOR [CanRemoveUsers]
+GO
+ALTER TABLE [dbo].[MatterTeamRole] ADD  DEFAULT ((0)) FOR [CanSubscribeUsers]
+GO
+ALTER TABLE [dbo].[Notifications] ADD  CONSTRAINT [DF_Notifications_ForceExpiration]  DEFAULT ((0)) FOR [ForceNotification]
+GO
+ALTER TABLE [dbo].[Notifications] ADD  CONSTRAINT [DF_Notifications_IncludeAcknowledgments]  DEFAULT ((0)) FOR [IncludeAcknowledgments]
+GO
+ALTER TABLE [dbo].[Notifications] ADD  CONSTRAINT [DF_Notifications_NotificationType]  DEFAULT ('Event-Driven') FOR [NotificationType]
+GO
+ALTER TABLE [dbo].[Notifications] ADD  DEFAULT ('Wall') FOR [Scope]
+GO
+ALTER TABLE [dbo].[Notifications] ADD  CONSTRAINT [DF_Notifications_NotificationName]  DEFAULT ('') FOR [NotificationName]
+GO
+ALTER TABLE [dbo].[Notifications] ADD  CONSTRAINT [DF_Notifications_CreatorId]  DEFAULT ((1)) FOR [CreatorId]
+GO
+ALTER TABLE [dbo].[Notifications] ADD  CONSTRAINT [DF_Notifications_TriggerEvents]  DEFAULT ((0)) FOR [TriggerEvents]
+GO
+ALTER TABLE [dbo].[Notifications] ADD  CONSTRAINT [DF_Notifications_IsDeleted]  DEFAULT ((0)) FOR [IsDeleted]
+GO
+ALTER TABLE [dbo].[Notifications] ADD  CONSTRAINT [DF_Notifications_IsDigest]  DEFAULT ((0)) FOR [IsDigest]
+GO
+ALTER TABLE [dbo].[ObjectTemplate] ADD  DEFAULT ((0)) FOR [SeparatorType]
+GO
+ALTER TABLE [dbo].[ReportFields] ADD  CONSTRAINT [DF_ReportFields_IsQueryable]  DEFAULT ((1)) FOR [IsQueryable]
+GO
+ALTER TABLE [dbo].[ReportFields] ADD  CONSTRAINT [DF_ReportFields_IsSearchable]  DEFAULT ((1)) FOR [IsSearchable]
+GO
+ALTER TABLE [dbo].[ReportFields] ADD  CONSTRAINT [DF_ReportFields_IsDefault]  DEFAULT ((0)) FOR [IsDefault]
+GO
+ALTER TABLE [dbo].[ReportFields] ADD  CONSTRAINT [DF_ReportFields_OrderId]  DEFAULT ((0)) FOR [OrderId]
+GO
+ALTER TABLE [dbo].[Reports] ADD  CONSTRAINT [DF_Reports_Created]  DEFAULT (getdate()) FOR [Created]
+GO
+ALTER TABLE [dbo].[Reports] ADD  CONSTRAINT [DF_Reports_IsDeleted]  DEFAULT ((0)) FOR [IsDeleted]
+GO
+ALTER TABLE [dbo].[ReportSchedules] ADD  CONSTRAINT [DF_ReportSchedules_RecipientAppUsers]  DEFAULT ((0)) FOR [RecipientAppUsers]
+GO
+ALTER TABLE [dbo].[ReportSchedules] ADD  CONSTRAINT [DF_ReportSchedules_SkipIfNoData]  DEFAULT ((0)) FOR [SkipIfNoData]
+GO
+ALTER TABLE [dbo].[ReportSchedules] ADD  CONSTRAINT [DF_ReportSchedules_IsEnabled]  DEFAULT ((1)) FOR [IsEnabled]
+GO
+ALTER TABLE [dbo].[TrackerExecutions] ADD  DEFAULT ((1)) FOR [TrackerTypeId]
+GO
+ALTER TABLE [dbo].[TrackerExecutions] ADD  CONSTRAINT [DF_TrackerExecutions_Created]  DEFAULT (getdate()) FOR [Created]
+GO
+ALTER TABLE [dbo].[TrackerExecutions] ADD  DEFAULT ((0)) FOR [OnlyPrivate]
+GO
+ALTER TABLE [dbo].[TrackerExecutions] ADD  DEFAULT ((0)) FOR [OnlyDidNotAuthor]
+GO
+ALTER TABLE [dbo].[TrackerExecutions] ADD  DEFAULT ((0)) FOR [DistinctDocuments]
+GO
+ALTER TABLE [dbo].[TrackerExecutions] ADD  DEFAULT ((0)) FOR [IsCompleted]
+GO
+ALTER TABLE [dbo].[TrackerExecutions] ADD  DEFAULT ((0)) FOR [TrackActivityCategories]
+GO
+ALTER TABLE [dbo].[TrackerExecutions] ADD  DEFAULT ((1)) FOR [ThresholdType]
+GO
+ALTER TABLE [dbo].[Trackers] ADD  CONSTRAINT [DF_Thresholds_Created]  DEFAULT (getdate()) FOR [Created]
+GO
+ALTER TABLE [dbo].[Trackers] ADD  CONSTRAINT [DF_Thresholds_Modified]  DEFAULT (getdate()) FOR [Modified]
+GO
+ALTER TABLE [dbo].[Trackers] ADD  DEFAULT ((0)) FOR [OnlyPrivate]
+GO
+ALTER TABLE [dbo].[Trackers] ADD  DEFAULT ((0)) FOR [OnlyDidNotAuthor]
+GO
+ALTER TABLE [dbo].[Trackers] ADD  CONSTRAINT [DF_Trackers_DistinctDocuments]  DEFAULT ((1)) FOR [DistinctDocuments]
+GO
+ALTER TABLE [dbo].[Trackers] ADD  DEFAULT ((0)) FOR [TrackActivityCategories]
+GO
+ALTER TABLE [dbo].[Trackers] ADD  DEFAULT ((1)) FOR [ThresholdType]
+GO
+ALTER TABLE [dbo].[TrackerSides] ADD  CONSTRAINT [DF_TrackerSides_TrackerSideName]  DEFAULT ('Watch List') FOR [TrackerSideName]
+GO
+ALTER TABLE [dbo].[TrackerSides] ADD  CONSTRAINT [DF_TrackerSides_IsDeleted]  DEFAULT ((0)) FOR [IsDeleted]
+GO
+ALTER TABLE [dbo].[TrackerTypes] ADD  DEFAULT ((1)) FOR [TrackerCategoryId]
+GO
+ALTER TABLE [dbo].[TrackerTypes] ADD  DEFAULT ((1)) FOR [IsVisible]
+GO
+ALTER TABLE [dbo].[WallAccessTypes] ADD  CONSTRAINT [DF_WallAccessTypes_SelfMaintaining]  DEFAULT ('Off') FOR [SelfMaintaining]
+GO
+ALTER TABLE [dbo].[WallAccessTypes] ADD  CONSTRAINT [DF_WallAccessTypes_RequireAckForAccess]  DEFAULT ('Off') FOR [RequireAckForAccess]
+GO
+ALTER TABLE [dbo].[WallAccessTypes] ADD  CONSTRAINT [DF_WallAccessTypes_OrderId]  DEFAULT ((0)) FOR [OrderId]
+GO
+ALTER TABLE [dbo].[WallAccessTypes] ADD  CONSTRAINT [DF_WallAccessTypes_AutoAddMatterTeams]  DEFAULT ('Off') FOR [AutoAddMatterTeams]
+GO
+ALTER TABLE [dbo].[WallAccessTypes] ADD  CONSTRAINT [DF_WallAccessTypes_RelationshipPairing]  DEFAULT ('Off') FOR [RelationshipPairing]
+GO
+ALTER TABLE [dbo].[WallAccessTypes] ADD  CONSTRAINT [DF_WallAccessType_DefaultSelfMaintainingIntervalType]  DEFAULT ('Fixed Lookback And Ongoing') FOR [DefaultSelfMaintainingIntervalType]
+GO
+ALTER TABLE [dbo].[WallCustomFieldConfig] ADD  DEFAULT ('Custom Field') FOR [Description]
+GO
+ALTER TABLE [dbo].[WallExceptions] ADD  CONSTRAINT [DF_WallExceptions_CreatorId]  DEFAULT ((1)) FOR [CreatorId]
+GO
+ALTER TABLE [dbo].[WallExceptions] ADD  CONSTRAINT [DF_WallExceptions_DateAdded]  DEFAULT (getdate()) FOR [DateAdded]
+GO
+ALTER TABLE [dbo].[Walls] ADD  CONSTRAINT [DF_Walls_WallAccessTypeId]  DEFAULT ((1)) FOR [WallAccessTypeId]
+GO
+ALTER TABLE [dbo].[Walls] ADD  CONSTRAINT [DF_Walls_Created]  DEFAULT (getdate()) FOR [Created]
+GO
+ALTER TABLE [dbo].[Walls] ADD  CONSTRAINT [DF_Walls_Modified]  DEFAULT (getdate()) FOR [Modified]
+GO
+ALTER TABLE [dbo].[Walls] ADD  CONSTRAINT [DF_Walls_IsEnabled]  DEFAULT ((1)) FOR [IsEnabled]
+GO
+ALTER TABLE [dbo].[Walls] ADD  CONSTRAINT [DF_Walls_IsDeleted]  DEFAULT ((0)) FOR [IsDeleted]
+GO
+ALTER TABLE [dbo].[Walls] ADD  DEFAULT ((0)) FOR [IsSelfMaintaining]
+GO
+ALTER TABLE [dbo].[Walls] ADD  CONSTRAINT [DEF_Walls_RequireAcknowledgement]  DEFAULT ((0)) FOR [IsRequireAcknowledgement]
+GO
+ALTER TABLE [dbo].[Walls] ADD  DEFAULT ((0)) FOR [IsRelationshipPaired]
+GO
+ALTER TABLE [dbo].[WallSideEntities] ADD  CONSTRAINT [DF_WallSideEntities_DateAdded]  DEFAULT (getdate()) FOR [DateAdded]
+GO
+ALTER TABLE [dbo].[WallSideEntities] ADD  CONSTRAINT [DF_WallSideEntities_WasAddedBySelfMaintaining]  DEFAULT ((0)) FOR [WasAddedBySelfMaintaining]
+GO
+ALTER TABLE [dbo].[WallSides] ADD  CONSTRAINT [DF_WallSides_IsDeleted]  DEFAULT ((0)) FOR [IsDeleted]
+GO
+ALTER TABLE [dbo].[WallSides] ADD  CONSTRAINT [DF_WallSides_WallSideName]  DEFAULT ('Side') FOR [WallSideName]
+GO
+ALTER TABLE [dbo].[Widget] ADD  CONSTRAINT [DF_Widget_Editable]  DEFAULT ((0)) FOR [Editable]
+GO
+ALTER TABLE [dbo].[Widget] ADD  CONSTRAINT [DF_Widget_SupportRedirection]  DEFAULT ((1)) FOR [SupportRedirection]
+GO
+ALTER TABLE [dbo].[WidgetInstance] ADD  CONSTRAINT [DF_WidgetZoneWidgets_Expanded]  DEFAULT ((1)) FOR [Expanded]
+GO
+ALTER TABLE [dbo].[WidgetInstance] ADD  CONSTRAINT [DF_WidgetZoneWidgets_Maximized]  DEFAULT ((1)) FOR [Maximized]
+GO
+ALTER TABLE [dbo].[WidgetInstance] ADD  CONSTRAINT [DF_WidgetZoneWidgets_Resized]  DEFAULT ((0)) FOR [Resized]
+GO
+ALTER TABLE [dbo].[AccessHistory]  WITH CHECK ADD  CONSTRAINT [FK_AccessHistory_Entities] FOREIGN KEY([UserEntityId])
+REFERENCES [dbo].[Entities] ([EntityId])
+GO
+ALTER TABLE [dbo].[AccessHistory] CHECK CONSTRAINT [FK_AccessHistory_Entities]
+GO
+ALTER TABLE [dbo].[AccessHistory]  WITH CHECK ADD  CONSTRAINT [FK_AccessHistory_Walls] FOREIGN KEY([WallId])
+REFERENCES [dbo].[Walls] ([WallId])
+GO
+ALTER TABLE [dbo].[AccessHistory] CHECK CONSTRAINT [FK_AccessHistory_Walls]
+GO
+ALTER TABLE [dbo].[AccessHistory]  WITH CHECK ADD  CONSTRAINT [FK_AccessHistory_WallSides] FOREIGN KEY([WallSideId])
+REFERENCES [dbo].[WallSides] ([WallSideId])
+GO
+ALTER TABLE [dbo].[AccessHistory] CHECK CONSTRAINT [FK_AccessHistory_WallSides]
+GO
+ALTER TABLE [dbo].[Activities]  WITH CHECK ADD  CONSTRAINT [FK_Activities_ActivityCategories] FOREIGN KEY([ActivityCategoryId])
+REFERENCES [dbo].[ActivityCategories] ([ActivityCategoryId])
+GO
+ALTER TABLE [dbo].[Activities] CHECK CONSTRAINT [FK_Activities_ActivityCategories]
+GO
+ALTER TABLE [dbo].[Activities]  WITH CHECK ADD  CONSTRAINT [FK_Activities_RepositoryTypes] FOREIGN KEY([RepositoryTypeId])
+REFERENCES [dbo].[RepositoryTypes] ([RepositoryTypeId])
+GO
+ALTER TABLE [dbo].[Activities] CHECK CONSTRAINT [FK_Activities_RepositoryTypes]
+GO
+ALTER TABLE [dbo].[AlertDetails]  WITH CHECK ADD  CONSTRAINT [FK_AlertDetails_Alerts] FOREIGN KEY([AlertId])
+REFERENCES [dbo].[Alerts] ([AlertId])
+GO
+ALTER TABLE [dbo].[AlertDetails] CHECK CONSTRAINT [FK_AlertDetails_Alerts]
+GO
+ALTER TABLE [dbo].[AlertDetailsCustomFields]  WITH CHECK ADD  CONSTRAINT [FK_AlertDetailsCustomFields_RepositoryTypes] FOREIGN KEY([RepositoryTypeId])
+REFERENCES [dbo].[RepositoryTypes] ([RepositoryTypeId])
+GO
+ALTER TABLE [dbo].[AlertDetailsCustomFields] CHECK CONSTRAINT [FK_AlertDetailsCustomFields_RepositoryTypes]
+GO
+ALTER TABLE [dbo].[Alerts]  WITH NOCHECK ADD  CONSTRAINT [FK_Alerts_Entities] FOREIGN KEY([UserEntityId])
+REFERENCES [dbo].[Entities] ([EntityId])
+GO
+ALTER TABLE [dbo].[Alerts] CHECK CONSTRAINT [FK_Alerts_Entities]
+GO
+ALTER TABLE [dbo].[Alerts]  WITH NOCHECK ADD  CONSTRAINT [FK_Alerts_TrackerExecutions] FOREIGN KEY([TrackerExecutionId])
+REFERENCES [dbo].[TrackerExecutions] ([TrackerExecutionId])
+GO
+ALTER TABLE [dbo].[Alerts] CHECK CONSTRAINT [FK_Alerts_TrackerExecutions]
+GO
+ALTER TABLE [dbo].[ApplicationUsers]  WITH CHECK ADD  CONSTRAINT [FK_ApplicationUsers_ApplicationRolesAT] FOREIGN KEY([ATRoleId])
+REFERENCES [dbo].[ApplicationRolesAT] ([RoleId])
+GO
+ALTER TABLE [dbo].[ApplicationUsers] CHECK CONSTRAINT [FK_ApplicationUsers_ApplicationRolesAT]
+GO
+ALTER TABLE [dbo].[ApplicationUsers]  WITH CHECK ADD  CONSTRAINT [FK_ApplicationUsers_ApplicationRolesMTM] FOREIGN KEY([MTMRoleId])
+REFERENCES [dbo].[ApplicationRolesMTM] ([RoleId])
+GO
+ALTER TABLE [dbo].[ApplicationUsers] CHECK CONSTRAINT [FK_ApplicationUsers_ApplicationRolesMTM]
+GO
+ALTER TABLE [dbo].[ApplicationUsers]  WITH CHECK ADD  CONSTRAINT [FK_ApplicationUsers_ApplicationRolesWB] FOREIGN KEY([WBRoleId])
+REFERENCES [dbo].[ApplicationRolesWB] ([RoleId])
+GO
+ALTER TABLE [dbo].[ApplicationUsers] CHECK CONSTRAINT [FK_ApplicationUsers_ApplicationRolesWB]
+GO
+ALTER TABLE [dbo].[Attachments]  WITH CHECK ADD  CONSTRAINT [FK_Attachments_ApplicationUsers] FOREIGN KEY([CreatorId])
+REFERENCES [dbo].[ApplicationUsers] ([UserId])
+GO
+ALTER TABLE [dbo].[Attachments] CHECK CONSTRAINT [FK_Attachments_ApplicationUsers]
+GO
+ALTER TABLE [dbo].[Attachments]  WITH CHECK ADD  CONSTRAINT [FK_Attachments_Walls] FOREIGN KEY([WallId])
+REFERENCES [dbo].[Walls] ([WallId])
+GO
+ALTER TABLE [dbo].[Attachments] CHECK CONSTRAINT [FK_Attachments_Walls]
+GO
+ALTER TABLE [dbo].[AttorneyAcknowledgments]  WITH CHECK ADD  CONSTRAINT [FK_AttorneyAcknowledgments_Entities] FOREIGN KEY([EntityId])
+REFERENCES [dbo].[Entities] ([EntityId])
+GO
+ALTER TABLE [dbo].[AttorneyAcknowledgments] CHECK CONSTRAINT [FK_AttorneyAcknowledgments_Entities]
+GO
+ALTER TABLE [dbo].[AttorneyAcknowledgments]  WITH CHECK ADD  CONSTRAINT [FK_AttorneyAcknowledgments_WallSides] FOREIGN KEY([WallSideId])
+REFERENCES [dbo].[WallSides] ([WallSideId])
+GO
+ALTER TABLE [dbo].[AttorneyAcknowledgments] CHECK CONSTRAINT [FK_AttorneyAcknowledgments_WallSides]
+GO
+ALTER TABLE [dbo].[DefaultNotifications]  WITH CHECK ADD  CONSTRAINT [FK_DefaultNotifications_Notifications] FOREIGN KEY([NotificationId])
+REFERENCES [dbo].[Notifications] ([NotificationId])
+GO
+ALTER TABLE [dbo].[DefaultNotifications] CHECK CONSTRAINT [FK_DefaultNotifications_Notifications]
+GO
+ALTER TABLE [dbo].[DefaultNotifications]  WITH CHECK ADD  CONSTRAINT [FK_DefaultNotifications_WallAccessTypes] FOREIGN KEY([WallAccessTypeId])
+REFERENCES [dbo].[WallAccessTypes] ([WallAccessTypeId])
+GO
+ALTER TABLE [dbo].[DefaultNotifications] CHECK CONSTRAINT [FK_DefaultNotifications_WallAccessTypes]
+GO
+ALTER TABLE [dbo].[DefaultTrackers]  WITH CHECK ADD  CONSTRAINT [FK_DefaultTrackers_Trackers] FOREIGN KEY([TrackerId])
+REFERENCES [dbo].[Trackers] ([TrackerId])
+GO
+ALTER TABLE [dbo].[DefaultTrackers] CHECK CONSTRAINT [FK_DefaultTrackers_Trackers]
+GO
+ALTER TABLE [dbo].[DefaultTrackers]  WITH CHECK ADD  CONSTRAINT [FK_DefaultTrackers_WallAccessTypes] FOREIGN KEY([WallAccessTypeId])
+REFERENCES [dbo].[WallAccessTypes] ([WallAccessTypeId])
+GO
+ALTER TABLE [dbo].[DefaultTrackers] CHECK CONSTRAINT [FK_DefaultTrackers_WallAccessTypes]
+GO
+ALTER TABLE [dbo].[DigestNotificationAttachments]  WITH CHECK ADD  CONSTRAINT [FK_DigestNotificationAttachments_Attachments] FOREIGN KEY([NotificationAttachmentId])
+REFERENCES [dbo].[Attachments] ([AttachmentId])
+ON DELETE CASCADE
+GO
+ALTER TABLE [dbo].[DigestNotificationAttachments] CHECK CONSTRAINT [FK_DigestNotificationAttachments_Attachments]
+GO
+ALTER TABLE [dbo].[DigestNotificationAttachments]  WITH CHECK ADD  CONSTRAINT [FK_DigestNotificationAttachments_DigestNotifications] FOREIGN KEY([DigestNotificationId])
+REFERENCES [dbo].[DigestNotifications] ([DigestNotificationId])
+ON DELETE CASCADE
+GO
+ALTER TABLE [dbo].[DigestNotificationAttachments] CHECK CONSTRAINT [FK_DigestNotificationAttachments_DigestNotifications]
+GO
+ALTER TABLE [dbo].[DigestNotifications]  WITH CHECK ADD  CONSTRAINT [FK_DigestNotifications_DigestNotificationContent] FOREIGN KEY([DigestNotificationContentId])
+REFERENCES [dbo].[DigestNotificationContent] ([DigestNotificationContentId])
+GO
+ALTER TABLE [dbo].[DigestNotifications] CHECK CONSTRAINT [FK_DigestNotifications_DigestNotificationContent]
+GO
+ALTER TABLE [dbo].[DigestNotifications]  WITH CHECK ADD  CONSTRAINT [FK_DigestNotifications_NotificationHistory] FOREIGN KEY([NotificationHistoryId])
+REFERENCES [dbo].[NotificationHistory] ([NotificationHistoryId])
+GO
+ALTER TABLE [dbo].[DigestNotifications] CHECK CONSTRAINT [FK_DigestNotifications_NotificationHistory]
+GO
+ALTER TABLE [dbo].[DigestNotifications]  WITH CHECK ADD  CONSTRAINT [FK_DigestNotifications_Notifications] FOREIGN KEY([NotificationId])
+REFERENCES [dbo].[Notifications] ([NotificationId])
+GO
+ALTER TABLE [dbo].[DigestNotifications] CHECK CONSTRAINT [FK_DigestNotifications_Notifications]
+GO
+ALTER TABLE [dbo].[DynamicEntityGroupDefinitions]  WITH CHECK ADD  CONSTRAINT [FK_DynamicEntityGroupDefinitions_ApplicationUsers] FOREIGN KEY([CreatedBy])
+REFERENCES [dbo].[ApplicationUsers] ([UserId])
+GO
+ALTER TABLE [dbo].[DynamicEntityGroupDefinitions] CHECK CONSTRAINT [FK_DynamicEntityGroupDefinitions_ApplicationUsers]
+GO
+ALTER TABLE [dbo].[DynamicEntityGroupDefinitions]  WITH NOCHECK ADD  CONSTRAINT [FK_DynamicEntityGroupDefinitions_Entities] FOREIGN KEY([EntityId])
+REFERENCES [dbo].[Entities] ([EntityId])
+GO
+ALTER TABLE [dbo].[DynamicEntityGroupDefinitions] CHECK CONSTRAINT [FK_DynamicEntityGroupDefinitions_Entities]
+GO
+ALTER TABLE [dbo].[DynamicEntityGroupExceptions]  WITH CHECK ADD  CONSTRAINT [FK_DynamicEntityGroupExceptions_ApplicationUsers] FOREIGN KEY([CreatorId])
+REFERENCES [dbo].[ApplicationUsers] ([UserId])
+GO
+ALTER TABLE [dbo].[DynamicEntityGroupExceptions] CHECK CONSTRAINT [FK_DynamicEntityGroupExceptions_ApplicationUsers]
+GO
+ALTER TABLE [dbo].[DynamicEntityGroupExceptions]  WITH CHECK ADD  CONSTRAINT [FK_DynamicEntityGroupExceptions_DegEntities] FOREIGN KEY([DynamicGroupEntityId])
+REFERENCES [dbo].[Entities] ([EntityId])
+GO
+ALTER TABLE [dbo].[DynamicEntityGroupExceptions] CHECK CONSTRAINT [FK_DynamicEntityGroupExceptions_DegEntities]
+GO
+ALTER TABLE [dbo].[DynamicEntityGroupExceptions]  WITH CHECK ADD  CONSTRAINT [FK_DynamicEntityGroupExceptions_Entities] FOREIGN KEY([EntityId])
+REFERENCES [dbo].[Entities] ([EntityId])
+GO
+ALTER TABLE [dbo].[DynamicEntityGroupExceptions] CHECK CONSTRAINT [FK_DynamicEntityGroupExceptions_Entities]
+GO
+ALTER TABLE [dbo].[Entities]  WITH CHECK ADD  CONSTRAINT [FK_Entities_Entities] FOREIGN KEY([MatterTeamEntityId])
+REFERENCES [dbo].[Entities] ([EntityId])
+GO
+ALTER TABLE [dbo].[Entities] CHECK CONSTRAINT [FK_Entities_Entities]
+GO
+ALTER TABLE [dbo].[Entities]  WITH CHECK ADD  CONSTRAINT [FK_Entities_EntityTypes_1] FOREIGN KEY([EntityTypeId])
+REFERENCES [dbo].[EntityTypes] ([EntityTypeId])
+GO
+ALTER TABLE [dbo].[Entities] CHECK CONSTRAINT [FK_Entities_EntityTypes_1]
+GO
+ALTER TABLE [dbo].[Entities]  WITH CHECK ADD  CONSTRAINT [FK_Entities_EntityTypes_2] FOREIGN KEY([ParentTypeId])
+REFERENCES [dbo].[EntityTypes] ([EntityTypeId])
+GO
+ALTER TABLE [dbo].[Entities] CHECK CONSTRAINT [FK_Entities_EntityTypes_2]
+GO
+ALTER TABLE [dbo].[EntitiesMatterTeamFields]  WITH CHECK ADD  CONSTRAINT [FK_EntitiesMatterTeamFields_Entities] FOREIGN KEY([MatterTeamEntityId])
+REFERENCES [dbo].[Entities] ([EntityId])
+GO
+ALTER TABLE [dbo].[EntitiesMatterTeamFields] CHECK CONSTRAINT [FK_EntitiesMatterTeamFields_Entities]
+GO
+ALTER TABLE [dbo].[EntitiesUserFields]  WITH CHECK ADD  CONSTRAINT [FK_EntitiesUserFields_Entities] FOREIGN KEY([UserEntityId])
+REFERENCES [dbo].[Entities] ([EntityId])
+GO
+ALTER TABLE [dbo].[EntitiesUserFields] CHECK CONSTRAINT [FK_EntitiesUserFields_Entities]
+GO
+ALTER TABLE [dbo].[EntityCustomComboValues]  WITH NOCHECK ADD  CONSTRAINT [FK_EntityCustomComboValues_EntityTypes] FOREIGN KEY([EntityTypeId])
+REFERENCES [dbo].[EntityTypes] ([EntityTypeId])
+GO
+ALTER TABLE [dbo].[EntityCustomComboValues] CHECK CONSTRAINT [FK_EntityCustomComboValues_EntityTypes]
+GO
+ALTER TABLE [dbo].[EntityCustomFieldConfig]  WITH NOCHECK ADD  CONSTRAINT [FK_EntityCustomFieldConfig_EntityTypes] FOREIGN KEY([EntityTypeId])
+REFERENCES [dbo].[EntityTypes] ([EntityTypeId])
+GO
+ALTER TABLE [dbo].[EntityCustomFieldConfig] CHECK CONSTRAINT [FK_EntityCustomFieldConfig_EntityTypes]
+GO
+ALTER TABLE [dbo].[EntityKeyMap]  WITH CHECK ADD  CONSTRAINT [FK_EntityKeyMap_Entities_1] FOREIGN KEY([EntityId])
+REFERENCES [dbo].[Entities] ([EntityId])
+GO
+ALTER TABLE [dbo].[EntityKeyMap] CHECK CONSTRAINT [FK_EntityKeyMap_Entities_1]
+GO
+ALTER TABLE [dbo].[EntityKeyMap]  WITH CHECK ADD  CONSTRAINT [FK_EntityKeyMap_Entities_2] FOREIGN KEY([ParentEntityId])
+REFERENCES [dbo].[Entities] ([EntityId])
+GO
+ALTER TABLE [dbo].[EntityKeyMap] CHECK CONSTRAINT [FK_EntityKeyMap_Entities_2]
+GO
+ALTER TABLE [dbo].[EntityKeyMap]  WITH CHECK ADD  CONSTRAINT [FK_EntityKeyMap_MatterTeamRole1] FOREIGN KEY([RoleId])
+REFERENCES [dbo].[MatterTeamRole] ([RoleId])
+GO
+ALTER TABLE [dbo].[EntityKeyMap] CHECK CONSTRAINT [FK_EntityKeyMap_MatterTeamRole1]
+GO
+ALTER TABLE [dbo].[EntityKeyMap]  WITH CHECK ADD  CONSTRAINT [FK_EntityKeyMap_MatterTeamRole2] FOREIGN KEY([DemotionRoleId])
+REFERENCES [dbo].[MatterTeamRole] ([RoleId])
+GO
+ALTER TABLE [dbo].[EntityKeyMap] CHECK CONSTRAINT [FK_EntityKeyMap_MatterTeamRole2]
+GO
+ALTER TABLE [dbo].[EntityToEntityRelationships]  WITH NOCHECK ADD  CONSTRAINT [FK_EntityToEntityRelationships_Entities1] FOREIGN KEY([PrimaryEntityId])
+REFERENCES [dbo].[Entities] ([EntityId])
+GO
+ALTER TABLE [dbo].[EntityToEntityRelationships] CHECK CONSTRAINT [FK_EntityToEntityRelationships_Entities1]
+GO
+ALTER TABLE [dbo].[EntityToEntityRelationships]  WITH NOCHECK ADD  CONSTRAINT [FK_EntityToEntityRelationships_Entities2] FOREIGN KEY([SubordinateEntityId])
+REFERENCES [dbo].[Entities] ([EntityId])
+GO
+ALTER TABLE [dbo].[EntityToEntityRelationships] CHECK CONSTRAINT [FK_EntityToEntityRelationships_Entities2]
+GO
+ALTER TABLE [dbo].[EntityToEntityRelationships]  WITH NOCHECK ADD  CONSTRAINT [FK_EntityToEntityRelationships_EntityRelationshipTypes] FOREIGN KEY([EntityRelationshipTypeId])
+REFERENCES [dbo].[EntityRelationshipTypes] ([EntityRelationshipTypeId])
+GO
+ALTER TABLE [dbo].[EntityToEntityRelationships] CHECK CONSTRAINT [FK_EntityToEntityRelationships_EntityRelationshipTypes]
+GO
+ALTER TABLE [dbo].[ExternalUserFields]  WITH CHECK ADD  CONSTRAINT [FK_ExternalUserFields_ApplicationUsers] FOREIGN KEY([CreatedBy])
+REFERENCES [dbo].[ApplicationUsers] ([UserId])
+GO
+ALTER TABLE [dbo].[ExternalUserFields] CHECK CONSTRAINT [FK_ExternalUserFields_ApplicationUsers]
+GO
+ALTER TABLE [dbo].[ExternalUserFields]  WITH CHECK ADD  CONSTRAINT [FK_ExternalUserFields_Entities] FOREIGN KEY([ExternalUserEntityId])
+REFERENCES [dbo].[Entities] ([EntityId])
+ON DELETE CASCADE
+GO
+ALTER TABLE [dbo].[ExternalUserFields] CHECK CONSTRAINT [FK_ExternalUserFields_Entities]
+GO
+ALTER TABLE [dbo].[ExternalUsersAccessHistory]  WITH CHECK ADD  CONSTRAINT [FK_ExternalUsersAccessHistory_MatterEntities] FOREIGN KEY([MatterEntityId])
+REFERENCES [dbo].[Entities] ([EntityId])
+GO
+ALTER TABLE [dbo].[ExternalUsersAccessHistory] CHECK CONSTRAINT [FK_ExternalUsersAccessHistory_MatterEntities]
+GO
+ALTER TABLE [dbo].[ExternalUsersAccessHistory]  WITH CHECK ADD  CONSTRAINT [FK_ExternalUsersAccessHistory_UserEntities] FOREIGN KEY([ExternalUserEntityId])
+REFERENCES [dbo].[Entities] ([EntityId])
+GO
+ALTER TABLE [dbo].[ExternalUsersAccessHistory] CHECK CONSTRAINT [FK_ExternalUsersAccessHistory_UserEntities]
+GO
+ALTER TABLE [dbo].[GlobalExceptions]  WITH NOCHECK ADD  CONSTRAINT [FK_GlobalExceptions_ApplicationUsers] FOREIGN KEY([CreatorId])
+REFERENCES [dbo].[ApplicationUsers] ([UserId])
+GO
+ALTER TABLE [dbo].[GlobalExceptions] CHECK CONSTRAINT [FK_GlobalExceptions_ApplicationUsers]
+GO
+ALTER TABLE [dbo].[GroupEntityLog]  WITH CHECK ADD  CONSTRAINT [FK_GroupEntityLog_Entities] FOREIGN KEY([GroupEntityId])
+REFERENCES [dbo].[Entities] ([EntityId])
+GO
+ALTER TABLE [dbo].[GroupEntityLog] CHECK CONSTRAINT [FK_GroupEntityLog_Entities]
+GO
+ALTER TABLE [dbo].[HiddenMatterTeams]  WITH CHECK ADD  CONSTRAINT [FK_HiddenMatterTeams_Entities] FOREIGN KEY([MatterTeamEntityId])
+REFERENCES [dbo].[Entities] ([EntityId])
+GO
+ALTER TABLE [dbo].[HiddenMatterTeams] CHECK CONSTRAINT [FK_HiddenMatterTeams_Entities]
+GO
+ALTER TABLE [dbo].[InsidersReportFields]  WITH CHECK ADD  CONSTRAINT [FK_InsidersReportFields_EntityTypes] FOREIGN KEY([EntityTypeId])
+REFERENCES [dbo].[EntityTypes] ([EntityTypeId])
+GO
+ALTER TABLE [dbo].[InsidersReportFields] CHECK CONSTRAINT [FK_InsidersReportFields_EntityTypes]
+GO
+ALTER TABLE [dbo].[InsidersReportLogs]  WITH CHECK ADD  CONSTRAINT [FK_InsidersReportLogs_ApplicationUsers] FOREIGN KEY([ApplicationUserId])
+REFERENCES [dbo].[ApplicationUsers] ([UserId])
+GO
+ALTER TABLE [dbo].[InsidersReportLogs] CHECK CONSTRAINT [FK_InsidersReportLogs_ApplicationUsers]
+GO
+ALTER TABLE [dbo].[InsidersReportLogs]  WITH CHECK ADD  CONSTRAINT [FK_InsidersReportLogs_Matters] FOREIGN KEY([MatterEntityId])
+REFERENCES [dbo].[Entities] ([EntityId])
+GO
+ALTER TABLE [dbo].[InsidersReportLogs] CHECK CONSTRAINT [FK_InsidersReportLogs_Matters]
+GO
+ALTER TABLE [dbo].[InsidersReports]  WITH CHECK ADD  CONSTRAINT [FK_InsidersReports_Entities] FOREIGN KEY([MatterEntityID])
+REFERENCES [dbo].[Entities] ([EntityId])
+GO
+ALTER TABLE [dbo].[InsidersReports] CHECK CONSTRAINT [FK_InsidersReports_Entities]
+GO
+ALTER TABLE [dbo].[Log]  WITH CHECK ADD  CONSTRAINT [FK_Log_ApplicationUsers] FOREIGN KEY([UserId])
+REFERENCES [dbo].[ApplicationUsers] ([UserId])
+GO
+ALTER TABLE [dbo].[Log] CHECK CONSTRAINT [FK_Log_ApplicationUsers]
+GO
+ALTER TABLE [dbo].[MatterAccessHistory]  WITH CHECK ADD  CONSTRAINT [FK_MatterAccessHistory_AccessHistory] FOREIGN KEY([AccessHistoryId])
+REFERENCES [dbo].[AccessHistory] ([AccessHistoryId])
+GO
+ALTER TABLE [dbo].[MatterAccessHistory] CHECK CONSTRAINT [FK_MatterAccessHistory_AccessHistory]
+GO
+ALTER TABLE [dbo].[MatterAccessHistory]  WITH CHECK ADD  CONSTRAINT [FK_MatterAccessHistory_Entities] FOREIGN KEY([MatterEntityId])
+REFERENCES [dbo].[Entities] ([EntityId])
+GO
+ALTER TABLE [dbo].[MatterAccessHistory] CHECK CONSTRAINT [FK_MatterAccessHistory_Entities]
+GO
+ALTER TABLE [dbo].[MatterTeamExceptions]  WITH CHECK ADD  CONSTRAINT [FK_MatterTeamExceptions_Entities1] FOREIGN KEY([MatterTeamEntityId])
+REFERENCES [dbo].[Entities] ([EntityId])
+GO
+ALTER TABLE [dbo].[MatterTeamExceptions] CHECK CONSTRAINT [FK_MatterTeamExceptions_Entities1]
+GO
+ALTER TABLE [dbo].[MatterTeamExceptions]  WITH CHECK ADD  CONSTRAINT [FK_MatterTeamExceptions_Entities2] FOREIGN KEY([EntityId])
+REFERENCES [dbo].[Entities] ([EntityId])
+GO
+ALTER TABLE [dbo].[MatterTeamExceptions] CHECK CONSTRAINT [FK_MatterTeamExceptions_Entities2]
+GO
+ALTER TABLE [dbo].[MatterTeamHistories]  WITH CHECK ADD  CONSTRAINT [FK_MatterTeamHistories_MatterEntities] FOREIGN KEY([MatterEntityId])
+REFERENCES [dbo].[Entities] ([EntityId])
+GO
+ALTER TABLE [dbo].[MatterTeamHistories] CHECK CONSTRAINT [FK_MatterTeamHistories_MatterEntities]
+GO
+ALTER TABLE [dbo].[MatterTeamHistories]  WITH CHECK ADD  CONSTRAINT [FK_MatterTeamHistories_MatterTeamHistoryActivityTypes] FOREIGN KEY([ActivityTypeId])
+REFERENCES [dbo].[MatterTeamHistoryActivityTypes] ([ActivityTypeId])
+GO
+ALTER TABLE [dbo].[MatterTeamHistories] CHECK CONSTRAINT [FK_MatterTeamHistories_MatterTeamHistoryActivityTypes]
+GO
+ALTER TABLE [dbo].[MatterTeamHistories]  WITH CHECK ADD  CONSTRAINT [FK_MatterTeamHistories_MatterTeamRoles] FOREIGN KEY([RoleId])
+REFERENCES [dbo].[MatterTeamRole] ([RoleId])
+GO
+ALTER TABLE [dbo].[MatterTeamHistories] CHECK CONSTRAINT [FK_MatterTeamHistories_MatterTeamRoles]
+GO
+ALTER TABLE [dbo].[MatterTeamHistories]  WITH CHECK ADD  CONSTRAINT [FK_MatterTeamHistories_UserEntities] FOREIGN KEY([UserEntityId])
+REFERENCES [dbo].[Entities] ([EntityId])
+GO
+ALTER TABLE [dbo].[MatterTeamHistories] CHECK CONSTRAINT [FK_MatterTeamHistories_UserEntities]
+GO
+ALTER TABLE [dbo].[MatterTeamRole]  WITH CHECK ADD  CONSTRAINT [FK_MatterTeamRole_WallRoleId] FOREIGN KEY([WallRoleId])
+REFERENCES [dbo].[WallRoles] ([WallRoleId])
+GO
+ALTER TABLE [dbo].[MatterTeamRole] CHECK CONSTRAINT [FK_MatterTeamRole_WallRoleId]
+GO
+ALTER TABLE [dbo].[MatterTeamSubscriptionRequests]  WITH CHECK ADD  CONSTRAINT [FK_MatterTeamSubscriptionRequestsEntities1] FOREIGN KEY([MatterTeamId])
+REFERENCES [dbo].[Entities] ([EntityId])
+GO
+ALTER TABLE [dbo].[MatterTeamSubscriptionRequests] CHECK CONSTRAINT [FK_MatterTeamSubscriptionRequestsEntities1]
+GO
+ALTER TABLE [dbo].[MatterTeamSubscriptionRequests]  WITH CHECK ADD  CONSTRAINT [FK_MatterTeamSubscriptionRequestsEntities2] FOREIGN KEY([UserEntityId])
+REFERENCES [dbo].[Entities] ([EntityId])
+GO
+ALTER TABLE [dbo].[MatterTeamSubscriptionRequests] CHECK CONSTRAINT [FK_MatterTeamSubscriptionRequestsEntities2]
+GO
+ALTER TABLE [dbo].[MatterTeamSubscriptionRequests]  WITH CHECK ADD  CONSTRAINT [FK_MatterTeamSubscriptionRequestsEntities3] FOREIGN KEY([AdminEntityId])
+REFERENCES [dbo].[Entities] ([EntityId])
+GO
+ALTER TABLE [dbo].[MatterTeamSubscriptionRequests] CHECK CONSTRAINT [FK_MatterTeamSubscriptionRequestsEntities3]
+GO
+ALTER TABLE [dbo].[NotificationAttachments]  WITH CHECK ADD  CONSTRAINT [FK_NotificationAttachments_Attachments] FOREIGN KEY([AttachmentId])
+REFERENCES [dbo].[Attachments] ([AttachmentId])
+GO
+ALTER TABLE [dbo].[NotificationAttachments] CHECK CONSTRAINT [FK_NotificationAttachments_Attachments]
+GO
+ALTER TABLE [dbo].[NotificationAttachments]  WITH CHECK ADD  CONSTRAINT [FK_NotificationAttachments_Notifications] FOREIGN KEY([NotificationId])
+REFERENCES [dbo].[Notifications] ([NotificationId])
+GO
+ALTER TABLE [dbo].[NotificationAttachments] CHECK CONSTRAINT [FK_NotificationAttachments_Notifications]
+GO
+ALTER TABLE [dbo].[NotificationHistory]  WITH CHECK ADD  CONSTRAINT [FK_NotificationHistory_AttorneyAcknowledgments] FOREIGN KEY([AcknowledgmentId])
+REFERENCES [dbo].[AttorneyAcknowledgments] ([AcknowledgmentId])
+GO
+ALTER TABLE [dbo].[NotificationHistory] CHECK CONSTRAINT [FK_NotificationHistory_AttorneyAcknowledgments]
+GO
+ALTER TABLE [dbo].[NotificationHistory]  WITH CHECK ADD  CONSTRAINT [FK_NotificationHistory_Entities] FOREIGN KEY([UserEntityId])
+REFERENCES [dbo].[Entities] ([EntityId])
+GO
+ALTER TABLE [dbo].[NotificationHistory] CHECK CONSTRAINT [FK_NotificationHistory_Entities]
+GO
+ALTER TABLE [dbo].[NotificationHistory]  WITH CHECK ADD  CONSTRAINT [FK_NotificationHistorys_Notifications] FOREIGN KEY([NotificationId])
+REFERENCES [dbo].[Notifications] ([NotificationId])
+GO
+ALTER TABLE [dbo].[NotificationHistory] CHECK CONSTRAINT [FK_NotificationHistorys_Notifications]
+GO
+ALTER TABLE [dbo].[NotificationRoles]  WITH CHECK ADD  CONSTRAINT [FK_NotificationRoles_WallAccessTypes] FOREIGN KEY([WallAccessTypeId])
+REFERENCES [dbo].[WallAccessTypes] ([WallAccessTypeId])
+GO
+ALTER TABLE [dbo].[NotificationRoles] CHECK CONSTRAINT [FK_NotificationRoles_WallAccessTypes]
+GO
+ALTER TABLE [dbo].[ObjectReleaseExceptions]  WITH CHECK ADD  CONSTRAINT [FK_ObjectReleaseExceptions_EntityId] FOREIGN KEY([EntityId])
+REFERENCES [dbo].[Entities] ([EntityId])
+GO
+ALTER TABLE [dbo].[ObjectReleaseExceptions] CHECK CONSTRAINT [FK_ObjectReleaseExceptions_EntityId]
+GO
+ALTER TABLE [dbo].[ObjectTemplate]  WITH CHECK ADD  CONSTRAINT [FK_ObjectTemplate_ApplicationUsers] FOREIGN KEY([CreatorId])
+REFERENCES [dbo].[ApplicationUsers] ([UserId])
+GO
+ALTER TABLE [dbo].[ObjectTemplate] CHECK CONSTRAINT [FK_ObjectTemplate_ApplicationUsers]
+GO
+ALTER TABLE [dbo].[ObjectTemplate]  WITH CHECK ADD  CONSTRAINT [FK_ObjectTemplate_EntityTypes] FOREIGN KEY([EntityTypeId])
+REFERENCES [dbo].[EntityTypes] ([EntityTypeId])
+GO
+ALTER TABLE [dbo].[ObjectTemplate] CHECK CONSTRAINT [FK_ObjectTemplate_EntityTypes]
+GO
+ALTER TABLE [dbo].[PermanentInsidersAccessHistory]  WITH CHECK ADD  CONSTRAINT [FK_PermanentInsidersAccessHistory_UserEntities] FOREIGN KEY([UserEntityId])
+REFERENCES [dbo].[Entities] ([EntityId])
+GO
+ALTER TABLE [dbo].[PermanentInsidersAccessHistory] CHECK CONSTRAINT [FK_PermanentInsidersAccessHistory_UserEntities]
+GO
+ALTER TABLE [dbo].[PolicyCategories]  WITH CHECK ADD  CONSTRAINT [FK_PolicyCategories_PolicyCategoryGroups] FOREIGN KEY([PolicyCategoryGroupId])
+REFERENCES [dbo].[PolicyCategoryGroups] ([PolicyCategoryGroupId])
+GO
+ALTER TABLE [dbo].[PolicyCategories] CHECK CONSTRAINT [FK_PolicyCategories_PolicyCategoryGroups]
+GO
+ALTER TABLE [dbo].[ReportConflictingAccessExplicit]  WITH CHECK ADD  CONSTRAINT [FK_ReportConflictingAccessExplicit_Entities_ClientEntityID] FOREIGN KEY([ClientEntityId])
+REFERENCES [dbo].[Entities] ([EntityId])
+GO
+ALTER TABLE [dbo].[ReportConflictingAccessExplicit] CHECK CONSTRAINT [FK_ReportConflictingAccessExplicit_Entities_ClientEntityID]
+GO
+ALTER TABLE [dbo].[ReportConflictingAccessExplicit]  WITH CHECK ADD  CONSTRAINT [FK_ReportConflictingAccessExplicit_Entities_MatterEntityID] FOREIGN KEY([MatterEntityId])
+REFERENCES [dbo].[Entities] ([EntityId])
+GO
+ALTER TABLE [dbo].[ReportConflictingAccessExplicit] CHECK CONSTRAINT [FK_ReportConflictingAccessExplicit_Entities_MatterEntityID]
+GO
+ALTER TABLE [dbo].[ReportConflictingAccessExplicit]  WITH CHECK ADD  CONSTRAINT [FK_ReportConflictingAccessExplicit_Entities_UserEntityId] FOREIGN KEY([UserEntityId])
+REFERENCES [dbo].[Entities] ([EntityId])
+GO
+ALTER TABLE [dbo].[ReportConflictingAccessExplicit] CHECK CONSTRAINT [FK_ReportConflictingAccessExplicit_Entities_UserEntityId]
+GO
+ALTER TABLE [dbo].[ReportConflictingAccessExplicit]  WITH CHECK ADD  CONSTRAINT [FK_ReportConflictingAccessExplicit_Walls_AllowingWallId] FOREIGN KEY([AllowingWallId])
+REFERENCES [dbo].[Walls] ([WallId])
+GO
+ALTER TABLE [dbo].[ReportConflictingAccessExplicit] CHECK CONSTRAINT [FK_ReportConflictingAccessExplicit_Walls_AllowingWallId]
+GO
+ALTER TABLE [dbo].[ReportConflictingAccessExplicit]  WITH CHECK ADD  CONSTRAINT [FK_ReportConflictingAccessExplicit_Walls_DenyingWallId] FOREIGN KEY([DenyingWallId])
+REFERENCES [dbo].[Walls] ([WallId])
+GO
+ALTER TABLE [dbo].[ReportConflictingAccessExplicit] CHECK CONSTRAINT [FK_ReportConflictingAccessExplicit_Walls_DenyingWallId]
+GO
+ALTER TABLE [dbo].[ReportConflictingAccessImplicit]  WITH CHECK ADD  CONSTRAINT [FK_ReportConflictingAccessImplicit_Entities_ClientEntityID] FOREIGN KEY([ClientEntityId])
+REFERENCES [dbo].[Entities] ([EntityId])
+GO
+ALTER TABLE [dbo].[ReportConflictingAccessImplicit] CHECK CONSTRAINT [FK_ReportConflictingAccessImplicit_Entities_ClientEntityID]
+GO
+ALTER TABLE [dbo].[ReportConflictingAccessImplicit]  WITH CHECK ADD  CONSTRAINT [FK_ReportConflictingAccessImplicit_Entities_MatterEntityID] FOREIGN KEY([MatterEntityId])
+REFERENCES [dbo].[Entities] ([EntityId])
+GO
+ALTER TABLE [dbo].[ReportConflictingAccessImplicit] CHECK CONSTRAINT [FK_ReportConflictingAccessImplicit_Entities_MatterEntityID]
+GO
+ALTER TABLE [dbo].[ReportConflictingAccessImplicit]  WITH CHECK ADD  CONSTRAINT [FK_ReportConflictingAccessImplicit_Entities_UserEntityId] FOREIGN KEY([UserEntityId])
+REFERENCES [dbo].[Entities] ([EntityId])
+GO
+ALTER TABLE [dbo].[ReportConflictingAccessImplicit] CHECK CONSTRAINT [FK_ReportConflictingAccessImplicit_Entities_UserEntityId]
+GO
+ALTER TABLE [dbo].[ReportConflictingAccessImplicit]  WITH CHECK ADD  CONSTRAINT [FK_ReportConflictingAccessImplicit_Walls_ConflictingWallId] FOREIGN KEY([ConflictingWallId])
+REFERENCES [dbo].[Walls] ([WallId])
+GO
+ALTER TABLE [dbo].[ReportConflictingAccessImplicit] CHECK CONSTRAINT [FK_ReportConflictingAccessImplicit_Walls_ConflictingWallId]
+GO
+ALTER TABLE [dbo].[ReportConflictingAccessImplicit]  WITH CHECK ADD  CONSTRAINT [FK_ReportConflictingAccessImplicit_Walls_DenyingWallId] FOREIGN KEY([DenyingWallId])
+REFERENCES [dbo].[Walls] ([WallId])
+GO
+ALTER TABLE [dbo].[ReportConflictingAccessImplicit] CHECK CONSTRAINT [FK_ReportConflictingAccessImplicit_Walls_DenyingWallId]
+GO
+ALTER TABLE [dbo].[ReportConflictingSharedResourcesExplicit]  WITH CHECK ADD  CONSTRAINT [FK_ReportConflictingSharedResourcesExplicit_Entities_AllowedUserEntityId] FOREIGN KEY([AllowedUserEntityId])
+REFERENCES [dbo].[Entities] ([EntityId])
+GO
+ALTER TABLE [dbo].[ReportConflictingSharedResourcesExplicit] CHECK CONSTRAINT [FK_ReportConflictingSharedResourcesExplicit_Entities_AllowedUserEntityId]
+GO
+ALTER TABLE [dbo].[ReportConflictingSharedResourcesExplicit]  WITH CHECK ADD  CONSTRAINT [FK_ReportConflictingSharedResourcesExplicit_Entities_ClientEntityID] FOREIGN KEY([ClientEntityID])
+REFERENCES [dbo].[Entities] ([EntityId])
+GO
+ALTER TABLE [dbo].[ReportConflictingSharedResourcesExplicit] CHECK CONSTRAINT [FK_ReportConflictingSharedResourcesExplicit_Entities_ClientEntityID]
+GO
+ALTER TABLE [dbo].[ReportConflictingSharedResourcesExplicit]  WITH CHECK ADD  CONSTRAINT [FK_ReportConflictingSharedResourcesExplicit_Entities_DeniedUserEntityId] FOREIGN KEY([DeniedUserEntityId])
+REFERENCES [dbo].[Entities] ([EntityId])
+GO
+ALTER TABLE [dbo].[ReportConflictingSharedResourcesExplicit] CHECK CONSTRAINT [FK_ReportConflictingSharedResourcesExplicit_Entities_DeniedUserEntityId]
+GO
+ALTER TABLE [dbo].[ReportConflictingSharedResourcesExplicit]  WITH CHECK ADD  CONSTRAINT [FK_ReportConflictingSharedResourcesExplicit_Entities_MatterEntityID] FOREIGN KEY([MatterEntityID])
+REFERENCES [dbo].[Entities] ([EntityId])
+GO
+ALTER TABLE [dbo].[ReportConflictingSharedResourcesExplicit] CHECK CONSTRAINT [FK_ReportConflictingSharedResourcesExplicit_Entities_MatterEntityID]
+GO
+ALTER TABLE [dbo].[ReportConflictingSharedResourcesExplicit]  WITH CHECK ADD  CONSTRAINT [FK_ReportConflictingSharedResourcesExplicit_Walls_AllowingWallId] FOREIGN KEY([AllowingWallId])
+REFERENCES [dbo].[Walls] ([WallId])
+GO
+ALTER TABLE [dbo].[ReportConflictingSharedResourcesExplicit] CHECK CONSTRAINT [FK_ReportConflictingSharedResourcesExplicit_Walls_AllowingWallId]
+GO
+ALTER TABLE [dbo].[ReportConflictingSharedResourcesExplicit]  WITH CHECK ADD  CONSTRAINT [FK_ReportConflictingSharedResourcesExplicit_Walls_DenyingWallId] FOREIGN KEY([DenyingWallId])
+REFERENCES [dbo].[Walls] ([WallId])
+GO
+ALTER TABLE [dbo].[ReportConflictingSharedResourcesExplicit] CHECK CONSTRAINT [FK_ReportConflictingSharedResourcesExplicit_Walls_DenyingWallId]
+GO
+ALTER TABLE [dbo].[ReportConflictingSharedResourcesImplicit]  WITH CHECK ADD  CONSTRAINT [FK_ReportConflictingSharedResourcesImplicit_Entities_AllowedUserEntityId] FOREIGN KEY([ConflictingUserEntityId])
+REFERENCES [dbo].[Entities] ([EntityId])
+GO
+ALTER TABLE [dbo].[ReportConflictingSharedResourcesImplicit] CHECK CONSTRAINT [FK_ReportConflictingSharedResourcesImplicit_Entities_AllowedUserEntityId]
+GO
+ALTER TABLE [dbo].[ReportConflictingSharedResourcesImplicit]  WITH CHECK ADD  CONSTRAINT [FK_ReportConflictingSharedResourcesImplicit_Entities_ClientEntityID] FOREIGN KEY([ClientEntityID])
+REFERENCES [dbo].[Entities] ([EntityId])
+GO
+ALTER TABLE [dbo].[ReportConflictingSharedResourcesImplicit] CHECK CONSTRAINT [FK_ReportConflictingSharedResourcesImplicit_Entities_ClientEntityID]
+GO
+ALTER TABLE [dbo].[ReportConflictingSharedResourcesImplicit]  WITH CHECK ADD  CONSTRAINT [FK_ReportConflictingSharedResourcesImplicit_Entities_DeniedUserEntityId] FOREIGN KEY([DeniedUserEntityId])
+REFERENCES [dbo].[Entities] ([EntityId])
+GO
+ALTER TABLE [dbo].[ReportConflictingSharedResourcesImplicit] CHECK CONSTRAINT [FK_ReportConflictingSharedResourcesImplicit_Entities_DeniedUserEntityId]
+GO
+ALTER TABLE [dbo].[ReportConflictingSharedResourcesImplicit]  WITH CHECK ADD  CONSTRAINT [FK_ReportConflictingSharedResourcesImplicit_Entities_MatterEntityID] FOREIGN KEY([MatterEntityID])
+REFERENCES [dbo].[Entities] ([EntityId])
+GO
+ALTER TABLE [dbo].[ReportConflictingSharedResourcesImplicit] CHECK CONSTRAINT [FK_ReportConflictingSharedResourcesImplicit_Entities_MatterEntityID]
+GO
+ALTER TABLE [dbo].[ReportConflictingSharedResourcesImplicit]  WITH CHECK ADD  CONSTRAINT [FK_ReportConflictingSharedResourcesImplicit_Walls_AllowingWallId] FOREIGN KEY([ConflictingWallId])
+REFERENCES [dbo].[Walls] ([WallId])
+GO
+ALTER TABLE [dbo].[ReportConflictingSharedResourcesImplicit] CHECK CONSTRAINT [FK_ReportConflictingSharedResourcesImplicit_Walls_AllowingWallId]
+GO
+ALTER TABLE [dbo].[ReportConflictingSharedResourcesImplicit]  WITH CHECK ADD  CONSTRAINT [FK_ReportConflictingSharedResourcesImplicit_Walls_DenyingWallId] FOREIGN KEY([DenyingWallId])
+REFERENCES [dbo].[Walls] ([WallId])
+GO
+ALTER TABLE [dbo].[ReportConflictingSharedResourcesImplicit] CHECK CONSTRAINT [FK_ReportConflictingSharedResourcesImplicit_Walls_DenyingWallId]
+GO
+ALTER TABLE [dbo].[ReportFields]  WITH CHECK ADD  CONSTRAINT [FK_ReportFields_ReportTypes] FOREIGN KEY([ReportTypeId])
+REFERENCES [dbo].[ReportTypes] ([ReportTypeId])
+GO
+ALTER TABLE [dbo].[ReportFields] CHECK CONSTRAINT [FK_ReportFields_ReportTypes]
+GO
+ALTER TABLE [dbo].[Reports]  WITH CHECK ADD  CONSTRAINT [FK_Reports_ApplicationUsers] FOREIGN KEY([UserId])
+REFERENCES [dbo].[ApplicationUsers] ([UserId])
+GO
+ALTER TABLE [dbo].[Reports] CHECK CONSTRAINT [FK_Reports_ApplicationUsers]
+GO
+ALTER TABLE [dbo].[Reports]  WITH CHECK ADD  CONSTRAINT [FK_Reports_ReportTypes] FOREIGN KEY([ReportTypeId])
+REFERENCES [dbo].[ReportTypes] ([ReportTypeId])
+GO
+ALTER TABLE [dbo].[Reports] CHECK CONSTRAINT [FK_Reports_ReportTypes]
+GO
+ALTER TABLE [dbo].[ReportSchedules]  WITH CHECK ADD  CONSTRAINT [FK_ReportFields_Reports] FOREIGN KEY([ReportID])
+REFERENCES [dbo].[Reports] ([ReportId])
+GO
+ALTER TABLE [dbo].[ReportSchedules] CHECK CONSTRAINT [FK_ReportFields_Reports]
+GO
+ALTER TABLE [dbo].[ReportsConflictingLatestUpdateDate]  WITH CHECK ADD  CONSTRAINT [FK_ReportsConflictingLatestUpdateDate_ReportTypes_ReportTypeId] FOREIGN KEY([ReportTypeId])
+REFERENCES [dbo].[ReportTypes] ([ReportTypeId])
+GO
+ALTER TABLE [dbo].[ReportsConflictingLatestUpdateDate] CHECK CONSTRAINT [FK_ReportsConflictingLatestUpdateDate_ReportTypes_ReportTypeId]
+GO
+ALTER TABLE [dbo].[ReportTypes]  WITH CHECK ADD  CONSTRAINT [FK_ParentReportTypes_ReportTypes] FOREIGN KEY([ParentReportTypeId])
+REFERENCES [dbo].[ReportTypes] ([ReportTypeId])
+GO
+ALTER TABLE [dbo].[ReportTypes] CHECK CONSTRAINT [FK_ParentReportTypes_ReportTypes]
+GO
+ALTER TABLE [dbo].[ReportTypes]  WITH CHECK ADD  CONSTRAINT [FK_ReportTypes_PolicyCategoryGroups] FOREIGN KEY([PolicyCategoryGroupId])
+REFERENCES [dbo].[PolicyCategoryGroups] ([PolicyCategoryGroupId])
+GO
+ALTER TABLE [dbo].[ReportTypes] CHECK CONSTRAINT [FK_ReportTypes_PolicyCategoryGroups]
+GO
+ALTER TABLE [dbo].[Repositories]  WITH CHECK ADD  CONSTRAINT [FK_Repositories_RepositoryTypes] FOREIGN KEY([RepositoryTypeId])
+REFERENCES [dbo].[RepositoryTypes] ([RepositoryTypeId])
+GO
+ALTER TABLE [dbo].[Repositories] CHECK CONSTRAINT [FK_Repositories_RepositoryTypes]
+GO
+ALTER TABLE [dbo].[SCHEDULER_CRON_TRIGGERS]  WITH CHECK ADD  CONSTRAINT [FK_SCHEDULER_CRON_TRIGGERS_SCHEDULER_TRIGGERS] FOREIGN KEY([TRIGGER_NAME], [TRIGGER_GROUP])
+REFERENCES [dbo].[SCHEDULER_TRIGGERS] ([TRIGGER_NAME], [TRIGGER_GROUP])
+ON DELETE CASCADE
+GO
+ALTER TABLE [dbo].[SCHEDULER_CRON_TRIGGERS] CHECK CONSTRAINT [FK_SCHEDULER_CRON_TRIGGERS_SCHEDULER_TRIGGERS]
+GO
+ALTER TABLE [dbo].[SCHEDULER_JOB_LISTENERS]  WITH CHECK ADD  CONSTRAINT [FK_SCHEDULER_JOB_LISTENERS_SCHEDULER_JOB_DETAILS] FOREIGN KEY([JOB_NAME], [JOB_GROUP])
+REFERENCES [dbo].[SCHEDULER_JOB_DETAILS] ([JOB_NAME], [JOB_GROUP])
+ON DELETE CASCADE
+GO
+ALTER TABLE [dbo].[SCHEDULER_JOB_LISTENERS] CHECK CONSTRAINT [FK_SCHEDULER_JOB_LISTENERS_SCHEDULER_JOB_DETAILS]
+GO
+ALTER TABLE [dbo].[SCHEDULER_SIMPLE_TRIGGERS]  WITH CHECK ADD  CONSTRAINT [FK_SCHEDULER_SIMPLE_TRIGGERS_SCHEDULER_TRIGGERS] FOREIGN KEY([TRIGGER_NAME], [TRIGGER_GROUP])
+REFERENCES [dbo].[SCHEDULER_TRIGGERS] ([TRIGGER_NAME], [TRIGGER_GROUP])
+ON DELETE CASCADE
+GO
+ALTER TABLE [dbo].[SCHEDULER_SIMPLE_TRIGGERS] CHECK CONSTRAINT [FK_SCHEDULER_SIMPLE_TRIGGERS_SCHEDULER_TRIGGERS]
+GO
+ALTER TABLE [dbo].[SCHEDULER_TRIGGER_LISTENERS]  WITH CHECK ADD  CONSTRAINT [FK_SCHEDULER_TRIGGER_LISTENERS_SCHEDULER_TRIGGERS] FOREIGN KEY([TRIGGER_NAME], [TRIGGER_GROUP])
+REFERENCES [dbo].[SCHEDULER_TRIGGERS] ([TRIGGER_NAME], [TRIGGER_GROUP])
+ON DELETE CASCADE
+GO
+ALTER TABLE [dbo].[SCHEDULER_TRIGGER_LISTENERS] CHECK CONSTRAINT [FK_SCHEDULER_TRIGGER_LISTENERS_SCHEDULER_TRIGGERS]
+GO
+ALTER TABLE [dbo].[SCHEDULER_TRIGGERS]  WITH CHECK ADD  CONSTRAINT [FK_SCHEDULER_TRIGGERS_SCHEDULER_JOB_DETAILS] FOREIGN KEY([JOB_NAME], [JOB_GROUP])
+REFERENCES [dbo].[SCHEDULER_JOB_DETAILS] ([JOB_NAME], [JOB_GROUP])
+GO
+ALTER TABLE [dbo].[SCHEDULER_TRIGGERS] CHECK CONSTRAINT [FK_SCHEDULER_TRIGGERS_SCHEDULER_JOB_DETAILS]
+GO
+ALTER TABLE [dbo].[ScreeningLawyerKeyMap]  WITH CHECK ADD  CONSTRAINT [FK_ScreeningLawyerKeyMap_Entities] FOREIGN KEY([EntityId])
+REFERENCES [dbo].[Entities] ([EntityId])
+GO
+ALTER TABLE [dbo].[ScreeningLawyerKeyMap] CHECK CONSTRAINT [FK_ScreeningLawyerKeyMap_Entities]
+GO
+ALTER TABLE [dbo].[ScreeningLawyerKeyMap]  WITH CHECK ADD  CONSTRAINT [FK_ScreeningLawyerKeyMap_Walls] FOREIGN KEY([WallId])
+REFERENCES [dbo].[Walls] ([WallId])
+GO
+ALTER TABLE [dbo].[ScreeningLawyerKeyMap] CHECK CONSTRAINT [FK_ScreeningLawyerKeyMap_Walls]
+GO
+ALTER TABLE [dbo].[SummaryDetails]  WITH NOCHECK ADD  CONSTRAINT [FK_SummaryDetails_Entities] FOREIGN KEY([UserEntityId])
+REFERENCES [dbo].[Entities] ([EntityId])
+GO
+ALTER TABLE [dbo].[SummaryDetails] CHECK CONSTRAINT [FK_SummaryDetails_Entities]
+GO
+ALTER TABLE [dbo].[SummaryDetails]  WITH NOCHECK ADD  CONSTRAINT [FK_SummaryDetails_TrackerExecutions] FOREIGN KEY([TrackerExecutionId])
+REFERENCES [dbo].[TrackerExecutions] ([TrackerExecutionId])
+GO
+ALTER TABLE [dbo].[SummaryDetails] CHECK CONSTRAINT [FK_SummaryDetails_TrackerExecutions]
+GO
+ALTER TABLE [dbo].[TrackerActivities]  WITH CHECK ADD  CONSTRAINT [FK_TrackerActivities_Activities] FOREIGN KEY([ActivityId])
+REFERENCES [dbo].[Activities] ([ActivityId])
+GO
+ALTER TABLE [dbo].[TrackerActivities] CHECK CONSTRAINT [FK_TrackerActivities_Activities]
+GO
+ALTER TABLE [dbo].[TrackerActivities]  WITH CHECK ADD  CONSTRAINT [FK_TrackerActivities_Trackers] FOREIGN KEY([TrackerId])
+REFERENCES [dbo].[Trackers] ([TrackerId])
+GO
+ALTER TABLE [dbo].[TrackerActivities] CHECK CONSTRAINT [FK_TrackerActivities_Trackers]
+GO
+ALTER TABLE [dbo].[TrackerClientsAndMatters]  WITH CHECK ADD  CONSTRAINT [FK_TrackerClientsAndMatters_Entities] FOREIGN KEY([EntityId])
+REFERENCES [dbo].[Entities] ([EntityId])
+GO
+ALTER TABLE [dbo].[TrackerClientsAndMatters] CHECK CONSTRAINT [FK_TrackerClientsAndMatters_Entities]
+GO
+ALTER TABLE [dbo].[TrackerClientsAndMatters]  WITH CHECK ADD  CONSTRAINT [FK_TrackerClientsAndMatters_Trackers] FOREIGN KEY([TrackerId])
+REFERENCES [dbo].[Trackers] ([TrackerId])
+GO
+ALTER TABLE [dbo].[TrackerClientsAndMatters] CHECK CONSTRAINT [FK_TrackerClientsAndMatters_Trackers]
+GO
+ALTER TABLE [dbo].[TrackerClientsAndMatters]  WITH CHECK ADD  CONSTRAINT [FK_TrackerClientsAndMatters_TrackerSides] FOREIGN KEY([TrackerSideId])
+REFERENCES [dbo].[TrackerSides] ([TrackerSideId])
+GO
+ALTER TABLE [dbo].[TrackerClientsAndMatters] CHECK CONSTRAINT [FK_TrackerClientsAndMatters_TrackerSides]
+GO
+ALTER TABLE [dbo].[TrackerExecutionActivities]  WITH CHECK ADD  CONSTRAINT [FK_TrackerExecutionActivities_Activities] FOREIGN KEY([ActivityId])
+REFERENCES [dbo].[Activities] ([ActivityId])
+GO
+ALTER TABLE [dbo].[TrackerExecutionActivities] CHECK CONSTRAINT [FK_TrackerExecutionActivities_Activities]
+GO
+ALTER TABLE [dbo].[TrackerExecutionActivities]  WITH CHECK ADD  CONSTRAINT [FK_TrackerExecutionActivities_TrackerExecutions] FOREIGN KEY([TrackerExecutionId])
+REFERENCES [dbo].[TrackerExecutions] ([TrackerExecutionId])
+GO
+ALTER TABLE [dbo].[TrackerExecutionActivities] CHECK CONSTRAINT [FK_TrackerExecutionActivities_TrackerExecutions]
+GO
+ALTER TABLE [dbo].[TrackerExecutionClientsAndMatters]  WITH CHECK ADD  CONSTRAINT [FK_TrackerExecutionClientsAndMatters_Entities] FOREIGN KEY([EntityId])
+REFERENCES [dbo].[Entities] ([EntityId])
+GO
+ALTER TABLE [dbo].[TrackerExecutionClientsAndMatters] CHECK CONSTRAINT [FK_TrackerExecutionClientsAndMatters_Entities]
+GO
+ALTER TABLE [dbo].[TrackerExecutionClientsAndMatters]  WITH CHECK ADD  CONSTRAINT [FK_TrackerExecutionClientsAndMatters_TrackerExecutions] FOREIGN KEY([TrackerExecutionId])
+REFERENCES [dbo].[TrackerExecutions] ([TrackerExecutionId])
+GO
+ALTER TABLE [dbo].[TrackerExecutionClientsAndMatters] CHECK CONSTRAINT [FK_TrackerExecutionClientsAndMatters_TrackerExecutions]
+GO
+ALTER TABLE [dbo].[TrackerExecutionLibraries]  WITH CHECK ADD  CONSTRAINT [FK_TrackerExecutionLibraries_Libraries] FOREIGN KEY([LibraryId])
+REFERENCES [dbo].[Repositories] ([RepositoryId])
+GO
+ALTER TABLE [dbo].[TrackerExecutionLibraries] CHECK CONSTRAINT [FK_TrackerExecutionLibraries_Libraries]
+GO
+ALTER TABLE [dbo].[TrackerExecutionLibraries]  WITH CHECK ADD  CONSTRAINT [FK_TrackerExecutionLibraries_TrackerExecutions] FOREIGN KEY([TrackerExecutionId])
+REFERENCES [dbo].[TrackerExecutions] ([TrackerExecutionId])
+GO
+ALTER TABLE [dbo].[TrackerExecutionLibraries] CHECK CONSTRAINT [FK_TrackerExecutionLibraries_TrackerExecutions]
+GO
+ALTER TABLE [dbo].[TrackerExecutions]  WITH NOCHECK ADD  CONSTRAINT [FK_TrackerExecutions_Trackers] FOREIGN KEY([TrackerId])
+REFERENCES [dbo].[Trackers] ([TrackerId])
+GO
+ALTER TABLE [dbo].[TrackerExecutions] CHECK CONSTRAINT [FK_TrackerExecutions_Trackers]
+GO
+ALTER TABLE [dbo].[TrackerExecutions]  WITH NOCHECK ADD  CONSTRAINT [FK_TrackerExecutions_TrackerSides] FOREIGN KEY([TrackerSideId])
+REFERENCES [dbo].[TrackerSides] ([TrackerSideId])
+GO
+ALTER TABLE [dbo].[TrackerExecutions] CHECK CONSTRAINT [FK_TrackerExecutions_TrackerSides]
+GO
+ALTER TABLE [dbo].[TrackerExecutions]  WITH NOCHECK ADD  CONSTRAINT [FK_TrackerExecutions_TrackerTypes] FOREIGN KEY([TrackerTypeId])
+REFERENCES [dbo].[TrackerTypes] ([TrackerTypeId])
+GO
+ALTER TABLE [dbo].[TrackerExecutions] CHECK CONSTRAINT [FK_TrackerExecutions_TrackerTypes]
+GO
+ALTER TABLE [dbo].[TrackerExecutions]  WITH NOCHECK ADD  CONSTRAINT [FK_TrackerExecutions_Walls] FOREIGN KEY([LinkedPolicyId])
+REFERENCES [dbo].[Walls] ([WallId])
+GO
+ALTER TABLE [dbo].[TrackerExecutions] CHECK CONSTRAINT [FK_TrackerExecutions_Walls]
+GO
+ALTER TABLE [dbo].[TrackerRepositories]  WITH CHECK ADD  CONSTRAINT [FK_ThresholdRepositories_Repositories] FOREIGN KEY([RepositoryId])
+REFERENCES [dbo].[Repositories] ([RepositoryId])
+GO
+ALTER TABLE [dbo].[TrackerRepositories] CHECK CONSTRAINT [FK_ThresholdRepositories_Repositories]
+GO
+ALTER TABLE [dbo].[TrackerRepositories]  WITH CHECK ADD  CONSTRAINT [FK_TrackerRepositories_Trackers] FOREIGN KEY([TrackerId])
+REFERENCES [dbo].[Trackers] ([TrackerId])
+GO
+ALTER TABLE [dbo].[TrackerRepositories] CHECK CONSTRAINT [FK_TrackerRepositories_Trackers]
+GO
+ALTER TABLE [dbo].[Trackers]  WITH CHECK ADD  CONSTRAINT [FK_Trackers_ApplicationUsers] FOREIGN KEY([CreatorId])
+REFERENCES [dbo].[ApplicationUsers] ([UserId])
+GO
+ALTER TABLE [dbo].[Trackers] CHECK CONSTRAINT [FK_Trackers_ApplicationUsers]
+GO
+ALTER TABLE [dbo].[Trackers]  WITH CHECK ADD  CONSTRAINT [FK_Trackers_ApplicationUsers_Modifier] FOREIGN KEY([ModifierId])
+REFERENCES [dbo].[ApplicationUsers] ([UserId])
+GO
+ALTER TABLE [dbo].[Trackers] CHECK CONSTRAINT [FK_Trackers_ApplicationUsers_Modifier]
+GO
+ALTER TABLE [dbo].[Trackers]  WITH CHECK ADD  CONSTRAINT [FK_Trackers_TrackerTypes] FOREIGN KEY([TrackerTypeId])
+REFERENCES [dbo].[TrackerTypes] ([TrackerTypeId])
+GO
+ALTER TABLE [dbo].[Trackers] CHECK CONSTRAINT [FK_Trackers_TrackerTypes]
+GO
+ALTER TABLE [dbo].[Trackers]  WITH CHECK ADD  CONSTRAINT [FK_Trackers_Walls] FOREIGN KEY([LinkedPolicyId])
+REFERENCES [dbo].[Walls] ([WallId])
+GO
+ALTER TABLE [dbo].[Trackers] CHECK CONSTRAINT [FK_Trackers_Walls]
+GO
+ALTER TABLE [dbo].[TrackerSides]  WITH CHECK ADD  CONSTRAINT [FK_TrackerSides_Tracker] FOREIGN KEY([TrackerId])
+REFERENCES [dbo].[Trackers] ([TrackerId])
+GO
+ALTER TABLE [dbo].[TrackerSides] CHECK CONSTRAINT [FK_TrackerSides_Tracker]
+GO
+ALTER TABLE [dbo].[TrackerSides]  WITH CHECK ADD  CONSTRAINT [FK_TrackerSides_WallSide] FOREIGN KEY([WallSideId])
+REFERENCES [dbo].[WallSides] ([WallSideId])
+GO
+ALTER TABLE [dbo].[TrackerSides] CHECK CONSTRAINT [FK_TrackerSides_WallSide]
+GO
+ALTER TABLE [dbo].[TrackerTypes]  WITH CHECK ADD  CONSTRAINT [FK_TrackerTypes_TrackerCategories] FOREIGN KEY([TrackerCategoryId])
+REFERENCES [dbo].[TrackerCategories] ([TrackerCategoryId])
+GO
+ALTER TABLE [dbo].[TrackerTypes] CHECK CONSTRAINT [FK_TrackerTypes_TrackerCategories]
+GO
+ALTER TABLE [dbo].[TrackerWatchList]  WITH CHECK ADD  CONSTRAINT [FK_ThresholdWatchList_Entities] FOREIGN KEY([UserEntityId])
+REFERENCES [dbo].[Entities] ([EntityId])
+GO
+ALTER TABLE [dbo].[TrackerWatchList] CHECK CONSTRAINT [FK_ThresholdWatchList_Entities]
+GO
+ALTER TABLE [dbo].[TrackerWatchList]  WITH CHECK ADD  CONSTRAINT [FK_TrackerWatchList_Trackers] FOREIGN KEY([TrackerId])
+REFERENCES [dbo].[Trackers] ([TrackerId])
+GO
+ALTER TABLE [dbo].[TrackerWatchList] CHECK CONSTRAINT [FK_TrackerWatchList_Trackers]
+GO
+ALTER TABLE [dbo].[TrackerWatchList]  WITH CHECK ADD  CONSTRAINT [FK_TrackerWatchList_TrackerSides] FOREIGN KEY([TrackerSideId])
+REFERENCES [dbo].[TrackerSides] ([TrackerSideId])
+GO
+ALTER TABLE [dbo].[TrackerWatchList] CHECK CONSTRAINT [FK_TrackerWatchList_TrackerSides]
+GO
+ALTER TABLE [dbo].[UserActivityCounts]  WITH CHECK ADD  CONSTRAINT [FK_UserActivityCounts_Entities] FOREIGN KEY([UserEntityId])
+REFERENCES [dbo].[Entities] ([EntityId])
+GO
+ALTER TABLE [dbo].[UserActivityCounts] CHECK CONSTRAINT [FK_UserActivityCounts_Entities]
+GO
+ALTER TABLE [dbo].[UserActivityCounts]  WITH CHECK ADD  CONSTRAINT [FK_UserActivityCounts_TrackerExecutions] FOREIGN KEY([TrackerExecutionId])
+REFERENCES [dbo].[TrackerExecutions] ([TrackerExecutionId])
+GO
+ALTER TABLE [dbo].[UserActivityCounts] CHECK CONSTRAINT [FK_UserActivityCounts_TrackerExecutions]
+GO
+ALTER TABLE [dbo].[WallAccessTypes]  WITH CHECK ADD  CONSTRAINT [FK_WallAccessTypes_PolicyCategories] FOREIGN KEY([PolicyCategoryId])
+REFERENCES [dbo].[PolicyCategories] ([PolicyCategoryId])
+GO
+ALTER TABLE [dbo].[WallAccessTypes] CHECK CONSTRAINT [FK_WallAccessTypes_PolicyCategories]
+GO
+ALTER TABLE [dbo].[WallCustomComboValues]  WITH CHECK ADD  CONSTRAINT [FK_WallCustomComboValues_PolicyCategoryGroups] FOREIGN KEY([PolicyCategoryGroupId])
+REFERENCES [dbo].[PolicyCategoryGroups] ([PolicyCategoryGroupId])
+GO
+ALTER TABLE [dbo].[WallCustomComboValues] CHECK CONSTRAINT [FK_WallCustomComboValues_PolicyCategoryGroups]
+GO
+ALTER TABLE [dbo].[WallCustomFieldConfig]  WITH CHECK ADD  CONSTRAINT [FK_WallCustomFieldConfig_PolicyCategoryGroups] FOREIGN KEY([PolicyCategoryGroupId])
+REFERENCES [dbo].[PolicyCategoryGroups] ([PolicyCategoryGroupId])
+GO
+ALTER TABLE [dbo].[WallCustomFieldConfig] CHECK CONSTRAINT [FK_WallCustomFieldConfig_PolicyCategoryGroups]
+GO
+ALTER TABLE [dbo].[WallExceptions]  WITH NOCHECK ADD  CONSTRAINT [FK_WallExceptions_ApplicationUsers] FOREIGN KEY([CreatorId])
+REFERENCES [dbo].[ApplicationUsers] ([UserId])
+GO
+ALTER TABLE [dbo].[WallExceptions] CHECK CONSTRAINT [FK_WallExceptions_ApplicationUsers]
+GO
+ALTER TABLE [dbo].[WallExceptions]  WITH CHECK ADD  CONSTRAINT [FK_WallExceptions_Entities] FOREIGN KEY([EntityId])
+REFERENCES [dbo].[Entities] ([EntityId])
+GO
+ALTER TABLE [dbo].[WallExceptions] CHECK CONSTRAINT [FK_WallExceptions_Entities]
+GO
+ALTER TABLE [dbo].[WallExceptions]  WITH CHECK ADD  CONSTRAINT [FK_WallExceptions_Walls] FOREIGN KEY([WallId])
+REFERENCES [dbo].[Walls] ([WallId])
+GO
+ALTER TABLE [dbo].[WallExceptions] CHECK CONSTRAINT [FK_WallExceptions_Walls]
+GO
+ALTER TABLE [dbo].[Walls]  WITH CHECK ADD  CONSTRAINT [FK_Walls_ApplicationUsers] FOREIGN KEY([CreatorId])
+REFERENCES [dbo].[ApplicationUsers] ([UserId])
+GO
+ALTER TABLE [dbo].[Walls] CHECK CONSTRAINT [FK_Walls_ApplicationUsers]
+GO
+ALTER TABLE [dbo].[Walls]  WITH CHECK ADD  CONSTRAINT [FK_Walls_ApplicationUsers2] FOREIGN KEY([ModifierId])
+REFERENCES [dbo].[ApplicationUsers] ([UserId])
+GO
+ALTER TABLE [dbo].[Walls] CHECK CONSTRAINT [FK_Walls_ApplicationUsers2]
+GO
+ALTER TABLE [dbo].[Walls]  WITH CHECK ADD  CONSTRAINT [FK_Walls_WallAccessTypes] FOREIGN KEY([WallAccessTypeId])
+REFERENCES [dbo].[WallAccessTypes] ([WallAccessTypeId])
+GO
+ALTER TABLE [dbo].[Walls] CHECK CONSTRAINT [FK_Walls_WallAccessTypes]
+GO
+ALTER TABLE [dbo].[WallSideEntities]  WITH CHECK ADD  CONSTRAINT [FK_WallSideEntities_Entities] FOREIGN KEY([EntityId])
+REFERENCES [dbo].[Entities] ([EntityId])
+GO
+ALTER TABLE [dbo].[WallSideEntities] CHECK CONSTRAINT [FK_WallSideEntities_Entities]
+GO
+ALTER TABLE [dbo].[WallSideEntities]  WITH CHECK ADD  CONSTRAINT [FK_WallSideEntities_WallRoleId] FOREIGN KEY([WallRoleId])
+REFERENCES [dbo].[WallRoles] ([WallRoleId])
+GO
+ALTER TABLE [dbo].[WallSideEntities] CHECK CONSTRAINT [FK_WallSideEntities_WallRoleId]
+GO
+ALTER TABLE [dbo].[WallSideEntities]  WITH CHECK ADD  CONSTRAINT [FK_WallSideEntities_Walls] FOREIGN KEY([WallId])
+REFERENCES [dbo].[Walls] ([WallId])
+GO
+ALTER TABLE [dbo].[WallSideEntities] CHECK CONSTRAINT [FK_WallSideEntities_Walls]
+GO
+ALTER TABLE [dbo].[WallSideEntities]  WITH CHECK ADD  CONSTRAINT [FK_WallSideEntities_WallSides] FOREIGN KEY([WallSideId])
+REFERENCES [dbo].[WallSides] ([WallSideId])
+GO
+ALTER TABLE [dbo].[WallSideEntities] CHECK CONSTRAINT [FK_WallSideEntities_WallSides]
+GO
+ALTER TABLE [dbo].[WallSides]  WITH CHECK ADD  CONSTRAINT [FK_WallSides_Walls] FOREIGN KEY([WallId])
+REFERENCES [dbo].[Walls] ([WallId])
+GO
+ALTER TABLE [dbo].[WallSides] CHECK CONSTRAINT [FK_WallSides_Walls]
+GO
+ALTER TABLE [dbo].[WidgetInstance]  WITH CHECK ADD  CONSTRAINT [FK_WidgetZoneWidgets_Widget] FOREIGN KEY([WidgetId])
+REFERENCES [dbo].[Widget] ([Id])
+GO
+ALTER TABLE [dbo].[WidgetInstance] CHECK CONSTRAINT [FK_WidgetZoneWidgets_Widget]
+GO
+ALTER TABLE [dbo].[WidgetInstance]  WITH CHECK ADD  CONSTRAINT [FK_WidgetZoneWidgets_WidgetZone] FOREIGN KEY([WidgetZoneId])
+REFERENCES [dbo].[WidgetZone] ([Id])
+GO
+ALTER TABLE [dbo].[WidgetInstance] CHECK CONSTRAINT [FK_WidgetZoneWidgets_WidgetZone]
+GO
+ALTER TABLE [dbo].[WidgetZone]  WITH CHECK ADD  CONSTRAINT [FK_WidgetZone_ApplicationUsers] FOREIGN KEY([UserId])
+REFERENCES [dbo].[ApplicationUsers] ([UserId])
+GO
+ALTER TABLE [dbo].[WidgetZone] CHECK CONSTRAINT [FK_WidgetZone_ApplicationUsers]
+GO
+ALTER TABLE [dbo].[WidgetZone]  WITH CHECK ADD  CONSTRAINT [FK_WidgetZone_WidgetZoneType] FOREIGN KEY([WidgetZoneTypeId])
+REFERENCES [dbo].[WidgetZoneType] ([Id])
+GO
+ALTER TABLE [dbo].[WidgetZone] CHECK CONSTRAINT [FK_WidgetZone_WidgetZoneType]
+GO
+ALTER TABLE [dbo].[DigestNotifications]  WITH CHECK ADD  CONSTRAINT [CK_DigestNotifications] CHECK  (([EmailAddress] IS NOT NULL OR [NotificationHistoryId] IS NOT NULL))
+GO
+ALTER TABLE [dbo].[DigestNotifications] CHECK CONSTRAINT [CK_DigestNotifications]
+GO
+ALTER TABLE [dbo].[EntityToEntityRelationships]  WITH NOCHECK ADD  CONSTRAINT [CK_EntityToEntityRelationships] CHECK  (([PrimaryEntityId]<>[SubordinateEntityId]))
+GO
+ALTER TABLE [dbo].[EntityToEntityRelationships] CHECK CONSTRAINT [CK_EntityToEntityRelationships]
+GO
+ALTER TABLE [dbo].[MatterTeamRole]  WITH NOCHECK ADD  CONSTRAINT [CK_MatterTeamRole_CanRemoveUsers] CHECK  (([CanRemoveUsers]=(0) OR [CanRemoveUsers]=(1) AND [IsAdmin]=(1)))
+GO
+ALTER TABLE [dbo].[MatterTeamRole] CHECK CONSTRAINT [CK_MatterTeamRole_CanRemoveUsers]
+GO
+ALTER TABLE [dbo].[MatterTeamRole]  WITH NOCHECK ADD  CONSTRAINT [CK_MatterTeamRole_IsDelegate] CHECK  (([IsDelegate]=(0) OR [IsDelegate]=(1) AND [IsAdmin]=(1)))
+GO
+ALTER TABLE [dbo].[MatterTeamRole] CHECK CONSTRAINT [CK_MatterTeamRole_IsDelegate]
+GO
+ALTER TABLE [dbo].[Walls]  WITH CHECK ADD  CONSTRAINT [CK_Walls_FoundationalGroupId] CHECK  ((isnumeric([FoundationalGroupId])<>(1) OR CONVERT([int],[FoundationalGroupId])=[WallId]))
+GO
+ALTER TABLE [dbo].[Walls] CHECK CONSTRAINT [CK_Walls_FoundationalGroupId]
+GO
+/****** Object:  StoredProcedure [dbo].[usp_makeunicodecolumn]    Script Date: 2/6/2018 1:34:19 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+-- Register procedure
+CREATE PROCEDURE [dbo].[usp_makeunicodecolumn]
+    @TABLE_NAME VARCHAR(50) = 0, 	 -- name of table
+    @columnname VARCHAR(50) = 0,	 -- name of column
+    @indexname VARCHAR (50) = 0,	 -- name of index
+    @prevtype VARCHAR (50) = 'varchar', -- previous type name
+    @newtype VARCHAR (50) =	 'nvarchar' -- new type name
+AS
+-- Check if this column doesn't need changes
+IF EXISTS (SELECT * FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME=@TABLE_NAME AND COLUMN_NAME=@columnname AND DATA_TYPE = @prevtype)
+BEGIN
+    DECLARE @IsNullable VARCHAR(10)
+    DECLARE @precision  VARCHAR(10)
+    SET @IsNullable = '1'
+
+    -- Get if this columns may NULL value, and length of column in chars
+    SELECT @IsNullable = IS_NULLABLE, @precision = CHARACTER_MAXIMUM_LENGTH FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME=@TABLE_NAME AND COLUMN_NAME=@columnname AND DATA_TYPE = @prevtype
+
+    DECLARE @tsql VARCHAR (200)
+    DECLARE @indexIsDroped BIT
+    SET @indexIsDroped = 0
+
+    -- DROP existing index
+    IF (LEN(@indexname) > 1) AND (EXISTS (SELECT INDEXPROPERTY(OBJECT_ID(@TABLE_NAME), @indexname, 'IndexID')))
+    BEGIN
+        SET	@tsql = 'DROP INDEX ' + @TABLE_NAME + '.' + @indexname
+        EXEC (@tsql)
+        SET @indexIsDroped = 1
+    END
+    -- Change column with new datatype
+    SET		@tsql = 'ALTER TABLE [' + @TABLE_NAME + '] ALTER COLUMN [' + @columnname + '] ' + @newtype
+    IF (@precision IS NOT NULL)
+    BEGIN
+        -- Truncate length of column
+        IF (@precision > 4000)
+        BEGIN
+            SET @precision = 4000
+            DECLARE @tsql_truncate VARCHAR(255)
+            SET		@tsql_truncate = 'UPDATE [' + @TABLE_NAME + '] SET ' + @columnname + ' = LEFT(' + @columnname + ', 4000) WHERE LEN(' + @columnname + ') > 4000'
+            EXEC   (@tsql_truncate)
+        END
+        SET @tsql = @tsql + '(' + @precision + ')'
+    END
+    IF (@IsNullable = '0' OR @IsNullable = 'NO')
+         SET @tsql = @tsql + ' NOT NULL'
+    ELSE SET @tsql = @tsql + ' NULL'
+    EXEC (@tsql)
+
+    -- Create index if it was deleted
+    IF (@indexIsDroped > 0)
+    BEGIN
+        SET	@tsql = 'CREATE INDEX ' + @indexname + ' ON ' + @TABLE_NAME + '(' + @columnname + ') '
+        EXEC (@tsql)
+    END
+END
+GO

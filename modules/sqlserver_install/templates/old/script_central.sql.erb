@@ -1,0 +1,166 @@
+USE [master]
+GO
+/****** Object:  Database [<%=@sqlserverdbnamecentraladmin%>]    Script Date: 2/8/2018 10:52:22 AM ******/
+--CREATE DATABASE [<%=@sqlserverdbnamecentraladmin%>]
+-- CONTAINMENT = NONE
+-- ON  PRIMARY 
+--( NAME = N'CentralAdministration', FILENAME = N'C:\Program Files\Microsoft SQL Server\MSSQL12.MSSQLSERVER\MSSQL\DATA\CentralAdministration.mdf' , SIZE = 3264KB , MAXSIZE = UNLIMITED, FILEGROWTH = 1024KB )
+-- LOG ON 
+--( NAME = N'CentralAdministration_log', FILENAME = N'C:\Program Files\Microsoft SQL Server\MSSQL12.MSSQLSERVER\MSSQL\DATA\CentralAdministration_log.ldf' , SIZE = 816KB , MAXSIZE = 2048GB , FILEGROWTH = 10%)
+--GO
+ALTER DATABASE [<%=@sqlserverdbnamecentraladmin%>] SET COMPATIBILITY_LEVEL = 120
+GO
+IF (1 = FULLTEXTSERVICEPROPERTY('IsFullTextInstalled'))
+begin
+EXEC [<%=@sqlserverdbnamecentraladmin%>].[dbo].[sp_fulltext_database] @action = 'enable'
+end
+GO
+ALTER DATABASE [<%=@sqlserverdbnamecentraladmin%>] SET ANSI_NULL_DEFAULT OFF 
+GO
+ALTER DATABASE [<%=@sqlserverdbnamecentraladmin%>] SET ANSI_NULLS OFF 
+GO
+ALTER DATABASE [<%=@sqlserverdbnamecentraladmin%>] SET ANSI_PADDING OFF 
+GO
+ALTER DATABASE [<%=@sqlserverdbnamecentraladmin%>] SET ANSI_WARNINGS OFF 
+GO
+ALTER DATABASE [<%=@sqlserverdbnamecentraladmin%>] SET ARITHABORT OFF 
+GO
+ALTER DATABASE [<%=@sqlserverdbnamecentraladmin%>] SET AUTO_CLOSE OFF 
+GO
+ALTER DATABASE [<%=@sqlserverdbnamecentraladmin%>] SET AUTO_SHRINK OFF 
+GO
+ALTER DATABASE [<%=@sqlserverdbnamecentraladmin%>] SET AUTO_UPDATE_STATISTICS ON 
+GO
+ALTER DATABASE [<%=@sqlserverdbnamecentraladmin%>] SET CURSOR_CLOSE_ON_COMMIT OFF 
+GO
+ALTER DATABASE [<%=@sqlserverdbnamecentraladmin%>] SET CURSOR_DEFAULT  GLOBAL 
+GO
+ALTER DATABASE [<%=@sqlserverdbnamecentraladmin%>] SET CONCAT_NULL_YIELDS_NULL OFF 
+GO
+ALTER DATABASE [<%=@sqlserverdbnamecentraladmin%>] SET NUMERIC_ROUNDABORT OFF 
+GO
+ALTER DATABASE [<%=@sqlserverdbnamecentraladmin%>] SET QUOTED_IDENTIFIER OFF 
+GO
+ALTER DATABASE [<%=@sqlserverdbnamecentraladmin%>] SET RECURSIVE_TRIGGERS OFF 
+GO
+ALTER DATABASE [<%=@sqlserverdbnamecentraladmin%>] SET  ENABLE_BROKER 
+GO
+ALTER DATABASE [<%=@sqlserverdbnamecentraladmin%>] SET AUTO_UPDATE_STATISTICS_ASYNC OFF 
+GO
+ALTER DATABASE [<%=@sqlserverdbnamecentraladmin%>] SET DATE_CORRELATION_OPTIMIZATION OFF 
+GO
+ALTER DATABASE [<%=@sqlserverdbnamecentraladmin%>] SET TRUSTWORTHY OFF 
+GO
+ALTER DATABASE [<%=@sqlserverdbnamecentraladmin%>] SET ALLOW_SNAPSHOT_ISOLATION OFF 
+GO
+ALTER DATABASE [<%=@sqlserverdbnamecentraladmin%>] SET PARAMETERIZATION SIMPLE 
+GO
+ALTER DATABASE [<%=@sqlserverdbnamecentraladmin%>] SET READ_COMMITTED_SNAPSHOT OFF 
+GO
+ALTER DATABASE [<%=@sqlserverdbnamecentraladmin%>] SET HONOR_BROKER_PRIORITY OFF 
+GO
+ALTER DATABASE [<%=@sqlserverdbnamecentraladmin%>] SET RECOVERY FULL 
+GO
+ALTER DATABASE [<%=@sqlserverdbnamecentraladmin%>] SET  MULTI_USER 
+GO
+ALTER DATABASE [<%=@sqlserverdbnamecentraladmin%>] SET PAGE_VERIFY CHECKSUM  
+GO
+ALTER DATABASE [<%=@sqlserverdbnamecentraladmin%>] SET DB_CHAINING OFF 
+GO
+ALTER DATABASE [<%=@sqlserverdbnamecentraladmin%>] SET FILESTREAM( NON_TRANSACTED_ACCESS = OFF ) 
+GO
+ALTER DATABASE [<%=@sqlserverdbnamecentraladmin%>] SET TARGET_RECOVERY_TIME = 0 SECONDS 
+GO
+ALTER DATABASE [<%=@sqlserverdbnamecentraladmin%>] SET DELAYED_DURABILITY = DISABLED 
+GO
+EXEC sys.sp_db_vardecimal_storage_format N'<%=@sqlserverdbnamecentraladmin%>', N'ON'
+GO
+USE [<%=@sqlserverdbnamecentraladmin%>]
+GO
+/****** Object:  Schema [cac]    Script Date: 2/8/2018 10:52:23 AM ******/
+CREATE SCHEMA [cac]
+GO
+/****** Object:  Table [cac].[Applications]    Script Date: 2/8/2018 10:52:23 AM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [cac].[Applications](
+	[ApplicationId] [int] IDENTITY(1,1) NOT NULL,
+	[ApplicationName] [nvarchar](256) NOT NULL,
+	[ApplicationType] [int] NOT NULL,
+	[Created] [datetime] NOT NULL,
+	[Modified] [datetime] NOT NULL,
+	[DatabaseName] [nvarchar](256) NOT NULL,
+	[ServerName] [nvarchar](256) NOT NULL,
+	[UserName] [nvarchar](256) NOT NULL,
+	[UserPassword] [nvarchar](256) NOT NULL,
+	[UseWindowsAuthentication] [bit] NOT NULL,
+	[ApplicationUrl] [nvarchar](1000) NOT NULL,
+	[ApiServiceUrl] [nvarchar](1000) NULL,
+PRIMARY KEY CLUSTERED 
+(
+	[ApplicationId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [cac].[ApplicationUsers]    Script Date: 2/8/2018 10:52:23 AM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [cac].[ApplicationUsers](
+	[UserId] [int] IDENTITY(1,1) NOT NULL,
+	[Login] [nvarchar](50) NOT NULL,
+	[Password] [nvarchar](50) NOT NULL,
+	[Email] [nvarchar](100) NULL,
+	[IsEnabled] [bit] NOT NULL,
+	[Created] [datetime] NOT NULL,
+	[Modified] [datetime] NOT NULL,
+	[LastLogin] [datetime] NULL,
+	[Name] [nvarchar](100) NULL,
+	[IsDeleted] [bit] NOT NULL,
+PRIMARY KEY CLUSTERED 
+(
+	[UserId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [cac].[Version]    Script Date: 2/8/2018 10:52:23 AM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [cac].[Version](
+	[AppVersion] [varchar](50) NULL
+) ON [PRIMARY]
+GO
+SET IDENTITY_INSERT [cac].[ApplicationUsers] ON 
+
+INSERT [cac].[ApplicationUsers] ([UserId], [Login], [Password], [Email], [IsEnabled], [Created], [Modified], [LastLogin], [Name], [IsDeleted]) VALUES (1, N'admin', N'1B2M2Y8AsgTpgAmY7PhCfg==', N'', 1, CAST(N'2018-02-05T11:46:11.490' AS DateTime), CAST(N'2018-02-05T11:46:11.490' AS DateTime), NULL, N'Administrator', 0)
+SET IDENTITY_INSERT [cac].[ApplicationUsers] OFF
+INSERT [cac].[Version] ([AppVersion]) VALUES (N'6.2.2002.5')
+SET ANSI_PADDING ON
+GO
+/****** Object:  Index [IX_ApplicationNameUnique]    Script Date: 2/8/2018 10:52:23 AM ******/
+CREATE UNIQUE NONCLUSTERED INDEX [IX_ApplicationNameUnique] ON [cac].[Applications]
+(
+	[ApplicationName] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, IGNORE_DUP_KEY = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+GO
+ALTER TABLE [cac].[Applications] ADD  DEFAULT (getdate()) FOR [Created]
+GO
+ALTER TABLE [cac].[Applications] ADD  DEFAULT (getdate()) FOR [Modified]
+GO
+ALTER TABLE [cac].[ApplicationUsers] ADD  DEFAULT ((1)) FOR [IsEnabled]
+GO
+ALTER TABLE [cac].[ApplicationUsers] ADD  DEFAULT (getdate()) FOR [Created]
+GO
+ALTER TABLE [cac].[ApplicationUsers] ADD  DEFAULT (getdate()) FOR [Modified]
+GO
+ALTER TABLE [cac].[ApplicationUsers] ADD  DEFAULT ((0)) FOR [IsDeleted]
+GO
+USE [master]
+GO
+ALTER DATABASE [<%=@sqlserverdbnamecentraladmin%>] SET  READ_WRITE 
+GO

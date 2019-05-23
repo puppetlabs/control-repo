@@ -1,0 +1,2126 @@
+USE [<%=@sqlserverdbname%>]
+GO
+
+/****** Object:  Table [dbo].[AccessHistory]    Script Date: 2/6/2018 1:34:16 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[AccessHistory](
+	[AccessHistoryId] [int] IDENTITY(1,1) NOT NULL,
+	[WallId] [int] NOT NULL,
+	[WallSideId] [int] NOT NULL,
+	[UserEntityId] [int] NULL,
+	[ActivityType] [nvarchar](10) NOT NULL,
+	[IsPending] [bit] NOT NULL,
+ CONSTRAINT [PK_AccessHistory] PRIMARY KEY CLUSTERED
+(
+	[AccessHistoryId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[Activities]    Script Date: 2/6/2018 1:34:16 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[Activities](
+	[ActivityId] [int] IDENTITY(1,1) NOT NULL,
+	[RepositoryTypeId] [int] NOT NULL,
+	[ActivityName] [nvarchar](255) NOT NULL,
+	[ActivityRemoteLabel] [nvarchar](255) NOT NULL,
+	[ActivityCategoryId] [int] NOT NULL,
+ CONSTRAINT [PK_Activities] PRIMARY KEY CLUSTERED
+(
+	[ActivityId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[ActivityCategories]    Script Date: 2/6/2018 1:34:16 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[ActivityCategories](
+	[ActivityCategoryId] [int] IDENTITY(1,1) NOT NULL,
+	[ActivityCategoryName] [nvarchar](255) NOT NULL,
+ CONSTRAINT [PK_ActivityCategories] PRIMARY KEY CLUSTERED
+(
+	[ActivityCategoryId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[AlertDetails]    Script Date: 2/6/2018 1:34:16 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[AlertDetails](
+	[AlertDetailId] [int] IDENTITY(1,1) NOT NULL,
+	[AlertId] [int] NOT NULL,
+	[ActivityRemoteLabel] [nvarchar](255) NULL,
+	[ActivityName] [nvarchar](255) NOT NULL,
+	[RepositoryRemoteLabel] [nvarchar](255) NOT NULL,
+	[RepositoryName] [nvarchar](255) NOT NULL,
+	[RemoteObjectId] [nvarchar](100) NULL,
+	[RemoteObjectName] [nvarchar](255) NULL,
+	[RemoteObjectType] [nvarchar](255) NULL,
+	[RemoteObjectOwner] [nvarchar](255) NULL,
+	[ClientName] [nvarchar](255) NULL,
+	[MatterName] [nvarchar](255) NULL,
+	[EventTime] [datetime] NOT NULL,
+	[Custom1] [nvarchar](255) NULL,
+	[Custom2] [nvarchar](255) NULL,
+	[Custom3] [nvarchar](255) NULL,
+	[Custom4] [nvarchar](255) NULL,
+	[Custom5] [nvarchar](255) NULL,
+	[Created] [datetime] NOT NULL,
+	[RemoteObjectVersion] [nvarchar](10) NULL,
+	[ClientId] [nvarchar](100) NULL,
+	[MatterId] [nvarchar](100) NULL,
+ CONSTRAINT [PK_TrackerAlertDetails] PRIMARY KEY CLUSTERED
+(
+	[AlertDetailId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[AlertDetailsCustomFields]    Script Date: 2/6/2018 1:34:16 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[AlertDetailsCustomFields](
+	[FieldId] [nvarchar](255) NOT NULL,
+	[FieldName] [varchar](50) NOT NULL,
+	[IsEnabled] [bit] NOT NULL,
+	[AlertDetailsCustomFieldId] [int] IDENTITY(1,1) NOT NULL,
+	[RepositoryTypeId] [int] NULL,
+ CONSTRAINT [PK_CustomFields] PRIMARY KEY CLUSTERED
+(
+	[AlertDetailsCustomFieldId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[Alerts]    Script Date: 2/6/2018 1:34:16 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[Alerts](
+	[AlertId] [int] IDENTITY(1,1) NOT NULL,
+	[TrackerExecutionId] [int] NOT NULL,
+	[UserEntityId] [int] NOT NULL,
+	[UserName] [nvarchar](255) NULL,
+	[ActivityCount] [int] NOT NULL,
+	[StatisticsValue] [decimal](10, 2) NULL,
+ CONSTRAINT [PK_TrackerAlerts] PRIMARY KEY CLUSTERED
+(
+	[AlertId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[ApplicationRolesAT]    Script Date: 2/6/2018 1:34:16 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[ApplicationRolesAT](
+	[RoleId] [int] IDENTITY(1,1) NOT NULL,
+	[RoleName] [nvarchar](50) NOT NULL,
+ CONSTRAINT [PK_ApplicationRolesAT] PRIMARY KEY CLUSTERED
+(
+	[RoleId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[ApplicationRolesMTM]    Script Date: 2/6/2018 1:34:16 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[ApplicationRolesMTM](
+	[RoleId] [int] IDENTITY(1,1) NOT NULL,
+	[RoleName] [nvarchar](50) NOT NULL,
+ CONSTRAINT [PK_ApplicationRolesMTM] PRIMARY KEY CLUSTERED
+(
+	[RoleId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[ApplicationRolesWB]    Script Date: 2/6/2018 1:34:16 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[ApplicationRolesWB](
+	[RoleId] [int] IDENTITY(1,1) NOT NULL,
+	[RoleName] [nvarchar](50) NOT NULL,
+ CONSTRAINT [PK_Roles] PRIMARY KEY CLUSTERED
+(
+	[RoleId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[ApplicationUsers]    Script Date: 2/6/2018 1:34:16 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[ApplicationUsers](
+	[UserId] [int] IDENTITY(1,1) NOT NULL,
+	[WBRoleId] [int] NULL,
+	[UserName] [nvarchar](50) NOT NULL,
+	[Password] [nvarchar](50) NOT NULL,
+	[Name] [nvarchar](100) NULL,
+	[Email] [nvarchar](100) NULL,
+	[IsEnabled] [bit] NOT NULL,
+	[IsDeleted] [bit] NOT NULL,
+	[Created] [datetime] NOT NULL,
+	[Modified] [datetime] NOT NULL,
+	[LastLogin] [datetime] NULL,
+	[MTMRoleId] [int] NULL,
+	[ATRoleId] [int] NULL,
+	[InsidersModuleAccess] [bit] NOT NULL,
+ CONSTRAINT [PK_ApplicationUsers] PRIMARY KEY CLUSTERED
+(
+	[UserId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[Attachments]    Script Date: 2/6/2018 1:34:16 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[Attachments](
+	[AttachmentId] [int] IDENTITY(1,1) NOT NULL,
+	[WallId] [int] NOT NULL,
+	[FileName] [nvarchar](255) NOT NULL,
+	[FileSize] [int] NOT NULL,
+	[FileContentType] [nvarchar](75) NULL,
+	[FileContent] [image] NULL,
+	[CreatorId] [int] NOT NULL,
+	[Created] [datetime] NOT NULL,
+	[Notes] [ntext] NULL,
+ CONSTRAINT [PK_Attachments] PRIMARY KEY CLUSTERED
+(
+	[AttachmentId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[AttorneyAcknowledgments]    Script Date: 2/6/2018 1:34:16 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[AttorneyAcknowledgments](
+	[AcknowledgmentId] [int] IDENTITY(1,1) NOT NULL,
+	[WallSideId] [int] NOT NULL,
+	[EntityId] [int] NOT NULL,
+	[isAcknowledged] [bit] NOT NULL,
+	[DateOfAcceptance] [datetime] NULL,
+	[DateOfNotice] [datetime] NULL,
+	[isArchived] [bit] NOT NULL,
+ CONSTRAINT [PK_AttorneyAcknowledgments] PRIMARY KEY CLUSTERED
+(
+	[AcknowledgmentId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[CommonTerms]    Script Date: 2/6/2018 1:34:16 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[CommonTerms](
+	[OriginalValue] [nvarchar](50) NOT NULL,
+	[ReplacedValue] [nvarchar](50) NOT NULL
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[Config]    Script Date: 2/6/2018 1:34:16 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[Config](
+	[ConfigId] [int] IDENTITY(1,1) NOT NULL,
+	[ConfigVariable] [nvarchar](255) NOT NULL,
+	[ConfigValue1] [nvarchar](max) NULL,
+	[ConfigValue2] [nvarchar](4000) NULL,
+	[Category] [nvarchar](64) NULL,
+	[ConfigType] [nvarchar](50) NULL,
+	[MetaData] [nvarchar](max) NULL,
+	[SubCategoryOf] [nvarchar](255) NULL,
+ CONSTRAINT [PK_Config] PRIMARY KEY CLUSTERED
+(
+	[ConfigId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[DefaultNotifications]    Script Date: 2/6/2018 1:34:16 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[DefaultNotifications](
+	[NotificationId] [int] NOT NULL,
+	[WallAccessTypeId] [int] NOT NULL,
+ CONSTRAINT [PK_DefaultNotifications] PRIMARY KEY CLUSTERED
+(
+	[NotificationId] ASC,
+	[WallAccessTypeId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[DefaultTrackers]    Script Date: 2/6/2018 1:34:16 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[DefaultTrackers](
+	[TrackerId] [int] NOT NULL,
+	[WallAccessTypeId] [int] NOT NULL,
+ CONSTRAINT [PK_DefaultTrackers] PRIMARY KEY CLUSTERED
+(
+	[TrackerId] ASC,
+	[WallAccessTypeId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[DigestNotificationAttachments]    Script Date: 2/6/2018 1:34:16 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[DigestNotificationAttachments](
+	[NotificationAttachmentId] [int] NOT NULL,
+	[DigestNotificationId] [bigint] NOT NULL,
+ CONSTRAINT [PK_DigestNotificationAttachments] PRIMARY KEY CLUSTERED
+(
+	[NotificationAttachmentId] ASC,
+	[DigestNotificationId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[DigestNotificationContent]    Script Date: 2/6/2018 1:34:16 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[DigestNotificationContent](
+	[DigestNotificationContentId] [int] IDENTITY(1,1) NOT NULL,
+	[NotificationText] [ntext] NULL,
+	[Subject] [nvarchar](1000) NULL,
+	[From] [nvarchar](1000) NULL,
+ CONSTRAINT [PK_DigestNotificationInfo] PRIMARY KEY CLUSTERED
+(
+	[DigestNotificationContentId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[DigestNotifications]    Script Date: 2/6/2018 1:34:16 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[DigestNotifications](
+	[DigestNotificationId] [bigint] IDENTITY(1,1) NOT NULL,
+	[NotificationId] [int] NOT NULL,
+	[EmailAddress] [nvarchar](50) NULL,
+	[CreatedDate] [datetime] NOT NULL,
+	[DigestNotificationContentId] [int] NOT NULL,
+	[NotificationHistoryId] [int] NULL,
+ CONSTRAINT [PK_DigestNotifications] PRIMARY KEY CLUSTERED
+(
+	[DigestNotificationId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[DynamicEntityGroupDefinitions]    Script Date: 2/6/2018 1:34:16 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[DynamicEntityGroupDefinitions](
+	[EntityId] [int] NOT NULL,
+	[DefinitionXml] [nvarchar](4000) NOT NULL,
+	[CreatedBy] [int] NULL,
+ CONSTRAINT [PK_DDynamicEntityGroupDefinitions] PRIMARY KEY CLUSTERED
+(
+	[EntityId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[DynamicEntityGroupExceptions]    Script Date: 2/6/2018 1:34:16 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[DynamicEntityGroupExceptions](
+	[DynamicGroupEntityId] [int] NOT NULL,
+	[EntityId] [int] NOT NULL,
+	[CreatorId] [int] NOT NULL,
+	[DateAdded] [datetime] NOT NULL,
+	[Notes] [ntext] NULL,
+ CONSTRAINT [PK_DynamicEntityGroupExceptions] PRIMARY KEY CLUSTERED
+(
+	[DynamicGroupEntityId] ASC,
+	[EntityId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[Entities]    Script Date: 2/6/2018 1:34:17 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[Entities](
+	[EntityId] [int] IDENTITY(1,1) NOT NULL,
+	[EntityTypeId] [int] NOT NULL,
+	[EntityRemoteSystemId] [nvarchar](100) NULL,
+	[EntityDescription] [nvarchar](255) NULL,
+	[ParentTypeId] [int] NULL,
+	[ParentRemoteSystemId] [nvarchar](100) NULL,
+	[ParentDescription] [nvarchar](255) NULL,
+	[EntityCustomData] [nvarchar](255) NULL,
+	[RecordsSystemId] [nvarchar](100) NULL,
+	[FinancialSystemId] [nvarchar](100) NULL,
+	[TimeEntrySystemId] [nvarchar](100) NULL,
+	[WindowsNetworkLogon] [nvarchar](100) NULL,
+	[CustomField1] [nvarchar](1000) NULL,
+	[CustomField2] [nvarchar](1000) NULL,
+	[CustomField3] [nvarchar](1000) NULL,
+	[CustomField4] [nvarchar](1000) NULL,
+	[CustomField5] [nvarchar](1000) NULL,
+	[CustomField6] [nvarchar](1000) NULL,
+	[CustomField7] [nvarchar](1000) NULL,
+	[CustomField8] [nvarchar](1000) NULL,
+	[CustomField9] [nvarchar](1000) NULL,
+	[CustomField10] [nvarchar](1000) NULL,
+	[IsEnabledForSearch] [bit] NOT NULL,
+	[Modified] [datetime] NULL,
+	[Created] [datetime] NULL,
+	[MatterOpenStatus] [bit] NULL,
+	[MatterConfidentialityStatus] [nvarchar](255) NULL,
+	[MatterTeamEntityId] [int] NULL,
+	[CustomField11] [nvarchar](1000) NULL,
+	[CustomField12] [nvarchar](1000) NULL,
+	[CustomField13] [nvarchar](1000) NULL,
+	[CustomField14] [nvarchar](1000) NULL,
+	[CustomField15] [nvarchar](1000) NULL,
+	[CustomField16] [nvarchar](1000) NULL,
+	[CustomField17] [nvarchar](1000) NULL,
+	[CustomField18] [nvarchar](1000) NULL,
+	[CustomField19] [nvarchar](1000) NULL,
+	[CustomField20] [nvarchar](1000) NULL,
+	[CustomField21] [nvarchar](1000) NULL,
+	[CustomField22] [nvarchar](1000) NULL,
+	[CustomField23] [nvarchar](1000) NULL,
+	[CustomField24] [nvarchar](1000) NULL,
+	[CustomField25] [nvarchar](1000) NULL,
+	[CustomField26] [nvarchar](1000) NULL,
+	[CustomField27] [nvarchar](1000) NULL,
+	[CustomField28] [nvarchar](1000) NULL,
+	[CustomField29] [nvarchar](1000) NULL,
+	[CustomField30] [nvarchar](1000) NULL,
+	[EntityDisplayId] [nvarchar](100) NULL,
+	[CrmSystemId] [nvarchar](100) NULL,
+	[TimeBuilderSystemId] [nvarchar](100) NULL,
+	[FileshareRemoteSystemId] [nvarchar](100) NULL,
+	[OpenSystemId] [nvarchar](100) NULL,
+	[NotificationRoleId] [int] NOT NULL,
+ CONSTRAINT [PK_Entities] PRIMARY KEY CLUSTERED
+(
+	[EntityId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[EntitiesMatterTeamFields]    Script Date: 2/6/2018 1:34:17 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[EntitiesMatterTeamFields](
+	[MatterTeamEntityId] [int] NOT NULL,
+	[IsSelfMaintained] [bit] NOT NULL,
+	[SelfMaintainingMinHours] [int] NULL,
+	[SelfMaintainingPeriod] [int] NULL,
+	[SelfMaintainingPeriodUnit] [nvarchar](32) NULL,
+	[IsRelationshipPaired] [bit] NOT NULL,
+	[SelfMaintainingPeriodStart] [datetime] NULL,
+	[SelfMaintainingPeriodEnd] [datetime] NULL,
+ CONSTRAINT [PK_EntitiesMatterTeamFields] PRIMARY KEY CLUSTERED
+(
+	[MatterTeamEntityId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[EntitiesUserFields]    Script Date: 2/6/2018 1:34:17 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[EntitiesUserFields](
+	[UserEntityId] [int] NOT NULL,
+	[IsExceptedFromActiveDirectoryGroups] [bit] NOT NULL,
+	[IsExceptedFromJoiningMatterTeam] [bit] NOT NULL,
+ CONSTRAINT [PK_EntitiesUserFields] PRIMARY KEY CLUSTERED
+(
+	[UserEntityId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[EntityCustomComboValues]    Script Date: 2/6/2018 1:34:17 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[EntityCustomComboValues](
+	[Field] [nvarchar](32) NOT NULL,
+	[EntityTypeId] [int] NOT NULL,
+	[Value] [nvarchar](200) NOT NULL,
+ CONSTRAINT [PK_EntityCustomComboValues] PRIMARY KEY CLUSTERED
+(
+	[Field] ASC,
+	[EntityTypeId] ASC,
+	[Value] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[EntityCustomFieldConfig]    Script Date: 2/6/2018 1:34:17 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[EntityCustomFieldConfig](
+	[Field] [nvarchar](32) NOT NULL,
+	[EntityTypeId] [int] NOT NULL,
+	[DisplayName] [nvarchar](64) NOT NULL,
+	[Type] [nvarchar](32) NOT NULL,
+	[Description] [nvarchar](100) NOT NULL,
+	[IsIncludedInNotifications] [bit] NOT NULL,
+	[IsIncludedInEntityTooltip] [bit] NOT NULL,
+	[IsMultiValued] [bit] NOT NULL,
+	[IsIncludedInExtendedValidation] [bit] NOT NULL,
+	[IsIncludedInGeneralInformation] [bit] NOT NULL,
+	[IsConfidential] [bit] NOT NULL,
+	[DateTimeFormat] [nvarchar](50) NULL,
+ CONSTRAINT [PK_EntityCustomFieldConfig] PRIMARY KEY CLUSTERED
+(
+	[Field] ASC,
+	[EntityTypeId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[EntityKeyMap]    Script Date: 2/6/2018 1:34:17 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[EntityKeyMap](
+	[EntityId] [int] NOT NULL,
+	[ParentEntityId] [int] NOT NULL,
+	[RoleId] [int] NULL,
+	[Reason] [nvarchar](250) NULL,
+	[ExpirationDate] [datetime] NULL,
+	[IsActive] [bit] NOT NULL,
+	[DemotionRoleId] [int] NULL,
+	[IsMTHistoryConflict] [bit] NOT NULL,
+ CONSTRAINT [PK_EntityKeyMap] PRIMARY KEY CLUSTERED
+(
+	[EntityId] ASC,
+	[ParentEntityId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[EntityRelationshipTypes]    Script Date: 2/6/2018 1:34:17 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[EntityRelationshipTypes](
+	[EntityRelationshipTypeId] [int] IDENTITY(1,1) NOT NULL,
+	[Description] [nvarchar](200) NOT NULL,
+	[PrimaryType] [nvarchar](100) NOT NULL,
+	[SubordinateType] [nvarchar](100) NOT NULL,
+	[IsDirectRelationshipValidated] [bit] NOT NULL,
+	[IsSharedRelationshipValidated] [bit] NOT NULL,
+ CONSTRAINT [PK_EntityRelationshipTypes] PRIMARY KEY CLUSTERED
+(
+	[EntityRelationshipTypeId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[EntityToEntityRelationships]    Script Date: 2/6/2018 1:34:17 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[EntityToEntityRelationships](
+	[EntityRelationshipTypeId] [int] NOT NULL,
+	[PrimaryEntityId] [int] NOT NULL,
+	[SubordinateEntityId] [int] NOT NULL,
+ CONSTRAINT [PK_EntityToEntityRelationships] PRIMARY KEY CLUSTERED
+(
+	[EntityRelationshipTypeId] ASC,
+	[PrimaryEntityId] ASC,
+	[SubordinateEntityId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[EntityTypes]    Script Date: 2/6/2018 1:34:17 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[EntityTypes](
+	[EntityTypeId] [int] IDENTITY(1,1) NOT NULL,
+	[EntityType] [nvarchar](100) NOT NULL,
+	[EntityTypePl] [nvarchar](100) NOT NULL,
+	[IsUserType] [bit] NOT NULL,
+ CONSTRAINT [PK_EntityTypes] PRIMARY KEY CLUSTERED
+(
+	[EntityTypeId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[ErrorLog]    Script Date: 2/6/2018 1:34:17 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[ErrorLog](
+	[ErrorLogId] [int] IDENTITY(1,1) NOT NULL,
+	[ServiceType] [nvarchar](64) NOT NULL,
+	[ServiceId] [nvarchar](255) NULL,
+	[LogLevel] [nvarchar](32) NOT NULL,
+	[LogMessage] [ntext] NOT NULL,
+	[LogException] [ntext] NULL,
+	[Created] [datetime] NOT NULL,
+ CONSTRAINT [PK_ErrorLog] PRIMARY KEY CLUSTERED
+(
+	[ErrorLogId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[ExtensionQueryResults]    Script Date: 2/6/2018 1:34:17 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[ExtensionQueryResults](
+	[ExtensionQueryResultId] [int] IDENTITY(1,1) NOT NULL,
+	[RequestId] [nvarchar](128) NOT NULL,
+	[ExtensionServiceName] [nvarchar](255) NOT NULL,
+	[Status] [nvarchar](64) NOT NULL,
+	[ResultXml] [nvarchar](max) NULL,
+	[LastUpdateTime] [datetime] NOT NULL,
+	[Messages] [nvarchar](max) NULL,
+ CONSTRAINT [PK_ExtensionQueryResults] PRIMARY KEY CLUSTERED
+(
+	[ExtensionQueryResultId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[ExtensionServiceJobs]    Script Date: 2/6/2018 1:34:17 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[ExtensionServiceJobs](
+	[ExtensionServiceJobsId] [int] IDENTITY(1,1) NOT NULL,
+	[ExtensionServiceName] [nvarchar](255) NOT NULL,
+	[ExtensionType] [nvarchar](64) NULL,
+	[LibraryName] [nvarchar](128) NULL,
+	[JobType] [nvarchar](255) NOT NULL,
+	[JobXML] [ntext] NULL,
+	[JobState] [nvarchar](32) NOT NULL,
+	[FinalStatus] [nvarchar](32) NULL,
+	[Retries] [int] NOT NULL,
+	[QueueTime] [datetime] NOT NULL,
+	[StateLastChangedTime] [datetime] NOT NULL,
+	[StartTime] [datetime] NULL,
+	[EndTime] [datetime] NULL,
+	[Messages] [ntext] NULL,
+	[OperationId] [uniqueidentifier] NULL,
+ CONSTRAINT [PK_ExtensionServiceJobs] PRIMARY KEY CLUSTERED
+(
+	[ExtensionServiceJobsId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[ExtensionServiceLocks]    Script Date: 2/6/2018 1:34:17 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[ExtensionServiceLocks](
+	[LockName] [nvarchar](256) NOT NULL,
+	[LockTime] [datetime] NOT NULL,
+ CONSTRAINT [PK_ExtensionServiceLocks] PRIMARY KEY CLUSTERED
+(
+	[LockName] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[ExternalUserFields]    Script Date: 2/6/2018 1:34:17 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[ExternalUserFields](
+	[ExternalUserEntityId] [int] NOT NULL,
+	[CreatedBy] [int] NOT NULL,
+ CONSTRAINT [PK_ExternalUserFields] PRIMARY KEY CLUSTERED
+(
+	[ExternalUserEntityId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[ExternalUsersAccessHistory]    Script Date: 2/6/2018 1:34:17 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[ExternalUsersAccessHistory](
+	[AccessHistoryId] [int] IDENTITY(1,1) NOT NULL,
+	[ExternalUserEntityId] [int] NOT NULL,
+	[MatterEntityId] [int] NOT NULL,
+	[ActivityType] [nvarchar](10) NOT NULL,
+	[ActivityDate] [datetime] NOT NULL,
+	[ActivityReason] [nvarchar](1000) NULL,
+ CONSTRAINT [PK_ExternalUsersAccessHistory] PRIMARY KEY CLUSTERED
+(
+	[AccessHistoryId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[FileShareADGroupStatuses]    Script Date: 2/6/2018 1:34:17 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[FileShareADGroupStatuses](
+	[GroupName] [nvarchar](256) NOT NULL,
+	[LastAccessTime] [datetime] NOT NULL,
+	[LastModificationTime] [datetime] NULL,
+	[SecurityId] [varchar](184) NULL,
+ CONSTRAINT [PK_FileShareADGroupStatuses] PRIMARY KEY CLUSTERED
+(
+	[GroupName] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[GlobalExceptions]    Script Date: 2/6/2018 1:34:17 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[GlobalExceptions](
+	[EntityId] [int] NOT NULL,
+	[CreatorId] [int] NOT NULL,
+	[DateAdded] [datetime] NOT NULL,
+	[Notes] [ntext] NULL,
+ CONSTRAINT [PK_GlobalExceptions] PRIMARY KEY CLUSTERED
+(
+	[EntityId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[GroupEntityLog]    Script Date: 2/6/2018 1:34:17 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[GroupEntityLog](
+	[LogId] [int] IDENTITY(1,1) NOT NULL,
+	[User] [nvarchar](255) NOT NULL,
+	[GroupEntityId] [int] NOT NULL,
+	[LogMessageType] [nvarchar](50) NOT NULL,
+	[LogMessage] [ntext] NULL,
+	[Created] [datetime] NOT NULL,
+ CONSTRAINT [PK_GroupEntityLog] PRIMARY KEY CLUSTERED
+(
+	[LogId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[HiddenMatterTeams]    Script Date: 2/6/2018 1:34:17 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[HiddenMatterTeams](
+	[HiddenMatterTeamId] [int] IDENTITY(1,1) NOT NULL,
+	[UserId] [int] NOT NULL,
+	[UserIdType] [nvarchar](10) NOT NULL,
+	[MatterTeamEntityId] [int] NOT NULL,
+ CONSTRAINT [PK_HiddenMatterTeams] PRIMARY KEY CLUSTERED
+(
+	[HiddenMatterTeamId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[InsidersReportFields]    Script Date: 2/6/2018 1:34:17 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[InsidersReportFields](
+	[InsidersReportFieldsId] [int] NOT NULL,
+	[FieldName] [nvarchar](128) NULL,
+	[FieldType] [nvarchar](255) NOT NULL,
+	[Description] [nvarchar](255) NOT NULL,
+	[TableName] [nvarchar](255) NULL,
+	[ColumnName] [nvarchar](255) NULL,
+	[EntityTypeId] [int] NULL,
+	[OrderId] [int] NOT NULL,
+	[EmptyText] [nvarchar](100) NULL,
+	[IsHeaderField] [bit] NOT NULL,
+	[DateTimeFormat] [nvarchar](50) NULL,
+	[IsPermanentInsiders] [bit] NOT NULL,
+ CONSTRAINT [PK_InsidersReportFields] PRIMARY KEY CLUSTERED
+(
+	[InsidersReportFieldsId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[InsidersReportLogs]    Script Date: 2/6/2018 1:34:17 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[InsidersReportLogs](
+	[InsidersReportLogId] [int] IDENTITY(1,1) NOT NULL,
+	[ApplicationUserId] [int] NOT NULL,
+	[MatterEntityId] [int] NULL,
+	[LogMessage] [nvarchar](max) NOT NULL,
+	[Created] [datetime] NOT NULL,
+ CONSTRAINT [PK_InsidersReportLogs] PRIMARY KEY CLUSTERED
+(
+	[InsidersReportLogId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[InsidersReports]    Script Date: 2/6/2018 1:34:17 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[InsidersReports](
+	[InsidersReportsId] [int] IDENTITY(1,1) NOT NULL,
+	[MatterEntityID] [int] NULL,
+	[Created] [datetime] NOT NULL,
+	[Modified] [datetime] NOT NULL,
+	[LastRun] [datetime] NOT NULL,
+	[ReportXML] [ntext] NOT NULL,
+ CONSTRAINT [PK_InsidersReports] PRIMARY KEY CLUSTERED
+(
+	[InsidersReportsId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[Log]    Script Date: 2/6/2018 1:34:17 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[Log](
+	[LogId] [int] IDENTITY(1,1) NOT NULL,
+	[UserId] [int] NULL,
+	[WallId] [int] NOT NULL,
+	[Created] [datetime] NOT NULL,
+	[LogMessage] [ntext] NULL,
+	[LogMessageType] [nvarchar](50) NOT NULL,
+ CONSTRAINT [PK_Log] PRIMARY KEY CLUSTERED
+(
+	[LogId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[MatterAccessHistory]    Script Date: 2/6/2018 1:34:17 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[MatterAccessHistory](
+	[AccessHistoryId] [int] NOT NULL,
+	[MatterEntityId] [int] NOT NULL,
+	[ActivityDate] [datetime] NOT NULL,
+	[ActivityReason] [nvarchar](1000) NULL,
+	[WasAddedBySelfMaintaining] [bit] NOT NULL,
+ CONSTRAINT [PK_MatterAccessHistory] PRIMARY KEY CLUSTERED
+(
+	[AccessHistoryId] ASC,
+	[MatterEntityId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[MatterTeamExceptions]    Script Date: 2/6/2018 1:34:17 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[MatterTeamExceptions](
+	[MatterTeamEntityId] [int] NOT NULL,
+	[EntityId] [int] NOT NULL,
+	[Creator] [nvarchar](255) NOT NULL,
+	[DateAdded] [datetime] NOT NULL,
+	[Notes] [ntext] NULL,
+ CONSTRAINT [PK_MatterTeamExceptions] PRIMARY KEY CLUSTERED
+(
+	[MatterTeamEntityId] ASC,
+	[EntityId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[MatterTeamHistories]    Script Date: 2/6/2018 1:34:17 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[MatterTeamHistories](
+	[MatterTeamHistoryId] [int] IDENTITY(1,1) NOT NULL,
+	[MatterEntityId] [int] NOT NULL,
+	[UserEntityId] [int] NOT NULL,
+	[RoleId] [int] NOT NULL,
+	[Reason] [nvarchar](max) NULL,
+	[ActivityDate] [datetime] NOT NULL,
+	[ActivityTypeId] [tinyint] NOT NULL,
+	[Creator] [nvarchar](255) NOT NULL,
+	[IsActive] [bit] NOT NULL,
+ CONSTRAINT [PK_MatterTeamHistories] PRIMARY KEY CLUSTERED
+(
+	[MatterTeamHistoryId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[MatterTeamHistoryActivityTypes]    Script Date: 2/6/2018 1:34:17 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[MatterTeamHistoryActivityTypes](
+	[ActivityTypeId] [tinyint] IDENTITY(0,1) NOT NULL,
+	[ActivityTypeName] [nvarchar](100) NOT NULL,
+ CONSTRAINT [PK_MatterTeamHistoryActivityTypes] PRIMARY KEY CLUSTERED
+(
+	[ActivityTypeId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[MatterTeamRole]    Script Date: 2/6/2018 1:34:17 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[MatterTeamRole](
+	[RoleId] [int] IDENTITY(1,1) NOT NULL,
+	[RoleDescription] [nvarchar](100) NOT NULL,
+	[IsAdmin] [bit] NOT NULL,
+	[IsDelegate] [bit] NOT NULL,
+	[WallRoleId] [int] NOT NULL,
+	[IsExceptedFromInactiveStatus] [bit] NOT NULL,
+	[IsRestrictedToGlobalAdmins] [bit] NOT NULL,
+	[CanRemoveUsers] [bit] NOT NULL,
+	[CanSubscribeUsers] [bit] NOT NULL,
+ CONSTRAINT [PK_MatterTeamRole] PRIMARY KEY CLUSTERED
+(
+	[RoleId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[MatterTeamSubscriptionRequests]    Script Date: 2/6/2018 1:34:17 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[MatterTeamSubscriptionRequests](
+	[RequestId] [int] IDENTITY(1,1) NOT NULL,
+	[MatterTeamId] [int] NOT NULL,
+	[UserEntityId] [int] NOT NULL,
+	[RequestDate] [datetime] NOT NULL,
+	[ResponseDate] [datetime] NULL,
+	[Status] [bit] NULL,
+	[Reason] [nvarchar](255) NULL,
+	[AdminEntityId] [int] NULL,
+ CONSTRAINT [PK_MatterTeamSubscriptionRequests] PRIMARY KEY CLUSTERED
+(
+	[RequestId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[NotificationAttachments]    Script Date: 2/6/2018 1:34:17 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[NotificationAttachments](
+	[NotificationId] [int] NOT NULL,
+	[AttachmentId] [int] NOT NULL,
+ CONSTRAINT [PK_NotificationAttachments] PRIMARY KEY CLUSTERED
+(
+	[NotificationId] ASC,
+	[AttachmentId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[NotificationHistory]    Script Date: 2/6/2018 1:34:17 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[NotificationHistory](
+	[NotificationHistoryId] [int] IDENTITY(1,1) NOT NULL,
+	[UserEntityId] [int] NOT NULL,
+	[NotificationId] [int] NOT NULL,
+	[NotificationSentDate] [datetime] NULL,
+	[AcknowledgmentId] [int] NULL,
+ CONSTRAINT [PK_NotificationHistory] PRIMARY KEY CLUSTERED
+(
+	[NotificationHistoryId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[NotificationRoles]    Script Date: 2/6/2018 1:34:17 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[NotificationRoles](
+	[NotificationRoleId] [int] NOT NULL,
+	[WallAccessTypeId] [int] NOT NULL,
+	[IsExceptedFromNotifications] [bit] NOT NULL,
+	[IsExceptedFromAcknowledgements] [bit] NOT NULL,
+ CONSTRAINT [PK_NotificationRoles] PRIMARY KEY CLUSTERED
+(
+	[NotificationRoleId] ASC,
+	[WallAccessTypeId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[Notifications]    Script Date: 2/6/2018 1:34:17 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[Notifications](
+	[NotificationId] [int] IDENTITY(1,1) NOT NULL,
+	[WallId] [int] NOT NULL,
+	[RecipientList] [nvarchar](1000) NOT NULL,
+	[NotificationText] [ntext] NULL,
+	[ForceNotification] [bit] NOT NULL,
+	[IsEnabled] [bit] NOT NULL,
+	[LastNotification] [datetime] NULL,
+	[IncludeAcknowledgments] [bit] NOT NULL,
+	[NotificationType] [nvarchar](50) NOT NULL,
+	[NextNotification] [datetime] NULL,
+	[TimeNumber] [int] NULL,
+	[TimeUnit] [nvarchar](30) NULL,
+	[Scope] [nvarchar](40) NOT NULL,
+	[CcList] [nvarchar](1000) NULL,
+	[BccList] [nvarchar](1000) NULL,
+	[From] [nvarchar](1000) NULL,
+	[NotificationName] [nvarchar](150) NOT NULL,
+	[Subject] [nvarchar](255) NULL,
+	[CreatorId] [int] NOT NULL,
+	[TriggerEvents] [smallint] NOT NULL,
+	[IsDeleted] [bit] NOT NULL,
+	[IsDigest] [bit] NOT NULL,
+ CONSTRAINT [PK_Notifications] PRIMARY KEY CLUSTERED
+(
+	[NotificationId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[ObjectReleaseExceptions]    Script Date: 2/6/2018 1:34:17 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[ObjectReleaseExceptions](
+	[ObjectReleaseExceptionId] [int] IDENTITY(1,1) NOT NULL,
+	[ExtensionType] [nvarchar](64) NOT NULL,
+	[LibraryName] [nvarchar](255) NOT NULL,
+	[EntityId] [int] NOT NULL,
+	[ObjectType] [nvarchar](32) NOT NULL,
+	[ObjectId] [nvarchar](64) NOT NULL,
+	[ObjectName] [nvarchar](512) NULL,
+	[PrincipalName] [nvarchar](512) NOT NULL,
+	[PrincipalType] [nvarchar](32) NOT NULL,
+	[PrincipalId] [nvarchar](255) NOT NULL,
+	[Reason] [ntext] NULL,
+	[ExpirationDate] [datetime] NULL,
+ CONSTRAINT [PK_ObjectReleaseExceptions] PRIMARY KEY CLUSTERED
+(
+	[ObjectReleaseExceptionId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[ObjectTemplate]    Script Date: 2/6/2018 1:34:17 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[ObjectTemplate](
+	[ObjectTemplateId] [int] IDENTITY(1,1) NOT NULL,
+	[EntityTypeId] [int] NOT NULL,
+	[Name] [nvarchar](150) NOT NULL,
+	[TemplateText] [ntext] NULL,
+	[CreatorId] [int] NOT NULL,
+	[SeparatorType] [int] NOT NULL,
+	[Separator] [nvarchar](100) NULL,
+ CONSTRAINT [PK_ObjectTemplate] PRIMARY KEY CLUSTERED
+(
+	[ObjectTemplateId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[PermanentInsidersAccessHistory]    Script Date: 2/6/2018 1:34:17 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[PermanentInsidersAccessHistory](
+	[AccessHistoryId] [int] IDENTITY(1,1) NOT NULL,
+	[UserEntityId] [int] NOT NULL,
+	[ActivityType] [nvarchar](10) NOT NULL,
+	[ActivityDate] [datetime] NOT NULL,
+	[ActivityReason] [nvarchar](1000) NULL,
+ CONSTRAINT [PK_PermanentInsidersAccessHistory] PRIMARY KEY CLUSTERED
+(
+	[AccessHistoryId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[PolicyCategories]    Script Date: 2/6/2018 1:34:17 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[PolicyCategories](
+	[PolicyCategoryId] [int] IDENTITY(1,1) NOT NULL,
+	[Name] [nvarchar](255) NOT NULL,
+	[DisplayName] [nvarchar](255) NOT NULL,
+	[PolicyCategoryGroupId] [int] NOT NULL,
+ CONSTRAINT [PK_PolicyCategories] PRIMARY KEY CLUSTERED
+(
+	[PolicyCategoryId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[PolicyCategoryGroups]    Script Date: 2/6/2018 1:34:17 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[PolicyCategoryGroups](
+	[PolicyCategoryGroupId] [int] IDENTITY(1,1) NOT NULL,
+	[Name] [nvarchar](255) NOT NULL,
+ CONSTRAINT [PK_PolicyCategoryGroups] PRIMARY KEY CLUSTERED
+(
+	[PolicyCategoryGroupId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[ReportConflictingAccessExplicit]    Script Date: 2/6/2018 1:34:17 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[ReportConflictingAccessExplicit](
+	[UserEntityId] [int] NOT NULL,
+	[ClientEntityId] [int] NOT NULL,
+	[MatterEntityId] [int] NULL,
+	[AllowingWallId] [int] NOT NULL,
+	[DenyingWallId] [int] NOT NULL,
+	[AddedDate] [datetime] NOT NULL
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[ReportConflictingAccessImplicit]    Script Date: 2/6/2018 1:34:17 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[ReportConflictingAccessImplicit](
+	[UserEntityId] [int] NOT NULL,
+	[ClientEntityId] [int] NOT NULL,
+	[MatterEntityId] [int] NULL,
+	[ConflictingWallId] [int] NOT NULL,
+	[DenyingWallId] [int] NOT NULL,
+	[AddedDate] [datetime] NOT NULL
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[ReportConflictingSharedResourcesExplicit]    Script Date: 2/6/2018 1:34:17 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[ReportConflictingSharedResourcesExplicit](
+	[AllowedUserEntityId] [int] NOT NULL,
+	[DeniedUserEntityId] [int] NOT NULL,
+	[ClientEntityID] [int] NOT NULL,
+	[MatterEntityID] [int] NULL,
+	[AllowingWallId] [int] NOT NULL,
+	[DenyingWallId] [int] NOT NULL,
+	[AddedDate] [datetime] NOT NULL,
+	[Resource] [nvarchar](200) NOT NULL,
+	[ResourceType] [nvarchar](200) NOT NULL
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[ReportConflictingSharedResourcesImplicit]    Script Date: 2/6/2018 1:34:17 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[ReportConflictingSharedResourcesImplicit](
+	[ConflictingUserEntityId] [int] NOT NULL,
+	[DeniedUserEntityId] [int] NOT NULL,
+	[ClientEntityID] [int] NOT NULL,
+	[MatterEntityID] [int] NULL,
+	[ConflictingWallId] [int] NOT NULL,
+	[DenyingWallId] [int] NOT NULL,
+	[AddedDate] [datetime] NOT NULL,
+	[Resource] [nvarchar](200) NOT NULL,
+	[ResourceType] [nvarchar](200) NOT NULL
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[ReportFields]    Script Date: 2/6/2018 1:34:17 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[ReportFields](
+	[ReportFieldId] [int] NOT NULL,
+	[FieldName] [nvarchar](128) NULL,
+	[ReportTypeId] [int] NOT NULL,
+	[FieldType] [nvarchar](255) NOT NULL,
+	[Description] [nvarchar](255) NOT NULL,
+	[TableName] [nvarchar](255) NOT NULL,
+	[ColumnName] [nvarchar](255) NULL,
+	[IsQueryable] [bit] NOT NULL,
+	[IsSearchable] [bit] NOT NULL,
+	[IsDefault] [bit] NOT NULL,
+	[OrderId] [int] NOT NULL,
+ CONSTRAINT [PK_ReportFields] PRIMARY KEY CLUSTERED
+(
+	[ReportFieldId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[Reports]    Script Date: 2/6/2018 1:34:17 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[Reports](
+	[ReportId] [int] IDENTITY(1,1) NOT NULL,
+	[UserId] [int] NOT NULL,
+	[ReportTypeId] [int] NOT NULL,
+	[Name] [nvarchar](100) NOT NULL,
+	[Created] [datetime] NOT NULL,
+	[IsDeleted] [bit] NOT NULL,
+	[ReportXml] [ntext] NULL,
+ CONSTRAINT [PK_Reports] PRIMARY KEY CLUSTERED
+(
+	[ReportId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[ReportSchedules]    Script Date: 2/6/2018 1:34:17 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[ReportSchedules](
+	[ReportScheduleID] [int] IDENTITY(1,1) NOT NULL,
+	[ReportID] [int] NOT NULL,
+	[Subject] [nvarchar](1000) NULL,
+	[RecipientList] [nvarchar](1000) NOT NULL,
+	[RecipientAppUsers] [bit] NOT NULL,
+	[FrequencyType] [nvarchar](50) NOT NULL,
+	[FrequencyInterval] [int] NULL,
+	[FrequencyUnit] [nvarchar](50) NULL,
+	[SkipIfNoData] [bit] NOT NULL,
+	[IsEnabled] [bit] NOT NULL,
+	[NextTimeDue] [datetime] NULL,
+	[LastTimeRun] [datetime] NULL,
+ CONSTRAINT [PK_ReportSchedules] PRIMARY KEY CLUSTERED
+(
+	[ReportScheduleID] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[ReportsConflictingLatestUpdateDate]    Script Date: 2/6/2018 1:34:17 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[ReportsConflictingLatestUpdateDate](
+	[ReportTypeId] [int] NOT NULL,
+	[LatestUpdateDate] [datetime] NOT NULL,
+	[UpdateStartTime] [datetime] NULL
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[ReportTypes]    Script Date: 2/6/2018 1:34:17 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[ReportTypes](
+	[ReportTypeId] [int] IDENTITY(1,1) NOT NULL,
+	[ReportTypeName] [nvarchar](100) NOT NULL,
+	[ReportTypeDescription] [nvarchar](255) NULL,
+	[ParentReportTypeId] [int] NULL,
+	[PolicyCategoryGroupId] [int] NULL,
+ CONSTRAINT [PK_ReportTypes] PRIMARY KEY CLUSTERED
+(
+	[ReportTypeId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[Repositories]    Script Date: 2/6/2018 1:34:17 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[Repositories](
+	[RepositoryId] [int] IDENTITY(1,1) NOT NULL,
+	[RepositoryTypeId] [int] NOT NULL,
+	[RepositoryName] [nvarchar](255) NOT NULL,
+	[RepositoryRemoteLabel] [nvarchar](255) NOT NULL,
+ CONSTRAINT [PK_Repositories] PRIMARY KEY CLUSTERED
+(
+	[RepositoryId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[RepositoryTypes]    Script Date: 2/6/2018 1:34:17 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[RepositoryTypes](
+	[RepositoryTypeId] [int] IDENTITY(1,1) NOT NULL,
+	[RepositoryType] [nvarchar](255) NOT NULL,
+ CONSTRAINT [PK_RepositoryTypes] PRIMARY KEY CLUSTERED
+(
+	[RepositoryTypeId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[ScheduledSecurityRepairStatus]    Script Date: 2/6/2018 1:34:17 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[ScheduledSecurityRepairStatus](
+	[ScheduledSecurityRepairStatusId] [int] IDENTITY(1,1) NOT NULL,
+	[ExtensionType] [nvarchar](64) NOT NULL,
+	[LibraryName] [nvarchar](255) NOT NULL,
+	[ObjectType] [nvarchar](32) NOT NULL,
+	[LastRepairTime] [datetime] NULL,
+	[Status] [nvarchar](32) NOT NULL,
+	[LastRepairId] [nvarchar](64) NULL,
+ CONSTRAINT [PK_ScheduledSecurityRepairStatus] PRIMARY KEY CLUSTERED
+(
+	[ExtensionType] ASC,
+	[LibraryName] ASC,
+	[ObjectType] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[SCHEDULER_BLOB_TRIGGERS]    Script Date: 2/6/2018 1:34:17 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[SCHEDULER_BLOB_TRIGGERS](
+	[TRIGGER_NAME] [varchar](200) NOT NULL,
+	[TRIGGER_GROUP] [varchar](200) NOT NULL,
+	[BLOB_DATA] [image] NULL
+) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[SCHEDULER_CALENDARS]    Script Date: 2/6/2018 1:34:17 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[SCHEDULER_CALENDARS](
+	[CALENDAR_NAME] [varchar](200) NOT NULL,
+	[CALENDAR] [image] NOT NULL,
+ CONSTRAINT [PK_SCHEDULER_CALENDARS] PRIMARY KEY CLUSTERED
+(
+	[CALENDAR_NAME] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[SCHEDULER_CRON_TRIGGERS]    Script Date: 2/6/2018 1:34:17 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[SCHEDULER_CRON_TRIGGERS](
+	[TRIGGER_NAME] [varchar](200) NOT NULL,
+	[TRIGGER_GROUP] [varchar](200) NOT NULL,
+	[CRON_EXPRESSION] [varchar](120) NOT NULL,
+	[TIME_ZONE_ID] [varchar](80) NULL,
+ CONSTRAINT [PK_SCHEDULER_CRON_TRIGGERS] PRIMARY KEY CLUSTERED
+(
+	[TRIGGER_NAME] ASC,
+	[TRIGGER_GROUP] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[SCHEDULER_FIRED_TRIGGERS]    Script Date: 2/6/2018 1:34:17 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[SCHEDULER_FIRED_TRIGGERS](
+	[ENTRY_ID] [varchar](95) NOT NULL,
+	[TRIGGER_NAME] [varchar](200) NOT NULL,
+	[TRIGGER_GROUP] [varchar](200) NOT NULL,
+	[IS_VOLATILE] [varchar](1) NOT NULL,
+	[INSTANCE_NAME] [varchar](200) NOT NULL,
+	[FIRED_TIME] [bigint] NOT NULL,
+	[PRIORITY] [int] NOT NULL,
+	[STATE] [varchar](16) NOT NULL,
+	[JOB_NAME] [varchar](200) NULL,
+	[JOB_GROUP] [varchar](200) NULL,
+	[IS_STATEFUL] [varchar](1) NULL,
+	[REQUESTS_RECOVERY] [varchar](1) NULL,
+ CONSTRAINT [PK_SCHEDULER_FIRED_TRIGGERS] PRIMARY KEY CLUSTERED
+(
+	[ENTRY_ID] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[SCHEDULER_JOB_DETAILS]    Script Date: 2/6/2018 1:34:17 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[SCHEDULER_JOB_DETAILS](
+	[JOB_NAME] [varchar](200) NOT NULL,
+	[JOB_GROUP] [varchar](200) NOT NULL,
+	[DESCRIPTION] [varchar](250) NULL,
+	[JOB_CLASS_NAME] [varchar](250) NOT NULL,
+	[IS_DURABLE] [varchar](1) NOT NULL,
+	[IS_VOLATILE] [varchar](1) NOT NULL,
+	[IS_STATEFUL] [varchar](1) NOT NULL,
+	[REQUESTS_RECOVERY] [varchar](1) NOT NULL,
+	[JOB_DATA] [image] NULL,
+ CONSTRAINT [PK_SCHEDULER_JOB_DETAILS] PRIMARY KEY CLUSTERED
+(
+	[JOB_NAME] ASC,
+	[JOB_GROUP] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[SCHEDULER_JOB_LISTENERS]    Script Date: 2/6/2018 1:34:17 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[SCHEDULER_JOB_LISTENERS](
+	[JOB_NAME] [varchar](200) NOT NULL,
+	[JOB_GROUP] [varchar](200) NOT NULL,
+	[JOB_LISTENER] [varchar](200) NOT NULL,
+ CONSTRAINT [PK_SCHEDULER_JOB_LISTENERS] PRIMARY KEY CLUSTERED
+(
+	[JOB_NAME] ASC,
+	[JOB_GROUP] ASC,
+	[JOB_LISTENER] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[SCHEDULER_LOCKS]    Script Date: 2/6/2018 1:34:17 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[SCHEDULER_LOCKS](
+	[LOCK_NAME] [varchar](40) NOT NULL,
+ CONSTRAINT [PK_SCHEDULER_LOCKS] PRIMARY KEY CLUSTERED
+(
+	[LOCK_NAME] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[SCHEDULER_PAUSED_TRIGGER_GRPS]    Script Date: 2/6/2018 1:34:17 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[SCHEDULER_PAUSED_TRIGGER_GRPS](
+	[TRIGGER_GROUP] [varchar](200) NOT NULL,
+ CONSTRAINT [PK_SCHEDULER_PAUSED_TRIGGER_GRPS] PRIMARY KEY CLUSTERED
+(
+	[TRIGGER_GROUP] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[SCHEDULER_SCHEDULER_STATE]    Script Date: 2/6/2018 1:34:17 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[SCHEDULER_SCHEDULER_STATE](
+	[INSTANCE_NAME] [varchar](200) NOT NULL,
+	[LAST_CHECKIN_TIME] [bigint] NOT NULL,
+	[CHECKIN_INTERVAL] [bigint] NOT NULL,
+ CONSTRAINT [PK_SCHEDULER_SCHEDULER_STATE] PRIMARY KEY CLUSTERED
+(
+	[INSTANCE_NAME] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[SCHEDULER_SIMPLE_TRIGGERS]    Script Date: 2/6/2018 1:34:18 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[SCHEDULER_SIMPLE_TRIGGERS](
+	[TRIGGER_NAME] [varchar](200) NOT NULL,
+	[TRIGGER_GROUP] [varchar](200) NOT NULL,
+	[REPEAT_COUNT] [bigint] NOT NULL,
+	[REPEAT_INTERVAL] [bigint] NOT NULL,
+	[TIMES_TRIGGERED] [bigint] NOT NULL,
+ CONSTRAINT [PK_SCHEDULER_SIMPLE_TRIGGERS] PRIMARY KEY CLUSTERED
+(
+	[TRIGGER_NAME] ASC,
+	[TRIGGER_GROUP] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[SCHEDULER_TRIGGER_LISTENERS]    Script Date: 2/6/2018 1:34:18 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[SCHEDULER_TRIGGER_LISTENERS](
+	[TRIGGER_NAME] [varchar](200) NOT NULL,
+	[TRIGGER_GROUP] [varchar](200) NOT NULL,
+	[TRIGGER_LISTENER] [varchar](200) NOT NULL,
+ CONSTRAINT [PK_SCHEDULER_TRIGGER_LISTENERS] PRIMARY KEY CLUSTERED
+(
+	[TRIGGER_NAME] ASC,
+	[TRIGGER_GROUP] ASC,
+	[TRIGGER_LISTENER] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[SCHEDULER_TRIGGERS]    Script Date: 2/6/2018 1:34:18 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[SCHEDULER_TRIGGERS](
+	[TRIGGER_NAME] [varchar](200) NOT NULL,
+	[TRIGGER_GROUP] [varchar](200) NOT NULL,
+	[JOB_NAME] [varchar](200) NOT NULL,
+	[JOB_GROUP] [varchar](200) NOT NULL,
+	[IS_VOLATILE] [varchar](1) NOT NULL,
+	[DESCRIPTION] [varchar](250) NULL,
+	[NEXT_FIRE_TIME] [bigint] NULL,
+	[PREV_FIRE_TIME] [bigint] NULL,
+	[PRIORITY] [int] NULL,
+	[TRIGGER_STATE] [varchar](16) NOT NULL,
+	[TRIGGER_TYPE] [varchar](8) NOT NULL,
+	[START_TIME] [bigint] NOT NULL,
+	[END_TIME] [bigint] NULL,
+	[CALENDAR_NAME] [varchar](200) NULL,
+	[MISFIRE_INSTR] [smallint] NULL,
+	[JOB_DATA] [image] NULL,
+ CONSTRAINT [PK_SCHEDULER_TRIGGERS] PRIMARY KEY CLUSTERED
+(
+	[TRIGGER_NAME] ASC,
+	[TRIGGER_GROUP] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[ScreeningLawyerKeyMap]    Script Date: 2/6/2018 1:34:18 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[ScreeningLawyerKeyMap](
+	[EntityId] [int] NOT NULL,
+	[WallId] [int] NOT NULL,
+ CONSTRAINT [PK_ScreeningLawyerKeyMap] PRIMARY KEY CLUSTERED
+(
+	[EntityId] ASC,
+	[WallId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[SummaryDetails]    Script Date: 2/6/2018 1:34:18 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[SummaryDetails](
+	[SummaryDetailId] [int] IDENTITY(1,1) NOT NULL,
+	[TrackerExecutionId] [int] NOT NULL,
+	[UserName] [nvarchar](255) NULL,
+	[UserEntityId] [int] NOT NULL,
+	[Activity] [nvarchar](1000) NOT NULL,
+	[Repository] [nvarchar](255) NOT NULL,
+	[ActivityCount] [int] NOT NULL,
+ CONSTRAINT [PK_SummaryDetails] PRIMARY KEY CLUSTERED
+(
+	[SummaryDetailId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[TrackerActivities]    Script Date: 2/6/2018 1:34:18 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[TrackerActivities](
+	[TrackerId] [int] NOT NULL,
+	[ActivityId] [int] NOT NULL,
+ CONSTRAINT [PK_TrackerActivities] PRIMARY KEY CLUSTERED
+(
+	[TrackerId] ASC,
+	[ActivityId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[TrackerCategories]    Script Date: 2/6/2018 1:34:18 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[TrackerCategories](
+	[TrackerCategoryId] [int] NOT NULL,
+	[Name] [nvarchar](255) NOT NULL,
+ CONSTRAINT [PK_TrackerCategories] PRIMARY KEY CLUSTERED
+(
+	[TrackerCategoryId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[TrackerClientsAndMatters]    Script Date: 2/6/2018 1:34:18 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[TrackerClientsAndMatters](
+	[TrackerId] [int] NOT NULL,
+	[EntityId] [int] NOT NULL,
+	[IsInclude] [bit] NOT NULL,
+	[TrackerSideId] [int] NOT NULL,
+ CONSTRAINT [PK_TrackerClientsAndMatters] PRIMARY KEY CLUSTERED
+(
+	[TrackerSideId] ASC,
+	[EntityId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[TrackerExecutionActivities]    Script Date: 2/6/2018 1:34:18 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[TrackerExecutionActivities](
+	[TrackerExecutionId] [int] NOT NULL,
+	[ActivityId] [int] NOT NULL,
+ CONSTRAINT [PK_TrackerExecutionActivities] PRIMARY KEY CLUSTERED
+(
+	[TrackerExecutionId] ASC,
+	[ActivityId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[TrackerExecutionClientsAndMatters]    Script Date: 2/6/2018 1:34:18 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[TrackerExecutionClientsAndMatters](
+	[TrackerExecutionId] [int] NOT NULL,
+	[EntityId] [int] NOT NULL,
+	[IsInclude] [bit] NOT NULL,
+ CONSTRAINT [PK_TrackerExecutionClientsAndMatters] PRIMARY KEY CLUSTERED
+(
+	[TrackerExecutionId] ASC,
+	[EntityId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[TrackerExecutionLibraries]    Script Date: 2/6/2018 1:34:18 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[TrackerExecutionLibraries](
+	[TrackerExecutionId] [int] NOT NULL,
+	[LibraryId] [int] NOT NULL,
+ CONSTRAINT [PK_TrackerExecutionLibraries] PRIMARY KEY CLUSTERED
+(
+	[TrackerExecutionId] ASC,
+	[LibraryId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[TrackerExecutions]    Script Date: 2/6/2018 1:34:18 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[TrackerExecutions](
+	[TrackerExecutionId] [int] IDENTITY(1,1) NOT NULL,
+	[TrackerId] [int] NOT NULL,
+	[TrackerTypeId] [int] NOT NULL,
+	[LinkedPolicyId] [int] NULL,
+	[IntervalNumber] [int] NOT NULL,
+	[IntervalUnit] [nvarchar](50) NOT NULL,
+	[TrackerLimit] [decimal](8, 2) NULL,
+	[Created] [datetime] NOT NULL,
+	[IntervalEndDate] [datetime] NOT NULL,
+	[IntervalStartDate] [datetime] NOT NULL,
+	[OnlyPrivate] [bit] NOT NULL,
+	[OnlyDidNotAuthor] [bit] NOT NULL,
+	[DistinctDocuments] [bit] NOT NULL,
+	[GeneratesAlerts] [bit] NOT NULL,
+	[TrackerSideId] [int] NULL,
+	[IsCompleted] [bit] NOT NULL,
+	[TrackActivityCategories] [bit] NOT NULL,
+	[ThresholdType] [int] NOT NULL,
+ CONSTRAINT [PK_TrackerExecutions] PRIMARY KEY CLUSTERED
+(
+	[TrackerExecutionId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[TrackerRepositories]    Script Date: 2/6/2018 1:34:18 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[TrackerRepositories](
+	[TrackerId] [int] NOT NULL,
+	[RepositoryId] [int] NOT NULL,
+ CONSTRAINT [PK_ThresholdRepositories] PRIMARY KEY CLUSTERED
+(
+	[TrackerId] ASC,
+	[RepositoryId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[Trackers]    Script Date: 2/6/2018 1:34:18 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[Trackers](
+	[TrackerId] [int] IDENTITY(1,1) NOT NULL,
+	[TrackerName] [nvarchar](255) NOT NULL,
+	[TrackerDesc] [nvarchar](1000) NULL,
+	[IsEnabled] [bit] NOT NULL,
+	[IsDeleted] [bit] NOT NULL,
+	[TrackerTypeId] [int] NOT NULL,
+	[Limit] [decimal](8, 2) NULL,
+	[StartDate] [datetime] NOT NULL,
+	[IntervalNumber] [int] NOT NULL,
+	[IntervalUnit] [nvarchar](50) NOT NULL,
+	[Notify] [nvarchar](1000) NULL,
+	[NotifyAppUsers] [bit] NOT NULL,
+	[DeliverIfNoAlert] [bit] NOT NULL,
+	[Created] [datetime] NOT NULL,
+	[Modified] [datetime] NOT NULL,
+	[NextTimeDue] [datetime] NOT NULL,
+	[CreatorId] [int] NOT NULL,
+	[OnlyPrivate] [bit] NOT NULL,
+	[OnlyDidNotAuthor] [bit] NOT NULL,
+	[DistinctDocuments] [bit] NOT NULL,
+	[ModifierId] [int] NOT NULL,
+	[GeneratesAlerts] [bit] NOT NULL,
+	[LinkedPolicyId] [int] NULL,
+	[TrackActivityCategories] [bit] NOT NULL,
+	[ThresholdType] [int] NOT NULL,
+ CONSTRAINT [PK_Thresholds] PRIMARY KEY CLUSTERED
+(
+	[TrackerId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[TrackerSides]    Script Date: 2/6/2018 1:34:18 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[TrackerSides](
+	[TrackerSideId] [int] IDENTITY(1,1) NOT NULL,
+	[TrackerId] [int] NOT NULL,
+	[WallSideId] [int] NULL,
+	[TrackerSideName] [nvarchar](250) NOT NULL,
+	[IsDeleted] [bit] NOT NULL,
+ CONSTRAINT [PK_TrackerSides] PRIMARY KEY CLUSTERED
+(
+	[TrackerSideId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[TrackerTypes]    Script Date: 2/6/2018 1:34:18 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[TrackerTypes](
+	[TrackerTypeId] [int] IDENTITY(1,1) NOT NULL,
+	[TrackerType] [nvarchar](255) NOT NULL,
+	[TrackerCategoryId] [int] NOT NULL,
+	[Icon] [nvarchar](255) NULL,
+	[Description] [ntext] NULL,
+	[IsVisible] [bit] NOT NULL,
+ CONSTRAINT [PK_TrackerTypes] PRIMARY KEY CLUSTERED
+(
+	[TrackerTypeId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[TrackerWatchList]    Script Date: 2/6/2018 1:34:18 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[TrackerWatchList](
+	[TrackerId] [int] NOT NULL,
+	[UserEntityId] [int] NOT NULL,
+	[IsInclude] [bit] NOT NULL,
+	[TrackerSideId] [int] NOT NULL,
+ CONSTRAINT [PK_TrackerWatchList] PRIMARY KEY CLUSTERED
+(
+	[TrackerSideId] ASC,
+	[UserEntityId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[UserActivityCounts]    Script Date: 2/6/2018 1:34:18 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[UserActivityCounts](
+	[UserActivityId] [int] IDENTITY(1,1) NOT NULL,
+	[TrackerExecutionId] [int] NOT NULL,
+	[UserEntityId] [int] NOT NULL,
+	[ActivityCount] [int] NOT NULL,
+ CONSTRAINT [PK_UserActivityCounts] PRIMARY KEY CLUSTERED
+(
+	[UserActivityId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[WallAccessTypes]    Script Date: 2/6/2018 1:34:18 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[WallAccessTypes](
+	[WallAccessTypeId] [int] IDENTITY(1,1) NOT NULL,
+	[WallAccessType] [nvarchar](50) NOT NULL,
+	[SelfMaintaining] [nvarchar](64) NOT NULL,
+	[RequireAckForAccess] [nvarchar](64) NOT NULL,
+	[OrderId] [int] NOT NULL,
+	[Icon] [nvarchar](200) NULL,
+	[Description] [ntext] NULL,
+	[SideConfig] [nvarchar](4000) NULL,
+	[AutoAddMatterTeams] [nvarchar](64) NOT NULL,
+	[RelationshipPairing] [nvarchar](64) NOT NULL,
+	[PolicyCategoryId] [int] NOT NULL,
+	[DefaultSelfMaintainingIntervalType] [nvarchar](50) NULL,
+ CONSTRAINT [PK_WallAccessTypes] PRIMARY KEY CLUSTERED
+(
+	[WallAccessTypeId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[WallCustomComboValues]    Script Date: 2/6/2018 1:34:18 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[WallCustomComboValues](
+	[Field] [nvarchar](32) NOT NULL,
+	[Value] [nvarchar](200) NOT NULL,
+	[PolicyCategoryGroupId] [int] NOT NULL,
+ CONSTRAINT [PK_WallCustomComboValues] PRIMARY KEY CLUSTERED
+(
+	[Field] ASC,
+	[Value] ASC,
+	[PolicyCategoryGroupId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[WallCustomFieldConfig]    Script Date: 2/6/2018 1:34:18 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[WallCustomFieldConfig](
+	[Field] [nvarchar](32) NOT NULL,
+	[DisplayName] [nvarchar](64) NOT NULL,
+	[IsRequired] [bit] NOT NULL,
+	[Type] [nvarchar](32) NOT NULL,
+	[Description] [nvarchar](100) NOT NULL,
+	[PolicyCategoryGroupId] [int] NOT NULL,
+ CONSTRAINT [PK_WallCustomFieldConfig] PRIMARY KEY CLUSTERED
+(
+	[Field] ASC,
+	[PolicyCategoryGroupId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[WallExceptions]    Script Date: 2/6/2018 1:34:18 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[WallExceptions](
+	[WallId] [int] NOT NULL,
+	[EntityId] [int] NOT NULL,
+	[CreatorId] [int] NOT NULL,
+	[DateAdded] [datetime] NOT NULL,
+	[Notes] [ntext] NULL,
+ CONSTRAINT [PK_WallExceptions] PRIMARY KEY CLUSTERED
+(
+	[WallId] ASC,
+	[EntityId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[WallRoles]    Script Date: 2/6/2018 1:34:18 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[WallRoles](
+	[WallRoleId] [int] IDENTITY(1,1) NOT NULL,
+	[WallRoleName] [nvarchar](100) NOT NULL,
+	[WallRoleXML] [ntext] NULL,
+ CONSTRAINT [PK_WallRoles] PRIMARY KEY CLUSTERED
+(
+	[WallRoleId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[Walls]    Script Date: 2/6/2018 1:34:18 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[Walls](
+	[WallId] [int] IDENTITY(1,1) NOT NULL,
+	[Name] [nvarchar](250) NULL,
+	[WallAccessTypeId] [int] NOT NULL,
+	[Notes] [ntext] NULL,
+	[CreatorId] [int] NOT NULL,
+	[Created] [datetime] NOT NULL,
+	[Modified] [datetime] NOT NULL,
+	[IsEnabled] [bit] NOT NULL,
+	[IsDeleted] [bit] NOT NULL,
+	[ExpirationDate] [datetime] NULL,
+	[IsSelfMaintaining] [bit] NOT NULL,
+	[IsRequireAcknowledgement] [bit] NOT NULL,
+	[CustomField1] [nvarchar](200) NULL,
+	[CustomField2] [nvarchar](200) NULL,
+	[CustomField3] [nvarchar](200) NULL,
+	[CustomField4] [nvarchar](200) NULL,
+	[CustomField5] [nvarchar](200) NULL,
+	[CustomField6] [nvarchar](200) NULL,
+	[CustomField7] [nvarchar](200) NULL,
+	[CustomField8] [nvarchar](200) NULL,
+	[CustomField9] [nvarchar](200) NULL,
+	[CustomField10] [nvarchar](200) NULL,
+	[CustomDate1] [datetime] NULL,
+	[CustomDate2] [datetime] NULL,
+	[CustomDate3] [datetime] NULL,
+	[CustomDate4] [datetime] NULL,
+	[CustomDate5] [datetime] NULL,
+	[SelfMaintainingPeriod] [int] NULL,
+	[SelfMaintainingPeriodUnit] [nvarchar](32) NULL,
+	[SelfMaintainingMinHours] [int] NULL,
+	[EffectiveDate] [datetime] NULL,
+	[ModifierId] [int] NULL,
+	[SecurityStatus] [nvarchar](32) NULL,
+	[SelfMaintainingPeriodStart] [datetime] NULL,
+	[SelfMaintainingPeriodEnd] [datetime] NULL,
+	[SecurityStartDate] [datetime] NULL,
+	[SecurityEndDate] [datetime] NULL,
+	[IsRelationshipPaired] [bit] NOT NULL,
+	[ExtLegalHoldID] [varchar](20) NULL,
+	[FoundationalGroupId] [nvarchar](20) NULL,
+ CONSTRAINT [PK_Walls] PRIMARY KEY CLUSTERED
+(
+	[WallId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[WallSecurityStatus]    Script Date: 2/6/2018 1:34:18 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[WallSecurityStatus](
+	[WallSecurityStatusId] [int] IDENTITY(1,1) NOT NULL,
+	[WallId] [int] NOT NULL,
+	[ExtensionType] [nvarchar](64) NOT NULL,
+	[LibraryName] [nvarchar](255) NOT NULL,
+	[EntityId] [int] NOT NULL,
+	[Status] [nvarchar](32) NOT NULL,
+	[SecuredObjectCount] [int] NOT NULL,
+	[TotalObjectCount] [int] NOT NULL,
+	[Errors] [ntext] NULL,
+	[LastRecalculationDate] [datetime] NULL,
+ CONSTRAINT [PK_WallSecurityStatus] PRIMARY KEY CLUSTERED
+(
+	[WallId] ASC,
+	[ExtensionType] ASC,
+	[LibraryName] ASC,
+	[EntityId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[WallSideEntities]    Script Date: 2/6/2018 1:34:18 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[WallSideEntities](
+	[WallSideId] [int] NOT NULL,
+	[EntityId] [int] NOT NULL,
+	[WallId] [int] NOT NULL,
+	[DateAdded] [datetime] NULL,
+	[WasAddedBySelfMaintaining] [bit] NULL,
+	[WallRoleId] [int] NULL,
+ CONSTRAINT [PK_WallSideEntities] PRIMARY KEY CLUSTERED
+(
+	[WallSideId] ASC,
+	[EntityId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[WallSides]    Script Date: 2/6/2018 1:34:18 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[WallSides](
+	[WallSideId] [int] IDENTITY(1,1) NOT NULL,
+	[WallId] [int] NOT NULL,
+	[IsDeleted] [bit] NOT NULL,
+	[WallSideName] [nvarchar](250) NOT NULL,
+ CONSTRAINT [PK_WallSides] PRIMARY KEY CLUSTERED
+(
+	[WallSideId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[Widget]    Script Date: 2/6/2018 1:34:18 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[Widget](
+	[Id] [int] IDENTITY(1,1) NOT NULL,
+	[Name] [nvarchar](50) NOT NULL,
+	[Description] [nvarchar](250) NULL,
+	[Url] [nvarchar](2083) NOT NULL,
+	[OrderNumber] [int] NOT NULL,
+	[Editable] [bit] NOT NULL,
+	[SupportRedirection] [bit] NOT NULL,
+ CONSTRAINT [PK_Widget] PRIMARY KEY CLUSTERED
+(
+	[Id] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[WidgetInstance]    Script Date: 2/6/2018 1:34:18 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[WidgetInstance](
+	[Id] [int] IDENTITY(1,1) NOT NULL,
+	[WidgetZoneId] [int] NOT NULL,
+	[WidgetId] [int] NOT NULL,
+	[OrderNumber] [int] NOT NULL,
+	[Expanded] [bit] NOT NULL,
+	[Maximized] [bit] NOT NULL,
+	[Resized] [bit] NOT NULL,
+	[Width] [int] NOT NULL,
+	[Height] [int] NOT NULL,
+	[Title] [nvarchar](250) NOT NULL,
+	[WidgetProperties] [nvarchar](4000) NOT NULL,
+ CONSTRAINT [PK_WidgetZoneWidgets] PRIMARY KEY CLUSTERED
+(
+	[Id] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[WidgetZone]    Script Date: 2/6/2018 1:34:18 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[WidgetZone](
+	[Id] [int] IDENTITY(1,1) NOT NULL,
+	[WidgetZoneTypeId] [int] NOT NULL,
+	[UserId] [int] NOT NULL,
+	[OrderNumber] [int] NOT NULL,
+	[Title] [nvarchar](250) NULL,
+ CONSTRAINT [PK_WidgetZone] PRIMARY KEY CLUSTERED
+(
+	[Id] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[WidgetZoneType]    Script Date: 2/6/2018 1:34:18 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[WidgetZoneType](
+	[Id] [int] IDENTITY(1,1) NOT NULL,
+	[WidgetZoneType] [nvarchar](50) NOT NULL,
+	[WidgetZoneTypeDescription] [nvarchar](250) NULL,
+ CONSTRAINT [PK_WidgetZoneType] PRIMARY KEY CLUSTERED
+(
+	[Id] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+
+/****** Object:  View [dbo].[ConfigRestricted]    Script Date: 2/6/2018 1:34:18 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+    CREATE VIEW [dbo].[ConfigRestricted] AS
+        SELECT ConfigId, ConfigVariable, ConfigValue1, ConfigValue2, Category, IsVisible
+        FROM [Config]
+        WHERE (ConfigVariable NOT LIKE '%Password')
+        AND (ConfigVariable NOT LIKE '%Username')
+        AND (ConfigVariable NOT LIKE '%Server')
+        AND (ConfigVariable NOT LIKE '%Name')
+        AND (ConfigVariable NOT LIKE '%Domain')
+        AND (ConfigVariable NOT LIKE '%Url')
+        AND (ConfigVariable NOT LIKE '%LibraryXML')
+        AND (ConfigVariable NOT LIKE '%LicenseKey')
+        AND (ConfigVariable NOT LIKE '%ConnectionString')
+        AND (ConfigVariable NOT LIKE '%PowerUserGroupsXML')
+        AND (ConfigVariable NOT LIKE '%RootDirectoryXML')
+        AND (ConfigVariable NOT LIKE '%ConnectionString')
+        AND (ConfigVariable NOT LIKE 'Mail::SMTPHost')
+        AND (ConfigVariable NOT LIKE '%PublicGroupDN')
+        AND (ConfigVariable NOT LIKE '%AdminUsersXML')
+        AND (ConfigVariable NOT LIKE 'MessageBus::ReceiverXML')
+        AND (ConfigVariable NOT LIKE '%ApiKey')
+        AND (ConfigVariable NOT LIKE '%AuthToken')
+GO

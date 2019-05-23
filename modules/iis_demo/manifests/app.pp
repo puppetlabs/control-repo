@@ -115,11 +115,11 @@ class iis_demo::app (
   # Create application                                                       #
   ############################################################################
 
-  file { "${path}\\Website":
+  file { "${path}\\${iis_webapp_name}":
     ensure  => directory,
   }
 
-  file { "${path}\\Website\\index.html":
+  file { "${path}\\${iis_webapp_name}\\index.html":
     ensure  => file,
     content => template('iis_demo/index.html.erb'),
   }
@@ -135,7 +135,7 @@ class iis_demo::app (
       'windows'                     => true
     },
     enabledprotocols   => 'http',
-    physicalpath       => "${path}\\WebSite",
+    physicalpath       => "${path}\\${iis_webapp_name}",
     sitename           => $iis_site_name,
   }
 

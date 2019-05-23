@@ -7,8 +7,23 @@
 ###
 
 class iis_demo::uninstall_iis (
+  String $app_pool_name            = 'TestAppPool',
+  String $iis_site_name            = 'TestIisSite',
+  String $iis_webapp_name          = 'TestWebSite',
 
 ) {
+
+  iis_application { "${iis_site_name}\\${iis_webapp_name}":
+    ensure => 'absent',
+  }
+
+  iis_site { $iis_site_name:
+    ensure => 'absent',
+  }
+
+  iis_application_pool { $app_pool_name:
+    ensure => 'absent',
+  }
 
   dsc_windowsfeature { 'IIS':
     dsc_ensure => 'absent',

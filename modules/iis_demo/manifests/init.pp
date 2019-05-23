@@ -6,7 +6,7 @@
 # Date:        April 2018
 ###
 
-define iis_demo (
+class iis_demo (
   String[1] $app_pool_name            = 'TestAppPool',
   String[1] $service_account_password = undef,
   String[1] $service_account_username = undef,

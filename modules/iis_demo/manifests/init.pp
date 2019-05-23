@@ -7,14 +7,13 @@
 ###
 
 class iis_demo (
-  String[1] $app_pool_name            = 'TestAppPool',
-  String[1] $service_account_password = undef,
-  String[1] $service_account_username = undef,
-  String[1] $iis_site_name            = 'TestIisSite',
-  String[1] $iis_webapp_name          = 'TestWebSite',
-  String[1] $path                     = 'C:\\inetpub\\wwwroot\\Test',
-  String[1] $logpath                  = 'C:\\inetpub\\logs\\Test',
-
+  String $app_pool_name            = 'TestAppPool',
+  String $service_account_password = undef,
+  String $service_account_username = undef,
+  String $iis_site_name            = 'TestIisSite',
+  String $iis_webapp_name          = 'TestWebSite',
+  String $path                     = 'C:\\inetpub\\wwwroot\\Test',
+  String $logpath                  = 'C:\\inetpub\\logs\\Test',
 ) {
 
   include iis_demo::iis

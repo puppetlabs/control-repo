@@ -75,7 +75,7 @@ class iis_demo::app (
 
   #if !defined(Iis_site[$iis_site_name]) {
     iis_site { $iis_site_name:
-      ensure               => 'started',
+      ensure               => 'present',
       applicationpool      => $app_pool_name,
       authenticationinfo   => {
         'basic'                       => false,
@@ -102,6 +102,7 @@ class iis_demo::app (
       logperiod            => 'Daily',
       physicalpath         => $path,
       preloadenabled       => 'false',
+      require              => Iis_application_pool[$app_pool_nameClass],
     }
   #}
 

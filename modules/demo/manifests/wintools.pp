@@ -1,6 +1,6 @@
 class demo::wintools (
-  String $notepadplusplus = false,
-  String $baretail        = false,
+  Boolean $notepadplusplus = false,
+  Boolean $baretail        = false,
   ) {
 
   include chocolatey

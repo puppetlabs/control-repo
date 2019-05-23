@@ -14,11 +14,19 @@ class iis_demo::uninstall_iis (
     dsc_ensure => 'absent',
     dsc_name   => 'Web-Server',
     #require    => Package['powershell'],
-    #notify     => Reboot['reboot_iis'],
+    notify     => Reboot['reboot_uninstall_iis'],
+  }
+
+  reboot { 'reboot_uninstall_iis':
+    when    => refreshed,
+    timeout => 15,
   }
 
   file { 'C:\\inetpub':
-    ensure  => absent,
+    ensure  => directory,
+    recurse => true,
+    purge   => true,
+    force   => true,
   }
 
 }

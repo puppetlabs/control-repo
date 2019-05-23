@@ -6,7 +6,7 @@
 # Date:        April 2018
 ###
 
-class iis_demo::uninstall_iis (
+class demo::uninstall_iis (
   String $app_pool_name            = 'TestAppPool',
   String $iis_site_name            = 'TestIisSite',
   String $iis_webapp_name          = 'TestWebSite',

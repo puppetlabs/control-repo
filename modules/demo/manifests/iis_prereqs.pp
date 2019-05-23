@@ -6,7 +6,7 @@
 # Date:        April 2018
 ###
 
-class iis_demo::iis (
+class demo::iis_prereqs (
 
 ) {
 

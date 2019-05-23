@@ -1,2 +1,2 @@
 ---
-iis_demo::app::service_account_username: administrator
+iis_demo::iis::service_account_username: administrator

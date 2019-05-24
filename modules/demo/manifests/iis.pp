@@ -14,7 +14,7 @@ class demo::iis (
   String $iis_webapp_name          = 'TestWebSite',
   String $path                     = 'C:\\inetpub\\wwwroot\\Test',
   String $logpath                  = 'C:\\inetpub\\logs\\Test',
-  String $message                  = '23/05/2019',
+  String $message                  = 'Puppet iis demo',
 ) {
 
   require demo::iis_prereqs

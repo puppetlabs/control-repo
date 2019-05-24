@@ -1,18 +1,18 @@
 class demo::wintools (
-  Boolean $notepadplusplus = false,
-  Boolean $baretail        = false,
+  Boolean $install_notepadplusplus = false,
+  Boolean $install_baretail        = false,
   ) {
 
   include chocolatey
 
-  if $notepadplusplus {
+  if $install_notepadplusplus {
     package { 'baretail':
       ensure   => installed,
       provider => chocolatey,
     }
   }
 
-  if $baretail {
+  if $install_baretail {
     package { 'notepadplusplus':
       ensure   => installed,
       provider => chocolatey,

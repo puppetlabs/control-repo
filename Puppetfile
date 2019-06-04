@@ -5,7 +5,7 @@ forge 'https://forge.puppet.com'
 mod 'puppetlabs-ntp',                  '7.4.0'
 mod 'puppetlabs-haproxy',              '3.0.1'
 #mod 'puppetlabs/concat',      '4.2.1'
-mod 'puppetlabs-cd4pe',                '1.3.0'
+#mod 'puppetlabs-cd4pe',                '1.3.0'
 # Requirements for cd4pe
 mod 'puppetlabs-concat',               '4.2.1'
 mod 'puppetlabs-hocon',                '1.0.1'

@@ -8,7 +8,7 @@ forge 'https://forge.puppet.com'
 
 # Modules from Git
 # Examples: https://github.com/puppetlabs/r10k/blob/master/doc/puppetfile.mkd#examples
-mod 'puppetlabs/apache',
+mod 'puppetlabs/apache'
 #  git:    'https://github.com/puppetlabs/puppetlabs-apache',
 #  commit: '1b6f89afdde0df7f9433a163d5c4b5328eac5779'
 

@@ -10,16 +10,14 @@ class role::loadbalancer (
   ) {
 
   include ::haproxy
-  #haproxy::listen { $rule1 :
-  class { 'haproxy::listen' :
+  haproxy::listen { $rule1 :
     collect_exported => false,
     ipaddress        => $::ipaddress,
     ports            => $ports1,
   }
 
 
-  #haproxy::balancermember { 'member1' :
-  class { 'haproxy::balancermember' :
+  haproxy::balancermember { 'member1' :
     listening_service => $rule1,
     server_names      => $backendserver_name1,
     ipaddresses       => $backendserver_ipaddress1,
@@ -28,8 +26,7 @@ class role::loadbalancer (
 
   }
 
-  #haproxy::balancermember { 'haproxy02' :
-  class { 'haproxy::balancermember' :
+  haproxy::balancermember { 'member2' :
    listening_service => $rule1,
    server_names      => $backendserver_name2,
    ipaddresses       => $backendserver_ipaddress2,

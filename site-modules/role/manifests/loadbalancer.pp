@@ -12,7 +12,7 @@ class role::loadbalancer (
   haproxy::listen { $rule1 :
     collect_exported => false,
     ipaddress        => $::ipaddress,
-    ports            => '8140',
+    ports            => $ports1,
   }
 
   haproxy::balancermember { 'haproxy01' :

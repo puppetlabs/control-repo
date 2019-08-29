@@ -1,6 +1,6 @@
 class role::loadbalancer (
-  Integer   $ports1 = '80',
-  Optional[Integer]   $ports2 = undef,
+  String   $ports1 = '80',
+  Optional[String]   $ports2 = undef,
   String    $rule1 = 'http',
   Optional[String]    $rule2 = undef,
   String    $backendserver_name1 = '',

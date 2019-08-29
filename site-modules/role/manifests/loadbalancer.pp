@@ -18,7 +18,7 @@ class role::loadbalancer (
   haproxy::balancermember { $backendserver_name1 :
     listening_service => 'puppetserver',
     server_names      => $backendserver_name1,
-    ipaddress         => $backendserver_ipaddress1
+    ipaddress         => $backendserver_ipaddress1,
     ports             => $ports1,
     options           => 'check',
   }
@@ -26,7 +26,7 @@ class role::loadbalancer (
   haproxy::balancermember { $backendserver_name2 :
     listening_service => 'puppetserver',
     server_names      => $backendserver_name2,
-    ipaddress         => $backendserver_ipaddress2
+    ipaddress         => $backendserver_ipaddress2,
     ports             => $ports1,
     options           => 'check',
   }

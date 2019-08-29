@@ -1,12 +1,12 @@
 class role::loadbalancer (
   Integer   $ports1 = '80',
-  Integer   $ports2 = undef,
-  String    $rule1 = 'Http',
-  String    $rule2 = undef,
+  Optional[Integer]   $ports2 = undef,
+  String    $rule1 = 'http',
+  Optional[String]    $rule2 = undef,
   String    $backendserver_name1 = '',
   String    $backendserver_name2 = '',
-  Integer   $backendserver_ipaddress1 = undef,
-  Integer   $backendserver_ipaddress2 = undef,
+  Optional[String]   $backendserver_ipaddress1 = undef,
+  Optional[String]   $backendserver_ipaddress2 = undef,
   ) {
   include ::haproxy
   haproxy::listen { $rule1 :

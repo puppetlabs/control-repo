@@ -3,10 +3,10 @@ class role::loadbalancer (
   Optional[String]   $ports2 = undef,
   String    $rule1 = 'http',
   Optional[String]    $rule2 = undef,
-  String    $backendserver_name1 = '',
-  String    $backendserver_name2 = '',
-  String   $backendserver_ipaddress1 = undef,
-  String   $backendserver_ipaddress2 = undef,
+  String   $backendserver_name1 = '',
+  String   $backendserver_name2 = '',
+  Optional[String]   $backendserver_ipaddress1 = undef,
+  Optional[String]   $backendserver_ipaddress2 = undef,
   ) {
   include ::haproxy
   haproxy::listen { $rule1 :
@@ -18,7 +18,7 @@ class role::loadbalancer (
   haproxy::balancermember { $backendserver_name1 :
     listening_service => 'puppetserver',
     server_names      => $backendserver_name1,
-    ipaddress         => $backendserver_ipaddress1,
+    ipaddress         => '192.168.0.8',
     ports             => $ports1,
     options           => 'check',
   }
@@ -26,7 +26,7 @@ class role::loadbalancer (
   haproxy::balancermember { $backendserver_name2 :
     listening_service => 'puppetserver',
     server_names      => $backendserver_name2,
-    ipaddress         => $backendserver_ipaddress2,
+    ipaddress         => '192.168.0.10',
     ports             => $ports1,
     options           => 'check',
   }

@@ -9,7 +9,7 @@ class role::loadbalancer (
   Optional[String]   $backendserver_ipaddress2 = undef,
   ) {
 
-  # include ::haproxy
+  include ::haproxy
   #haproxy::listen { $rule1 :
   class { 'haproxy::listen' :
     collect_exported => false,

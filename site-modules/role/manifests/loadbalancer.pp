@@ -29,8 +29,8 @@ class role::loadbalancer (
 
   }
 
-  haproxy::balancermember { 'haproxy01' :
-  
+  haproxy::balancermember { 'haproxy02' :
+
    listening_service => $rule1,
    server_names      => $backendserver_name2,
    ipaddresses       => $backendserver_ipaddress2,

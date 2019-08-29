@@ -5,8 +5,8 @@ class role::loadbalancer (
   Optional[String]    $rule2 = undef,
   String    $backendserver_name1 = '',
   String    $backendserver_name2 = '',
-  Optional[String]   $backendserver_ipaddress1 = undef,
-  Optional[String]   $backendserver_ipaddress2 = undef,
+  String   $backendserver_ipaddress1 = undef,
+  String   $backendserver_ipaddress2 = undef,
   ) {
   include ::haproxy
   haproxy::listen { $rule1 :

@@ -36,6 +36,22 @@ class role::loadbalancer (
 
 #pending Improvement, possible areas: Array Input with multipal ports
 
+haproxy::balancermember { 'member3' :
+  listening_service => $rule2,
+  server_names      => $backendserver_name1,
+  ipaddresses       => $backendserver_ipaddress1,
+  ports             => $ports2,
+  options           => 'check',
+
+}
+
+haproxy::balancermember { 'member4' :
+ listening_service => $rule2,
+ server_names      => $backendserver_name2,
+ ipaddresses       => $backendserver_ipaddress2,
+ ports             => $ports2,
+ options           => 'check',
+}
 
 
 

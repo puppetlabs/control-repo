@@ -8,7 +8,7 @@ mod 'puppetlabs-inifile', '3.1.0'
 #mod 'puppetlabs/stdlib',  '6.0.0'
 #mod 'puppetlabs/concat',  '6.0.0'
 mod 'puppetlabs-concat', '6.1.0'
-mod 'puppetlabs-stdlib', '6.1.0'
+mod 'puppetlabs-stdlib', '6.0.0'
 mod 'danieldreier-autosign', '0.2.0'
 
 # Modules from Git

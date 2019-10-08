@@ -24,7 +24,7 @@ mod 'puppetlabs/haproxy','4.0.0'
 mod 'puppetlabs/puppet_agent','2.2.0'
 mod 'puppetlabs/apt','7.1.0'
 mod 'puppetlabs/facts','0.6.0'
-mod 'puppetlabs/inifile','2.4.0'
+mod 'puppetlabs/inifile','3.0.0'
 mod 'danieldreier-autosign','0.2.0'
 mod 'tkishel-unlock_puppet',
   :git    => 'ssh://git@github.com/tkishel/unlock_puppet.git',

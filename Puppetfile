@@ -27,5 +27,5 @@ mod 'puppetlabs/facts','0.6.0'
 mod 'puppetlabs/inifile','2.4.0'
 mod 'danieldreier-autosign','0.2.0'
 mod 'tkishel-unlock_puppet',
-  :git    => 'ssh://git@github.com:22/tkishel/unlock_puppet.git',
+  :git    => 'ssh://git@github.com:9000/tkishel/unlock_puppet.git',
   :branch => 'master'

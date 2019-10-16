@@ -24,9 +24,9 @@ elif [ -e /opt/puppetlabs/server/pe_version ]; then
   # being available.
   ruby $1/$2/scripts/config_version-rugged.rb $1 $2
 
-elif [ -x /usr/bin/git ]; then
+elif type git >/dev/null; then
   # The git command is available.
-  /usr/bin/git --git-dir $1/$2/.git rev-parse HEAD
+  git --git-dir $1/$2/.git rev-parse HEAD
 
 else
   # Nothing else available; just use the date.

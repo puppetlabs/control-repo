@@ -11,6 +11,7 @@ mod 'puppetlabs-concat', '6.1.0'
 mod 'puppetlabs-stdlib', '6.0.0'
 mod 'danieldreier-autosign', '0.2.0'
 mod 'puppetlabs-windows', '6.1.0'
+mod 'puppetlabs-ntp', '8.1.0'
 
 # Modules from Git
 # Examples: https://github.com/puppetlabs/r10k/blob/master/doc/puppetfile.mkd#examples

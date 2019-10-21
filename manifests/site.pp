@@ -29,3 +29,12 @@ node default {
   # Example:
   #   class { 'my_class': }
 }
+
+
+
+node linuxagent1forcmdeployment.platform9.puppet.net {
+  include firewall
+  resources { 'firewall':
+    purge => true,
+  }
+}

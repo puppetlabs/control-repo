@@ -29,3 +29,4 @@ mod 'danieldreier-autosign','0.2.0'
 mod 'tkishel-unlock_puppet',
   :git    => 'ssh://git@github.com/tkishel/unlock_puppet.git',
   :branch => 'master'
+mod 'puppetlabs-firewall', '2.1.0'

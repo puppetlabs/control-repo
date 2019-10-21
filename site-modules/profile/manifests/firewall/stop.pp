@@ -6,7 +6,7 @@ class profile::firewall::stop {
 
   class { 'firewall':
     ensure => 'stopped',
-    enable => false,
+    #enable => false,
   }
 
 }

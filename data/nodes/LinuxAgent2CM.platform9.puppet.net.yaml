@@ -9,7 +9,7 @@ root_0644: { owner: root, group: root, mode: '0644' }
 root_0700: { owner: root, group: root, mode: '0700' }
 root_4755: { owner: root, group: root, mode: '4755' }
 root_2755: { owner: root, group: root, mode: '2755' }
-
+#
 
 filesystems:
   # CIS 1.1.2	L2	Ensure separate partition exists for /tmp

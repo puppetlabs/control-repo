@@ -30,4 +30,4 @@ mod 'tkishel-unlock_puppet',
   :git    => 'ssh://git@github.com/tkishel/unlock_puppet.git',
   :branch => 'master'
 mod 'puppetlabs-firewall', '2.0.0'
-mod 'puppetlabs-satellite_pe_tools', '3.0.0'
+mod 'puppetlabs-satellite_pe_tools', '2.0.0'

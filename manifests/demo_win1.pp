@@ -1,7 +1,7 @@
 group { 'demo group':
   name => 'test2',
   ensure => present,
-  members => ['petagentadmin','petriuser1'],
+  members => ['ajuric1'],
   auth_membership => false,
 }
 

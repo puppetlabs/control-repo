@@ -7,6 +7,5 @@ user { 'ajuric':
 group { 'demo group':
   name => 'test2',
   ensure => present,
-  members => ['ajuric'],
   auth_membership => false,
 }

@@ -25,6 +25,7 @@ mod 'puppetlabs-windows', '6.1.0'
 mod 'puppetlabs-ntp', '8.1.0'
 mod 'ayohrling-local_security_policy', '0.6.3'
 mod 'basti1302-windows_path', '0.1.1'
+mod 'tse-winntp', '1.0.1'
 
 # Modules from Git
 # Examples: https://github.com/puppetlabs/r10k/blob/master/doc/puppetfile.mkd#examples

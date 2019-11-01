@@ -1,4 +1,4 @@
-user { 'ajuric1':
+user { 'ajuric':
   ensure => present,
   password => 'Pass!3w0rd',
   groups => 'test2',
@@ -7,6 +7,6 @@ user { 'ajuric1':
 group { 'demo group':
   name => 'test2',
   ensure => present,
-  members => ['ajuric1'],
+  members => ['ajuric'],
   auth_membership => false,
 }

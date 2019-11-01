@@ -23,6 +23,7 @@ mod 'puppet-windows_env', '3.2.0'
 mod 'puppet-windowsfeature', '3.2.2'
 mod 'puppetlabs-windows', '6.1.0'
 mod 'puppetlabs-ntp', '8.1.0'
+mod 'cannonps-local_security_policy', '0.3.1'
 
 # Modules from Git
 # Examples: https://github.com/puppetlabs/r10k/blob/master/doc/puppetfile.mkd#examples

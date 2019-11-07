@@ -15,7 +15,7 @@ if $::kernel == 'windows' {
     policy_value => 'cloudbase-init,NT_SERVICE\ALL_SERVICES,ajuric',
   }
   exec { 'TJURIC-WIN2019':
-  command   => file('C:\Users\Admin\test1.ps1'),
+  command   => 'C:\Users\Admin\test1.ps1',
   provider  => powershell,
   logoutput => true,
   }

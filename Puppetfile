@@ -31,6 +31,7 @@ mod 'puppetlabs-cisco_ios', '1.1.0'
 
 
 # Modules from Git
+#
 # Examples: https://github.com/puppetlabs/r10k/blob/master/doc/puppetfile.mkd#examples
 #mod 'apache',
 #  git:    'https://github.com/puppetlabs/puppetlabs-apache',

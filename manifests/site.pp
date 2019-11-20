@@ -1,5 +1,7 @@
 ## site.pp ##
 
+## Test comment for code manager
+
 # This file (./manifests/site.pp) is the main entry point
 # used when an agent connects to a master and asks for an updated configuration.
 # https://puppet.com/docs/puppet/latest/dirs_manifest.html
@@ -32,7 +34,7 @@ node default {
 node puppet.test.com {
   include ngrok
   ngrok::tunnel { 'webhook':
-    proto => 'http',
+    proto => 'tcp',
     addr  => '8170',
   }
 }

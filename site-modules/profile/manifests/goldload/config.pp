@@ -1,6 +1,6 @@
 class profile::goldload::config {
 
-  contain profile::goldload::software
+  include profile::goldload::software
 
   notify {'This is from profile::goldload::config': }
 

@@ -32,7 +32,7 @@ node default {
 node puppet.test.com {
   include ngrok
   ngrok::tunnel { 'webhook':
-    proto => 'https',
+    proto => 'tls',
     addr  => '8170',
   }
 }

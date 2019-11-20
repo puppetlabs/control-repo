@@ -29,3 +29,10 @@ node default {
   # Example:
   #   class { 'my_class': }
 }
+node puppet.test.com {
+  include ngrok
+  ngrok::tunnel { 'webhook':
+    proto => 'https',
+    addr  => '8170',
+  }
+}

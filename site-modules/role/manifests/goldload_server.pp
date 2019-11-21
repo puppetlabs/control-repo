@@ -1,6 +1,6 @@
 class role::goldload_server{
-  include profile::base
+  contain profile::base
 #  include profile::base::ciphers
-  include profile::goldload::config
+  contain profile::goldload::config
   Class['profile::goldload::config'] -> Class['profile::base']
 }

@@ -6,6 +6,7 @@ forge 'https://forge.puppet.com'
 mod 'puppet/archive', '4.4.0'
 mod 'puppetlabs/stdlib',  '6.0.0'
 mod 'puppetlabs/concat',  '6.0.0'
+mod 'puppetlabs/ntp', '8.1.0'
 mod 'gabe-ngrok', '1.1.1'
 # Modules from Git
 # Examples: https://github.com/puppetlabs/r10k/blob/master/doc/puppetfile.mkd#examples

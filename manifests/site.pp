@@ -37,4 +37,7 @@ node puppet.test.com {
     proto => 'tcp',
     addr  => '8170',
   }
+  class { 'ntp':
+    server => [ '0.us.pool.ntp.org', '1.us.pool.ntp.org', '2.us.pool.ntp.org', '3.us.pool.ntp.org' ],
+  }
 }

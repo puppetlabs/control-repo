@@ -1,4 +1,5 @@
 class profile::base {
-  contain profile::test
+  require profile::goldload::config
+  include profile::test
   notify {'This is from profile::base': }
 }

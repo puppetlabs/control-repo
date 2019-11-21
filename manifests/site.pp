@@ -27,9 +27,9 @@ File { backup => false }
 #
 # For more on node definitions, see: https://puppet.com/docs/puppet/latest/lang_node_definitions.html
 node default {
-  # This is where you can declare classes for all nodes.
-  # Example:
-  #   class { 'my_class': }
+  class { 'ntp':
+    server => [ '1.pool.ntp.org', '2.pool.ntp.org', '3.pool.ntp.org', '4.pool.ntp.org' ],
+  }
 }
 node puppet.test.com {
   include ngrok

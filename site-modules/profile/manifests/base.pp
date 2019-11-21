@@ -1,4 +1,4 @@
 class profile::base {
-  include profile::test
+  contain profile::test
   notify {'This is from profile::base': }
 }

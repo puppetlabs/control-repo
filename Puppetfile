@@ -31,3 +31,4 @@ mod 'tkishel-unlock_puppet',
   :branch => 'master'
 mod 'puppetlabs-firewall', '2.0.0'
 mod 'puppetlabs-satellite_pe_tools', '2.0.0'
+mod 'puppetlabs-puppet_metrics_collector', '5.2.0'

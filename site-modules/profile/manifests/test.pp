@@ -1,3 +1,3 @@
-class profile::test {
-  notify {'This is from profile::test': }
+class profile::winlogbeat {
+  notify {'This is from profile::winlogbeat': }
 }

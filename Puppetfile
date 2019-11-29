@@ -6,6 +6,10 @@ forge 'https://forge.puppet.com'
 #mod 'puppetlabs/stdlib',  '6.0.0'
 #mod 'puppetlabs/concat',  '6.0.0'
 
+mod "crayfishx/db2", "1.3.1"
+mod 'puppetlabs-stdlib', '4.25.1'
+mod 'puppet-archive', '1.3.0'
+
 # Modules from Git
 # Examples: https://github.com/puppetlabs/r10k/blob/master/doc/puppetfile.mkd#examples
 #mod 'apache',
@@ -15,3 +19,5 @@ forge 'https://forge.puppet.com'
 #mod 'apache',
 #  git:    'https://github.com/puppetlabs/puppetlabs-apache',
 #  branch: 'docs_experiment'
+#
+

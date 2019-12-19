@@ -3,24 +3,19 @@ class controlm::controlm_agent::install inherits controlm::controlm_agent {
 
 # set up /etc/services
 
-  augeas { 'controlm':
-  incl    => '/etc/services',
-  lens    => 'Services.lns',
-  changes => [
-    "ins service-name after service-name[last()]",
-    "set service-name[last()] 'ctmagent'",
-    "set service-name[. = 'ctmagent']/port 17005",
-    "set service-name[. = 'ctmagent']/protocol tcp",
-  #  "set service-name[port = '${s2a_port}'][protocol = 'udp']/ #comment 'Henry123']",
-  #  "set service-name[port = '${s2a_port}'][protocol = 'tcp'] ctmagent",
-  #  "set service-name[port = '${s2a_port}'][protocol = 'tcp']/ #comment 'Henry234']",
-  #  "set service-name[port = '${a2s_port}'][protocol = 'udp'] ctmagent",
-  #  "set service-name[port = '${a2s_port}'][protocol = 'udp']/ #comment 'Henry345'",
-  #  "set service-name[port = '${a2s_port}'][protocol = 'tcp'] ctmagent",
-  #  "set service-name[port = '${a2s_port}'][protocol = 'tcp']/ #comment 'Henry456'",
+augeas { 'controlm':
+context => '/files/etc/services',
+changes => [
+  "set service-name[port = '${s2a_port}'][protocol = 'udp'] ctmagent",
+  "set service-name[port = '${s2a_port}'][protocol = 'udp']/#comment 'Control-M server2agent'",
+  "set service-name[port = '${s2a_port}'][protocol = 'tcp'] ctmagent",
+  "set service-name[port = '${s2a_port}'][protocol = 'tcp']/#comment 'Control-M server2agent'",
+  "set service-name[port = '${a2s_port}'][protocol = 'udp'] ctmagent",
+  "set service-name[port = '${a2s_port}'][protocol = 'udp']/#comment 'Control-M agent2server'",
+  "set service-name[port = '${a2s_port}'][protocol = 'tcp'] ctmagent",
+  "set service-name[port = '${a2s_port}'][protocol = 'tcp']/#comment 'Control-M agent2server'",
   ],
-  }
-
+}
 
   # use shellscript and sudo as running the install direct as user ctmagent gives HOME errors plus we get errors in the log file
   # also does patches as can't get the patch script running after it for some reason

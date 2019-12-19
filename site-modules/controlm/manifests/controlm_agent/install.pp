@@ -15,7 +15,7 @@ class controlm::controlm_agent::install inherits controlm::controlm_agent {
     "set service-name[port = '${a2s_port}'][protocol = 'tcp'] ctmagent",
   #  "set service-name[port = '${a2s_port}'][protocol = 'tcp']/ #comment 'Henry456'",
   ],
-  
+    provider=> 'augeasproviders_core',
   }
 
 

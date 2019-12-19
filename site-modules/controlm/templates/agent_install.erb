@@ -1,0 +1,13 @@
+<AutomatedInstallation langpack="eng">
+    <target.product>Control-M/Agent 9.0.00</target.product>
+    <agent.parameters>
+        <entry key="field.Authorized.Controlm.Server.Host" value="<%= @server_host %>"/>
+        <entry key="ctm_agent.Tracker.Event.Port" value="<%= @tracker_port %>"/>
+        <entry key="field.Agent.To.Server.Port.Number" value="<%= @a2s_port %>"/>
+        <entry key="ctm_agent.Tcp_ip.Timeout" value="<%= @tcp_timeout %>"/>
+        <entry key="field.Server.To.Agent.Port.Number" value="<%= @s2a_port %>"/>
+        <entry key="Ignore.Disabling.Agent.Failure" value="<%= @ignore_fail %>"/>
+        <entry key="ctm_agent.Force.Upgrade" value="<%= @force_upgrade %>"/>
+        <entry key="field.Primary.Controlm.Server.Host" value="<%= @primary_server_host %>"/>
+    </agent.parameters>
+</AutomatedInstallation>

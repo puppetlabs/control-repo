@@ -4,7 +4,7 @@ class controlm::controlm_agent::install inherits controlm::controlm_agent {
 # set up /etc/services
 
   augeas { 'controlm':
-  incl => '/etc/services',
+  incl    => '/etc/services',
   lens    => 'Services.lns',
   changes => [
     "ins service-name after service-name[last()]",

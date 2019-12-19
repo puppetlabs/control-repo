@@ -1,7 +1,7 @@
 ---
 message: "This node is using common data"
-controlm::controlm_agent::agent2server_port: 700
-controlm::controlm_agent::server2agent_port: 700
-controlm::controlm_agent::tracker_port: 705
+controlm::controlm_agent::agent2server_port: 10700
+controlm::controlm_agent::server2agent_port: 10700
+controlm::controlm_agent::tracker_port: 10705
 controlm::controlm_agent::server_host: ctmgnpappla013
 controlm::controlm_agent::primary_server_host: ctmgnpappla013.optus.com.au

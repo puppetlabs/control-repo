@@ -4,7 +4,7 @@ class controlm::controlm_agent::install inherits controlm::controlm_agent {
 # set up /etc/services
 
   augeas { 'controlm':
-  context => '/files/etc/services',
+  incl => '/etc/services',
   changes => [
     "ins service-name after service-name[last()]",
     "set service-name[last()] 'ctmagent'",

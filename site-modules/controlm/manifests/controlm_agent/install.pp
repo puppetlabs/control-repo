@@ -6,7 +6,7 @@ class controlm::controlm_agent::install inherits controlm::controlm_agent {
   augeas { 'controlm':
   context => '/files/etc/services',
   changes => [
-    "set service-name[port = '${s2a_port}'][protocol = 'udp'][alias = 'test']ctmagent",
+    "set service-name[port = '${s2a_port}'][protocol = 'udp'][alias = 'test'] ctmagent",
   #  "set service-name[port = '${s2a_port}'][protocol = 'udp']/ #comment 'Henry123']",
     "set service-name[port = '${s2a_port}'][protocol = 'tcp'][alias = 'test'] ctmagent",
   #  "set service-name[port = '${s2a_port}'][protocol = 'tcp']/ #comment 'Henry234']",

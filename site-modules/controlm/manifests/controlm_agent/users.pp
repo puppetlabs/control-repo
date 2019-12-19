@@ -28,11 +28,11 @@ class controlm::controlm_agent::users {
     require => User['ctmagent'],
   }
 
-  sudo::rule { 'controlm':
-    type        => 'group',
-    runas_users => 'root',
-    commands    => [
-      '/apps/bmc/ctm/scripts_optus/ctm.sh',
-    ],
-  }
+  #sudo::rule { 'controlm':
+  #  type        => 'group',
+  #  runas_users => 'root',
+  #  commands    => [
+  #    '/apps/bmc/ctm/scripts_optus/ctm.sh',
+  #  ],
+  #}
 }

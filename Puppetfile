@@ -6,6 +6,10 @@ mod 'puppetlabs/inifile', '4.0.0'
 mod 'puppetlabs/stdlib',  '6.2.0'
 mod 'puppetlabs/concat',  '6.1.0'
 mod 'danieldreier-autosign', '0.2.0'
+mod 'puppetlabs-package', '1.1.0'
+mod 'puppetlabs-service', '1.2.0'
+mod 'puppetlabs-ntp', '8.2.0'
+mod 'puppetlabs-apache', '5.3.0'
 
 # Modules from Git
 # Examples: https://github.com/puppetlabs/r10k/blob/master/doc/puppetfile.mkd#examples

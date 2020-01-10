@@ -1,5 +1,35 @@
-class profile::base {
-
-  #the base profile should include component modules that will be on all nodes
-
+class profile::base (
+  Boolean $firewall = false,
+  Boolean $lvm      = false,
+  Boolean $ntp      = false,
+  Boolean $puppet   = false,
+  Boolean $repos    = false,
+  Boolean $resolver = false,
+  Boolean $ssh      = true,
+  Boolean $selinux  = true,
+) {
+  if $firewall {
+    class { '::profile::base::firewall': }
+  }
+  if $lvm {
+    class { '::profile::base::lvm': }
+  }
+  if $ntp {
+    class { '::profile::base::time': }
+  }
+  if $puppet {
+    class { '::profile::base::puppet': }
+  }
+  if $repos {
+    class { '::profile::base::repositories': }
+  }
+  if $resolver {
+    class { '::profile::base::resolver': }
+  }
+  if $ssh {
+    class { '::profile::base::ssh': }
+  }
+  if $selinux {
+    class { '::profile::base::selinux': }
+  }
 }

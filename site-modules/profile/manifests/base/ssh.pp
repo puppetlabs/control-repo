@@ -1,4 +1,4 @@
-class profile::bootstrap::ssh (
+class profile::base::ssh (
   Hash $config_entries = {},
   String $permit_root_login = 'no',
   String $ssh_config_forward_agent = 'no',

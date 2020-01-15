@@ -7,7 +7,11 @@ class profile::base (
   Boolean $resolver = false,
   Boolean $ssh      = true,
   Boolean $selinux  = true,
+  Boolean $motd     = true,
 ) {
+  if $motd {
+    class { '::motd': }
+  }
   if $firewall {
     class { '::profile::base::firewall': }
   }

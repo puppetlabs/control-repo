@@ -13,6 +13,7 @@ mod 'puppetlabs-apache', '5.3.0'
 mod 'ghoneycutt-ssh', '3.61.0'
 mod 'puppet-selinux', '3.1.0'
 mod 'puppetlabs-puppetserver_gem', '1.1.1'
+mod 'puppetlabs-motd', '4.0.0'
 
 # Modules from Git
 # Examples: https://github.com/puppetlabs/r10k/blob/master/doc/puppetfile.mkd#examples

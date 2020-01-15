@@ -29,3 +29,9 @@ node 'puppet' {
     include role::puppetserver
 
 }
+
+node 'default' {
+
+    include role::node
+
+}

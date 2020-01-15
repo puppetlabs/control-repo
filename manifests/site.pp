@@ -29,7 +29,8 @@ node default {
     if $trusted['extentions']['pp_role'] {
       include ($trusted['extentions']['pp_role'])
     } else {
-    fail('This node has no role')
+      notify {"WARN: Unable to apply $trusted['extentions']['pp_role'], applying base role instead":}
+      include "roles::node"
   }
 }
 

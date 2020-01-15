@@ -24,16 +24,6 @@ File { backup => false }
 # Puppet Enterprise console and External Node Classifiers (ENC's).
 #
 # For more on node definitions, see: https://puppet.com/docs/puppet/latest/lang_node_definitions.html
-node default {
-
-    if $trusted['extentions']['pp_role'] {
-      include ($trusted['extentions']['pp_role'])
-    } else {
-      notify {"WARN: Unable to apply $trusted['extentions']['pp_role'], applying base role instead":}
-      include "roles::node"
-  }
-}
-
 node 'puppet' {
 
     include role::puppetserver

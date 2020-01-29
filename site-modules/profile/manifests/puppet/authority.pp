@@ -15,7 +15,7 @@ class profile::puppet::authority {
         'loglevel' => 'INFO',
       },
       'jwt_token' => {
-        'secret'   => 'puppet',
+        'secret'   => 'koHc5pzVSVpJhijthem3zT8WXN8=',
         'validity' => '0',
       }
     },

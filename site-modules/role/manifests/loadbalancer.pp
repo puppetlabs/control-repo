@@ -20,6 +20,7 @@ class role::loadbalancer (
       'client 1m',
       'server 1m',
       'check 60s',
+      ],
     },
   }
   haproxy::listen { $rule1 :

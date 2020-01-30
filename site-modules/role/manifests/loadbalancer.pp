@@ -11,18 +11,6 @@ class role::loadbalancer (
   ) {
 
   include ::haproxy
-  haproxy { 'default_timeout' :
-    default_options => {
-      'timeout' => [
-      'http-request 60s',
-      'queue 1m',
-      'connect 60s',
-      'client 1m',
-      'server 1m',
-      'check 60s',
-      ],
-    },
-  }
   haproxy::listen { $rule1 :
     collect_exported => false,
     ipaddress        => $::ipaddress,

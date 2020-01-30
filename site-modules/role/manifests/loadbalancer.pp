@@ -32,9 +32,9 @@ class role::loadbalancer (
       'timeout' => [
         'http-request 10s',
         'queue 1m',
-        'connect 0ms',
-        'client 0ms',
-        'server 0ms',
+        'connect 300s',
+        'client 600s',
+        'server 600s',
         'check 1m',
       ],
       'maxconn' => '8000',

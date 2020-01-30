@@ -7,9 +7,21 @@ class role::loadbalancer (
   Optional[String]   $backendserver_name2 = '',
   Optional[String]   $backendserver_ipaddress1 = undef,
   Optional[String]   $backendserver_ipaddress2 = undef,
+  Optional[String]   $connetc_timeout = '60s',
   ) {
 
   include ::haproxy
+  haproxy { 'default_timeout' :
+    default_options => {
+      'timeout' => [
+      'http-request 60s',
+      'queue 1m',
+      'connect 60s',
+      'client 1m',
+      'server 1m',
+      'check 60s',
+    },
+  }
   haproxy::listen { $rule1 :
     collect_exported => false,
     ipaddress        => $::ipaddress,

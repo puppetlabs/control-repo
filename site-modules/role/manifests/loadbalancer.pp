@@ -11,6 +11,7 @@ class role::loadbalancer (
   ) {
 
     class { 'haproxy':
+    merge_options => true,
     global_options   => {
       'log'     => "${::ipaddress} local0",
       'chroot'  => '/var/lib/haproxy',

@@ -39,8 +39,8 @@ node 'puppet' {
 #  }
 #}
 
-#node 'default' {
+node 'default' {
 
-#    include role::node
+    include role::node
 
-#}
+}

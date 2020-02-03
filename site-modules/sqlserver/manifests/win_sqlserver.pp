@@ -1,4 +1,4 @@
-class sqlserver::win_sqlserver
+class sqlserver::win_sqlserver {
   include sqlserver
   sqlserver_instance{ 'MSSQLSERVER':
   source                  => 'C:/',

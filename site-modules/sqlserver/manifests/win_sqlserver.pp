@@ -1,4 +1,5 @@
-class sqlserver::win_sqlserver {
+class sqlserver::win_sqlserver
+  include sqlserver
   sqlserver_instance{ 'MSSQLSERVER':
   source                  => 'C:/',
   features                => ['SQL'],
@@ -15,9 +16,5 @@ class sqlserver::win_sqlserver {
     'INSTALLSHAREDWOWDIR' => 'C:\\Program Files (x86)\\Microsoft SQL Server',
   }
 }
-
-
-
-
 
 }

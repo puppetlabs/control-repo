@@ -1,7 +1,6 @@
 class sqlserverhenry::win_sqlserver {
-
   sqlserver_instance{ 'MSSQLSERVER':
-  source                  => 'E:/',
+  source                  => 'C:/',
   features                => ['SQL'],
   security_mode           => 'SQL',
   sa_pwd                  => 'p@ssw0rd!!',

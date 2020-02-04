@@ -1,3 +1,8 @@
 ---
 message: "This node is using common data"
-profiles::base::dns::nameservers: 8.8.8.8
+
+profile::base::resolv: true
+profile::base::resolv::nameservers: 
+  - '8.8.8.8'
+  - '127.0.0.1'
+profile::base::resolv::domainname: home

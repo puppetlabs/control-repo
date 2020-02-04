@@ -4,7 +4,7 @@ class profile::base (
   Boolean $ntp      = false,
   Boolean $puppet   = false,
   Boolean $repos    = false,
-  Boolean $resolver = false,
+  Boolean $resolv   = false,
   Boolean $ssh      = true,
   Boolean $selinux  = true,
   Boolean $motd     = true,
@@ -27,8 +27,8 @@ class profile::base (
   if $repos {
     class { '::profile::base::repositories': }
   }
-  if $resolver {
-    class { '::profile::base::resolver': }
+  if $resolv {
+    class { '::profile::base::resolv': }
   }
   if $ssh {
     class { '::profile::base::ssh': }

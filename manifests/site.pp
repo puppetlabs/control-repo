@@ -30,17 +30,11 @@ node 'puppet' {
 
 }
 
-#node default {
+node default {
 
-#    if $trusted['extentions']['pp_role'] {
-#      include ($trusted['extentions']['pp_role'])
-#    } else {
-#      include role::node
-#  }
-#}
-
-node 'default' {
-
-    include role::node
-
+    if $trusted['extensions']['pp_role'] {
+      include "role::${trusted['extensions']['pp_role']}"
+    } else {
+      include role::node
+  }
 }

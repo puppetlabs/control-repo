@@ -24,3 +24,7 @@ mod 'puppetlabs-motd', '4.0.0'
 # mod 'apache',
 #  git:    'https://github.com/puppetlabs/puppetlabs-apache',
 #  branch: 'docs_experiment'
+
+mod 'saz-resolv_conf',
+  :git => 'https://github.com/saz/puppet-resolv_conf.git',
+  :ref => 'v4.1.0'

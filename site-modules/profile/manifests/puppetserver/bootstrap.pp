@@ -1,4 +1,4 @@
-class profile::puppet::puppetserver {
+class profile::puppetserver::bootstrap {
 
   ini_setting { 'hiera_config':
     ensure => present,

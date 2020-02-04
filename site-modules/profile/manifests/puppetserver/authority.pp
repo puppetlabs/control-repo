@@ -1,5 +1,12 @@
-class profile::puppet::authority {
+class profile::puppetserver::authority (
 
+  String $jwt_secret = 'undef',
+  String $loglevel   = 'info',
+  Integer $validity  = '0',
+  String $ensure     = 'latest',
+  Hash $config       = {},
+  Hash $jwt_token    = {},
+) {
   ini_setting { 'policy-based autosigning':
     setting => 'autosign',
     path    => "${settings::confdir}/puppet.conf",
@@ -9,14 +16,14 @@ class profile::puppet::authority {
   }
 
   class { ::autosign:
-    ensure => 'latest',
+    ensure => "$ensure",
     config => {
       'general' => {
-        'loglevel' => 'INFO',
+        'loglevel' => "$loglevel",
       },
       'jwt_token' => {
-        'secret'   => 'koHc5pzVSVpJhijthem3zT8WXN8=',
-        'validity' => '0',
+        'secret'   => "$jwt_secret",
+        'validity' => "$validity",
       }
     },
   }

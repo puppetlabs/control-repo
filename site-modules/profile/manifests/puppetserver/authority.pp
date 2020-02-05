@@ -15,15 +15,15 @@ class profile::puppetserver::authority (
     notify  => Service['pe-puppetserver'],
   }
 
-  class { ::autosign:
-    ensure => "$ensure",
+  class { '::autosign':
+    ensure => $ensure,
     config => {
-      'general' => {
-        'loglevel' => "$loglevel",
+      general => {
+        loglevel => $loglevel,
       },
-      'jwt_token' => {
-        'secret'   => "$jwt_secret",
-        'validity' => "$validity",
+      jwt_token => {
+        secret   => $jwt_secret,
+        validity => $validity,
       }
     },
   }

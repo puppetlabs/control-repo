@@ -1,4 +1,4 @@
 ---
 profile::puppetserver::authority: true
-profile::puppetserver::authority::jwt_secret: "'koHc5pzVSVpJhijthem3zT8WXN8='"
+#profile::puppetserver::authority::jwt_secret: "koHc5pzVSVpJhijthem3zT8WXN8="
 profile::puppetserver::authority::validity: 7200

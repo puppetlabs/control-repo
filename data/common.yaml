@@ -6,3 +6,4 @@ profile::base::resolv::nameservers:
   - '8.8.8.8'
   - '127.0.0.1'
 profile::base::resolv::domainname: home
+profile::base::selinux::mode: permissive

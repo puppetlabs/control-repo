@@ -1,8 +1,6 @@
 class profile::base (
   Boolean $firewall = false,
-  Boolean $lvm      = false,
-  Boolean $ntp      = false,
-  Boolean $puppet   = false,
+  Boolean $time     = false,
   Boolean $repos    = false,
   Boolean $resolv   = false,
   Boolean $ssh      = true,
@@ -15,14 +13,8 @@ class profile::base (
   if $firewall {
     class { '::profile::base::firewall': }
   }
-  if $lvm {
-    class { '::profile::base::lvm': }
-  }
-  if $ntp {
+  if $time {
     class { '::profile::base::time': }
-  }
-  if $puppet {
-    class { '::profile::base::puppet': }
   }
   if $repos {
     class { '::profile::base::repositories': }

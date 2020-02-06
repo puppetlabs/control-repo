@@ -20,6 +20,10 @@ mod 'puppetlabs-registry', '3.1.0'
 mod 'puppetlabs-powershell', '3.0.1'
 mod 'puppet-windowsfeature', '3.2.2'
 mod 'puppetlabs-chocolatey', '5.0.2'
+mod 'puppetlabs-wsus_client', '3.1.0'
+mod 'puppetlabs-accounts', '6.1.0'
+mod 'puppetlabs-dism', '1.3.1'
+mod 'puppetlabs-dsc', '1.9.4'
 
 # Modules from Git
 # Examples: https://github.com/puppetlabs/r10k/blob/master/doc/puppetfile.mkd#examples

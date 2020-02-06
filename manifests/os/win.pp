@@ -1,5 +1,5 @@
 class os::win {
-  if $osfamily == 'windows' {
+  if $facts[osfamily] == 'windows' {
     include role::custom_windows
   }
 }

@@ -1,6 +1,7 @@
 class profile::custom_windows (
-  Boolean $custom_account = false,
-  if $custom_account {
-    class { '::profile::windows::custom_account': }
+  Boolean $add_user = true,
+) {
+  if $add_user {
+    class { '::profile::custom_windows::add_user': }
   }
 }

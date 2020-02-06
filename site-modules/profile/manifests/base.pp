@@ -3,9 +3,9 @@ class profile::base (
   Boolean $time     = false,
   Boolean $repos    = false,
   Boolean $resolv   = false,
-  Boolean $ssh      = true,
-  Boolean $selinux  = true,
-  Boolean $motd     = true,
+  Boolean $ssh      = false,
+  Boolean $selinux  = false,
+  Boolean $motd     = false,
 ) {
   if $motd {
     class { '::motd': }

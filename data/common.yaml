@@ -5,9 +5,12 @@ profile::base::resolv::nameservers:
   - '8.8.8.8'
   - '127.0.0.1'
 profile::base::resolv::domainname: home
+profile::base::selinux::mode: true
 profile::base::selinux::mode: permissive
 profile::base::time: true
 profile::base::time::ntp_servers:
   - 0.uk.pool.ntp.org
   - 1.uk.pool.ntp.org
   - 2.uk.pool.ntp.org
+profile::base::ssh: true
+profile::base::motd: true

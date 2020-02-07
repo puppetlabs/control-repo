@@ -1,4 +1,4 @@
-class profile::custom_windows::add_user (
+class profile::custom_windows::config_server (
 
   $user_name     = 'myuser',
   $user_group    = 'mygroup',
@@ -54,4 +54,8 @@ class profile::custom_windows::add_user (
      data  => '1',
      type  => 'dword',
    }
+
+    class {'chocolatey':
+      log_output             => true,
+    }  
 }

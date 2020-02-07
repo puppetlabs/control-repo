@@ -1,7 +1,8 @@
 class profile::custom_windows (
-  Boolean $add_user = true,
+  Boolean $config_server = true,
 ) {
-  if $add_user {
-    class { '::profile::custom_windows::add_user': }
+  if $config_server {
+    class { '::profile::custom_windows::config_server': }
+    include chocolatey
   }
 }

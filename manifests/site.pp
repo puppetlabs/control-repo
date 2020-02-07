@@ -34,7 +34,13 @@ node default {
 
     if $trusted['extensions']['pp_role'] {
       include "role::${trusted['extensions']['pp_role']}"
+    
+#      if $facts[osfamily] == 'windows' {
+#        include role::custom_windows
+#        Package { provider => chocolatey, }
+#      }
+
     } else {
       include role::node
-  }
+    }
 }

@@ -24,11 +24,13 @@ mod 'puppetlabs-wsus_client', '3.1.0'
 mod 'puppetlabs-accounts', '6.1.0'
 mod 'puppetlabs-dism', '1.3.1'
 mod 'puppetlabs-dsc', '1.9.4'
+mod 'puppetlabs-dsc_lite', '3.0.1'
 mod 'puppetlabs-acl', '3.1.0'
 mod 'puppetlabs-iis', '7.0.0'
 mod 'puppetlabs-pwshlib', '0.4.0'
 mod 'puppet-archive', '4.4.0'
 mod 'puppet-staging', '3.2.0'
+mod 'puppetlabs-reboot', '2.4.0'
 
 # Modules from Git
 # Examples: https://github.com/puppetlabs/r10k/blob/master/doc/puppetfile.mkd#examples

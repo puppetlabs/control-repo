@@ -5,12 +5,12 @@ define profile::custom_windows::define_user (
   String $user_group,
   Optional[Array] $user_groups,
   String $user_password,
-  String $user_file,
+  String $user_dir,
   String $user_home,
   Boolean $manage_home,
 
 ) {
-  file { "${user_home}\\${user_file}":
+  file { "${user_home}/${user_dir}":
     ensure  => directory,
     owner   => $user_name,
     require => User[$user_name], 
@@ -21,7 +21,7 @@ define profile::custom_windows::define_user (
     password   => $user_password,
     groups     => $user_group,
     managehome => $manage_home,
-    home       => "C:\\Users\\$user_name",
+    home       => "C:/Users/$user_name",
     require    => Group[$user_group],
   }
 

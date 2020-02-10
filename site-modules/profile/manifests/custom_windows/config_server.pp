@@ -3,11 +3,11 @@ class profile::custom_windows::config_server (
   $user_name     = 'myuser',
   $user_group    = 'mygroup',
   $user_groups   = ['BUILTIN\Administrators', 'BUILTIN\Users'],
-  $user_home     = "C:\Users\myuser",
+  $user_home     = "C:/Users/myuser",
   $user_password = 'puppet',
   $ensure        = 'present',
   $manage_home   = true,
-  $user_file     = 'myfile',
+  $user_dir     = 'mydir',
 
 ) {
 
@@ -20,10 +20,10 @@ class profile::custom_windows::config_server (
     user_password => $user_password,
     ensure        => $ensure,
     manage_home   => $manage_home,
-    user_file     => $user_file,
+    user_dir      => $user_dir,
   }
 
-  acl { 'C:\\Users\\myuser\myfile':
+  acl { "${user_home}/${user_dir}":
 
     permissions => [
     { identity => $user_name, rights => ['read','execute'] },
@@ -37,7 +37,7 @@ class profile::custom_windows::config_server (
     value => 'IsInstalled',
     data  => '1',
     type  => 'dword',
-  }  
+  }
 
   registry::value { 'Enable shutdown tracker':
 
@@ -54,30 +54,4 @@ class profile::custom_windows::config_server (
    data  => '1',
    type  => 'dword',
  }
-
-  class {'chocolatey':
-    log_output              => true,
-    choco_install_location  => 'c:\choco',
-  }  
- 
-  chocolateysource {'custom_source':
-    ensure   => present,
-    location => 'c:\packages',
-    provider => windows,
-  }
- 
-  chocolateyfeature {'allowEmptyChecksums':
-    ensure   => enabled,
-    provider => windows,
-  }
- 
-  chocolateyconfig {'cacheLocation':
-    value    => 'c:\ProgramData\choco-cache',
-    provider => windows,
-  }
-
-  package { '7zip':
-    ensure            => '19.0',
-    provider          => 'chocolatey',
-  }   
 }

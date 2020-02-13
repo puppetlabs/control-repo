@@ -4,7 +4,7 @@ class profile::custom_windows::config_server (
   $user_group    = 'mygroup',
   $user_groups   = ['BUILTIN\Administrators', 'BUILTIN\Users'],
   $user_home     = "C:/Users/myuser",
-  $user_password = 'puppet',
+  $user_password = 'Puppetlabs01!',
   $ensure        = 'present',
   $manage_home   = true,
   $user_dir     = 'mydir',

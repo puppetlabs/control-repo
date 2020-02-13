@@ -26,8 +26,13 @@ class profile::custom_windows::install_package (
   }
 
   package { 'unzip':
-    ensure            => '6.0',
-    provider          => $package_provider,
+    ensure   => '6.0',
+    provider => $package_provider,
+  }
+
+  package { 'vim': 
+    ensure => '8.2.0246',
+    provider => $package_provider,
   }
 
   class { 'staging':
@@ -40,9 +45,9 @@ class profile::custom_windows::install_package (
 
   staging::extract { 'master.zip':
     target     => "${install_dir}/downloads",
-    #unless     => '7z',
     unless     => 'cmd.exe /c type C:\tmp\7zip',
     require    => Staging::File['master.zip'],
+    notify     => Exec['7z1900-x64'],
   }
 
   exec { '7z1900-x64':
@@ -50,7 +55,7 @@ class profile::custom_windows::install_package (
     command     => 'cmd.exe /c C:\Users\myuser\Downloads\7z1900-x64.exe',
     path        => $::path,
     unless     => 'cmd.exe /c type C:\tmp\7zip',
-    require    => Staging::Extract['master.zip'],
+#    unless     => '7z',
   }
   
   file { 'C:/tmp/7zip':

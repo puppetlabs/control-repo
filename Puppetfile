@@ -31,6 +31,7 @@ mod 'puppetlabs-pwshlib', '0.4.0'
 mod 'puppet-archive', '4.4.0'
 mod 'puppet-staging', '3.2.0'
 mod 'puppetlabs-reboot', '2.4.0'
+mod 'albatrossflavour-os_patching', '0.13.0'
 
 # Modules from Git
 # Examples: https://github.com/puppetlabs/r10k/blob/master/doc/puppetfile.mkd#examples

@@ -1,0 +1,3 @@
+---
+profile::puppetserver::authority: true
+profile::puppetserver::authority::validity: 7200

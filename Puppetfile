@@ -35,6 +35,8 @@ mod 'albatrossflavour-os_patching', '0.13.0'
 mod 'fervid-secure_linux_cis', '2.1.10'
 mod 'puppetlabs-puppet_metrics_collector', '5.3.0'
 mod 'puppetlabs-puppet_metrics_dashboard', '2.0.1'
+mod 'dylanratcliffe-facter_cache', '1.2.0'
+mod 'fervid-secure_linux_cis', '2.1.10'
 
 # Modules from Git
 # Examples: https://github.com/puppetlabs/r10k/blob/master/doc/puppetfile.mkd#examples

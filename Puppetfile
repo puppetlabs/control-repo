@@ -36,6 +36,8 @@ mod 'fervid-secure_linux_cis', '2.1.10'
 mod 'puppetlabs-puppet_metrics_collector', '5.3.0'
 mod 'puppetlabs-puppet_metrics_dashboard', '2.0.1'
 mod 'dylanratcliffe-facter_cache', '1.2.0'
+mod 'puppetlabs-support_tasks', '1.1.1'
+mod 'puppetlabs-puppet_agent', '3.0.2'
 
 # Modules from Git
 # Examples: https://github.com/puppetlabs/r10k/blob/master/doc/puppetfile.mkd#examples

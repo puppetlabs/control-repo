@@ -42,6 +42,10 @@ mod 'puppetlabs-apt', '7.4.1'
 mod 'puppetlabs-translate', '2.2.0'
 mod 'puppet-grafana', '6.1.0'
 mod 'puppet-telegraf', '3.0.0'
+mod 'derdanne-nfs', '2.1.2'
+mod 'herculesteam-augeasproviders_core', '2.6.0'
+mod 'herculesteam-augeasproviders_shellvar', '4.0.0'
+mod 'puppetlabs-transition', '0.1.3'
 
 # Modules from Git
 # Examples: https://github.com/puppetlabs/r10k/blob/master/doc/puppetfile.mkd#examples

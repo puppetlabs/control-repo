@@ -36,6 +36,12 @@ node 'puppet' {
 
 }
 
+node 'peadm-04.pe' {
+    
+    include profile::metrics_dashboard
+
+}
+
 node default {
 
     if $trusted['extensions']['pp_role'] {

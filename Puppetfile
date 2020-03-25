@@ -38,6 +38,10 @@ mod 'puppetlabs-puppet_metrics_dashboard', '2.0.1'
 mod 'dylanratcliffe-facter_cache', '1.2.0'
 mod 'puppetlabs-support_tasks', '1.1.1'
 mod 'puppetlabs-puppet_agent', '3.0.2'
+mod 'puppetlabs-apt', '7.4.1'
+mod 'puppetlabs-translate', '2.2.0'
+mod 'puppet-grafana', '6.1.0'
+mod 'puppet-telegraf', '3.0.0'
 
 # Modules from Git
 # Examples: https://github.com/puppetlabs/r10k/blob/master/doc/puppetfile.mkd#examples

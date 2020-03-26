@@ -1,5 +1,5 @@
 class profile::tools::nfs_mount (
-  $server = 'peadm-01.pe',
+  $server = 'puppet',
 ) {
   class { '::nfs':
       server_enabled => false,

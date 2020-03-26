@@ -39,6 +39,7 @@ node 'puppet' {
 node 'peadm-04.pe' {
     
     include profile::metrics_dashboard
+    include profile::tools::nfs_mount
 
 }
 

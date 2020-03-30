@@ -1,7 +1,8 @@
 class profile::puppetserver (
   Boolean $puppetserver      = true,
   Boolean $authority         = false,
-  Boolean $nfs_export        = true,
+  Boolean $nfs_export        = false,
+  Boolean $metrics_collect   = false,
 ) {
   if $puppetserver {
     class { '::profile::puppetserver::bootstrap': }
@@ -11,5 +12,9 @@ class profile::puppetserver (
   }
   if $nfs_export {
     class { '::profile::puppetserver::nfs_export': }
+  }
+  if $metrics_collect {
+    include metrics_collector
+  fi
   }
 }

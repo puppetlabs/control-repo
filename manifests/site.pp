@@ -36,26 +36,6 @@ node 'puppet' {
 
 }
 
-node 'peadm-03.pe' {
-
-    include profile::tools::docker_install
-    include profile::tools::nfs_mount
-
-}
-
-node 'agent-02' {
-
-    include profile::tools::nfs_mount
-
-}
-
-node 'peadm-04.pe' {
-    
-    include profile::metrics_dashboard
-    include profile::tools::nfs_mount
-
-}
-
 node default {
 
     if $trusted['extensions']['pp_role'] {

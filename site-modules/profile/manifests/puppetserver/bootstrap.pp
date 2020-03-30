@@ -31,13 +31,4 @@ class profile::puppetserver::bootstrap {
     group  => 'pe-puppet',
     mode   => '0750',
   }
-
-#  pe_node_group { 'puppetmaster-dashboard':
-#      ensure               => 'present',
-#      classes              => {'puppet_metrics_dashboard::profile::master::postgres_access' => { }},
-#      description          => 'Puppetmaster Dashboard workaround group',
-#      environment          => 'production',
-#      parent               => 'All Nodes',
-#      rule                 => ['or', ['=', 'name', $facts['puppet_master_server']]],
-#    }
 }

@@ -6,15 +6,15 @@ class controlm::controlm_agent::install inherits controlm::controlm_agent {
 augeas { 'controlm':
 context => '/files/etc/services',
 changes => [
-  "set service-name[port = '${s2a_port}'][protocol = 'udp'] ctmagent",
-  "set service-name[port = '${s2a_port}'][protocol = 'udp']/#comment 'Control-M server2agent'",
-  "set service-name[port = '${s2a_port}'][protocol = 'tcp'] ctmagent",
-  "set service-name[port = '${s2a_port}'][protocol = 'tcp']/#comment 'Control-M server2agent'",
-  "set service-name[port = '${a2s_port}'][protocol = 'udp'] ctmagent",
-  "set service-name[port = '${a2s_port}'][protocol = 'udp']/#comment 'Control-M agent2server'",
-  "set service-name[port = '${a2s_port}'][protocol = 'tcp'] ctmagent",
-  "set service-name[port = '${a2s_port}'][protocol = 'tcp']/#comment 'Control-M agent2server'",
-  ],
+ "set service-name[port = '${s2a_port}'][protocol = 'udp'] ctmagent",
+ "set service-name[port = '${s2a_port}'][protocol = 'udp']/#comment 'Control-M server2agent'",
+ "set service-name[port = '${s2a_port}'][protocol = 'tcp'] ctmagent",
+ "set service-name[port = '${s2a_port}'][protocol = 'tcp']/#comment 'Control-M server2agent'",
+ "set service-name[port = '${a2s_port}'][protocol = 'udp'] ctmagent",
+ "set service-name[port = '${a2s_port}'][protocol = 'udp']/#comment 'Control-M agent2server'",
+ "set service-name[port = '${a2s_port}'][protocol = 'tcp'] ctmagent",
+ "set service-name[port = '${a2s_port}'][protocol = 'tcp']/#comment 'Control-M agent2server'",
+ ],
 }
 
   # use shellscript and sudo as running the install direct as user ctmagent gives HOME errors plus we get errors in the log file

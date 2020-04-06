@@ -26,9 +26,6 @@ mod 'puppetlabs/apt','7.1.0'
 mod 'puppetlabs/facts','0.6.0'
 mod 'puppetlabs/inifile','2.4.0'
 mod 'danieldreier-autosign','0.2.0'
-mod 'tkishel-unlock_puppet',
-  :git    => 'ssh://git@github.com/tkishel/unlock_puppet.git',
-  :branch => 'master'
 mod 'puppetlabs-firewall', '2.0.0'
 mod 'puppetlabs-satellite_pe_tools', '2.0.0'
 mod 'puppetlabs-puppet_metrics_collector', '5.2.0'

@@ -10,6 +10,7 @@ class role::windowsnode {
     name => 'testuser111',
     ensure => present,
     groups => 'testgroup111',
+#    require => Group['testgroup'],
   }
 
 ###

@@ -29,3 +29,7 @@ node default {
   # Example:
   #   class { 'my_class': }
 }
+
+node web1.rosebay.box {
+  include apache
+}

@@ -1,7 +1,7 @@
 class profile::base::time (
   String $default_timezone = 'Europe/London',
-  Array $ntp_servers       = [],
-  Array $restrict          = [],
+  Array $ntp_servers       = ['time.goole.com'],
+  Array $restrict          = ['127.0.0.1'],
   Boolean $set_timezone    = false,
 ) {
   class { '::ntp':

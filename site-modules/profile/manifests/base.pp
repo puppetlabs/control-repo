@@ -1,11 +1,11 @@
 class profile::base (
   Boolean $firewall = false,
-  Boolean $time     = false,
+  Boolean $time     = true,
   Boolean $repos    = false,
   Boolean $resolv   = false,
   Boolean $ssh      = false,
   Boolean $selinux  = false,
-  Boolean $motd     = false,
+  Boolean $motd     = true,
 ) {
   if $motd {
     class { '::motd': }

@@ -1,13 +1,11 @@
 class profile::base (
   Boolean $firewall = false,
-  Boolean $lvm      = false,
-  Boolean $ntp      = true,
-  Boolean $puppet   = false,
+  Boolean $time     = false,
   Boolean $repos    = false,
-  Boolean $resolver = false,
+  Boolean $resolv   = false,
   Boolean $ssh      = false,
   Boolean $selinux  = false,
-  Boolean $motd     = true,
+  Boolean $motd     = false,
 ) {
   if $motd {
     class { '::motd': }
@@ -15,20 +13,14 @@ class profile::base (
   if $firewall {
     class { '::profile::base::firewall': }
   }
-  if $lvm {
-    class { '::profile::base::lvm': }
-  }
-  if $ntp {
+  if $time {
     class { '::profile::base::time': }
-  }
-  if $puppet {
-    class { '::profile::base::puppet': }
   }
   if $repos {
     class { '::profile::base::repositories': }
   }
-  if $resolver {
-    class { '::profile::base::resolver': }
+  if $resolv {
+    class { '::profile::base::resolv': }
   }
   if $ssh {
     class { '::profile::base::ssh': }

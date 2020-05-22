@@ -1,0 +1,2 @@
+---
+profile::base::ssh::permit_root_login: 'yes'

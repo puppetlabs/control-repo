@@ -11,7 +11,7 @@ class profile::custom_windows::config_server (
 
 ) {
 
-  profile::custom_windows::define_user { 'myuser':
+  profile::custom_windows::define_user { '$user_name':
 
     user_name     => $user_name,
     user_group    => $user_group,

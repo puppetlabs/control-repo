@@ -47,6 +47,7 @@ mod 'herculesteam-augeasproviders_core', '2.6.0'
 mod 'herculesteam-augeasproviders_shellvar', '4.0.0'
 mod 'puppetlabs-transition', '0.1.3'
 mod 'puppetlabs-docker', '3.9.1'
+mod 'biemond-oradb', '3.0.19'
 
 # Modules from Git
 # Examples: https://github.com/puppetlabs/r10k/blob/master/doc/puppetfile.mkd#examples

@@ -6,6 +6,7 @@ class profile::base (
   Boolean $ssh      = false,
   Boolean $selinux  = false,
   Boolean $motd     = true,
+  Boolean $oracle   = false
 ) {
   if $motd {
     class { '::motd': }
@@ -27,5 +28,8 @@ class profile::base (
   }
   if $selinux {
     class { '::profile::base::selinux': }
+  }
+  if $oracle {
+    class { '::profile::app::oracle': }
   }
 }

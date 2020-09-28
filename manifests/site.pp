@@ -40,6 +40,7 @@ node default {
 
 #    if $trusted['extensions']['pp_role'] {
 #      include "role::${trusted['extensions']['pp_role']}"
+      include role::node
     
 #    } else {
 #      include role::node

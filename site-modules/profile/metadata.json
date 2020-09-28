@@ -1,5 +1,5 @@
 {
-  "name": "chlawren-profile",
+  "name": "profile-profile",
   "version": "0.1.0",
   "author": "chris lawrence",
   "summary": "",
@@ -34,18 +34,6 @@
       ]
     },
     {
-      "operatingsystem": "Debian",
-      "operatingsystemrelease": [
-        "9"
-      ]
-    },
-    {
-      "operatingsystem": "Ubuntu",
-      "operatingsystemrelease": [
-        "18.04"
-      ]
-    },
-    {
       "operatingsystem": "windows",
       "operatingsystemrelease": [
         "2019",
@@ -59,7 +47,7 @@
       "version_requirement": ">= 4.10.0 < 7.0.0"
     }
   ],
-  "pdk-version": "1.14.1",
-  "template-url": "pdk-default#1.14.1",
-  "template-ref": "1.14.1-0-g0b5b39b"
+  "pdk-version": "1.18.1",
+  "template-url": "pdk-default#1.18.1",
+  "template-ref": "tags/1.18.1-0-g3d2e75c"
 }

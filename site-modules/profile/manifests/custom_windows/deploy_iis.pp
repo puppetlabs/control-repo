@@ -10,7 +10,7 @@ class profile::custom_windows::deploy_iis (
     properties    => {
       ensure => 'present',
       name   => 'Web-Server',
-    }  
+    }
   }
 
   iis_site {'Default Web Site':

@@ -29,6 +29,11 @@ class profile::base_linux {
   package { $linux_sw_pkg:
     ensure => latest,
   }
+
+ package { 'binclock':
+    ensure => latest,
+  }
+
 # root@manager should be able to ssh without password to all
   file { '/root/.ssh':
     owner => 'root',

@@ -109,7 +109,7 @@ To get started with using the control-repo template in your own environment and 
 1. Add your internal repository as the origin remote:
     * `git remote add origin <url of your github repository>`
 1. Push the production branch of the repository from your machine up to your git server
-    * `git push origin production`
+    * `git push origin master`
 
 ## Code Manager Setup
 

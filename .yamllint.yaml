@@ -1,0 +1,22 @@
+---
+extends: "default"
+
+rules:
+  # 80 chars should be enough, but don't fail if a line is longer
+  line-length:
+    max: 86
+    allow-non-breakable-words: true
+    allow-non-breakable-inline-mappings: true
+  indentation:
+    spaces: 2
+    indent-sequences: true
+  # do not obsess over comment formatting
+  comments-indentation: false
+  comments:
+    require-starting-space: false
+
+ignore: |
+  .gitlab-ci.yml
+  .rubocop.yml
+  .travis.yml
+  appveyor.yml

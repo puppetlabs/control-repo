@@ -9,4 +9,7 @@ hierarchy:
     data_hash: yaml_data
     paths:
       - "nodes/%{trusted.certname}.yaml"
+      - "site/%{site}/cluster/%{cluster}.yaml"
+      - "site/%{site}.yaml"
+      - "role/%{role}.yaml"
       - "common.yaml"

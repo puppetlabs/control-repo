@@ -1,0 +1,3 @@
+---
+profile::sssd::authconfig_pkgs:
+  - authconfig

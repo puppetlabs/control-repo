@@ -9,7 +9,7 @@ class profile::base {
   include ::profile_motd
   include ::profile_pam_access
   include ::profile_sudo
-#  include ::profile_timezone
+  include ::profile_timezone
   include ::profile_system_auth
   include ::profile_virtual
   include ::sshd

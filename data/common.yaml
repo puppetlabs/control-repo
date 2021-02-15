@@ -12,6 +12,16 @@ profile_allow_ssh_from_bastion::groups:
   - org_asd
   - org_irst
 
+profile_sudo::configs:
+  common_disabled_users:
+    priority: 1
+    content:
+      - "#deny former NCSA users"
+      - "%all_disabled_usr ALL=(ALL) !ALL"
+profile_sudo::groups:
+  org_asd: "ALL=(ALL) NOPASSWD: ALL"
+  org_irst: "ALL=(ALL) NOPASSWD: ALL"
+
 sssd::debug_level: 0
 sssd::domains:
   ncsa.illinois.edu:

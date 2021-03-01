@@ -8,7 +8,8 @@ class profile::base {
   include ::profile_pam_access
   include ::profile_sudo
 #  include ::profile_timezone
-  include ::profile::sssd
+#  include ::profile::sssd
+  include ::profile_system_auth
   include ::sshd
 
 }

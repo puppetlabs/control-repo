@@ -21,6 +21,7 @@ mod 'ncsa/profile_pam_access', tag: 'v0.0.4', git: 'https://github.com/ncsa/pupp
 mod 'ncsa/profile_sudo', tag: 'v0.1.1', git: 'https://github.com/ncsa/puppet-profile_sudo'
 mod 'ncsa/profile_system_auth', tag: 'v0.1.0', git: 'https://github.com/ncsa/puppet-profile_system_auth'
 # mod 'ncsa/profile_timezone', tag: 'v0.1.0', git: 'https://github.com/ncsa/puppet-profile_timezone'
+mod 'ncsa/profile_virtual', tag: 'v0.1.0', git: 'https://github.com/ncsa/puppet-profile_virtual'
 mod 'ncsa/sshd', tag: 'v0.3.0', git: 'https://github.com/ncsa/puppet-sshd'
 mod 'ncsa/sssd', tag: 'v3.0.0', git: 'https://github.com/ncsa/puppet-sssd'
 # mod 'ncsa/telegraf', tag: 'v3.1.1', git: 'https://github.com/ncsa/puppet-telegraf.git'

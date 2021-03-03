@@ -10,6 +10,7 @@ class profile::base {
 #  include ::profile_timezone
 #  include ::profile::sssd
   include ::profile_system_auth
+  include ::profile_virtual
   include ::sshd
 
 }

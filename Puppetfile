@@ -26,7 +26,7 @@ mod 'ncsa/profile_system_auth', tag: 'v0.1.0', git: 'https://github.com/ncsa/pup
 mod 'ncsa/profile_virtual', tag: 'v0.1.0', git: 'https://github.com/ncsa/puppet-profile_virtual'
 mod 'ncsa/sshd', tag: 'v0.3.0', git: 'https://github.com/ncsa/puppet-sshd'
 mod 'ncsa/sssd', tag: 'v3.0.0', git: 'https://github.com/ncsa/puppet-sssd'
-# mod 'ncsa/telegraf', tag: 'v3.1.1', git: 'https://github.com/ncsa/puppet-telegraf.git'
+mod 'ncsa/telegraf', tag: 'v3.1.1', git: 'https://github.com/ncsa/puppet-telegraf.git'
 # mod 'puppet/epel', '3.0.1'
 # mod 'puppet/python', '4.1.1'
 # mod 'puppet/rsyslog', '5.0.1'

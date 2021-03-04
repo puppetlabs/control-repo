@@ -307,5 +307,5 @@ telegraf::inputs:
   systemd_units:
     unittype: "service"
 telegraf::interval: "60s"
-telegraf::manage_repo: false
+telegraf::manage_repo: true
 telegraf::outputs: {}

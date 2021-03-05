@@ -1,4 +1,18 @@
 ---
+lookup_options:
+  profile_monitoring::telegraf::outputs:
+    merge:
+      strategy: "deep"
+      merge_hash_arrays: true
+
+anchors:
+  - &telegraf_outputs_influxdb_common
+    database: ""
+    username: ""
+    password: ""
+    insecure_skip_verify: false
+    skip_database_creation: true
+
 message: "This node is using common data"
 
 profile::sssd::enablemkhomedir: true
@@ -11,6 +25,18 @@ profile_allow_ssh_from_bastion::bastion_nodelist:
 profile_allow_ssh_from_bastion::groups:
   - org_asd
   - org_irst
+
+profile_monitoring::telegraf::enabled: false
+profile_monitoring::telegraf::outputs:
+  influxdb:
+    npcf-influxdb-collector:
+      <<: *telegraf_outputs_influxdb_common
+      urls:
+        - "https://npcf-influxdb.ncsa.illinois.edu:8086"
+    ncsa-influxdb-collector:
+      <<: *telegraf_outputs_influxdb_common
+      urls:
+        - "https://ncsa-influxdb.ncsa.illinois.edu:8086"
 
 profile_sudo::configs:
   common_disabled_users:

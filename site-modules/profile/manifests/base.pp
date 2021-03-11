@@ -6,6 +6,7 @@ class profile::base {
   include ::profile_allow_ssh_from_bastion
   include ::profile_dns_cache
 #  include ::profile_email
+  include ::profile_firewall
   include ::profile_monitoring
   include ::profile_motd
   include ::profile_pam_access

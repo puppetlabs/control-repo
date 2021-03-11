@@ -1,0 +1,13 @@
+---
+profile_firewall::ignores:
+  DOCKER:filter:IPv4: "*"
+  DOCKER-ISOLATION-STAGE-1:filter:IPv4: "*"
+  DOCKER-ISOLATION-STAGE-2:filter:IPv4: "*"
+  DOCKER-USER:filter:IPv4: "*"
+  FORWARD:filter:IPv4: ["docker", "DOCKER", "-o"]
+  DOCKER:nat:IPv4: "*"
+  PREROUTING:nat:IPv4: "-m addrtype --dst-type LOCAL -j DOCKER"
+  POSTROUTING:nat:IPv4: ["172.17", "172.18", "172.19"]
+  OUTPUT:nat:IPv4: "-d 127.0.0.0/8 -m addrtype --dst-type LOCAL -j DOCKER"
+
+profile_firewall::purge_all: false

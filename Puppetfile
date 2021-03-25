@@ -10,7 +10,7 @@ mod 'herculesteam/augeasproviders_ssh', commit: 'e4eee3726d0472cba1d2d66a2d09031
 mod 'inkblot/ipcalc', '2.2.0'
 # mod 'MiamiOH-pam_access', '1.0.2'
 mod 'ncsa/pam_access', tag: 'v1.0.3', git: 'https://github.com/ncsa/puppet-pam_access'
-mod 'ncsa/profile_additional_packages', tag: 'v0.1.0', git: 'https://github.com/ncsa/puppet-profile_additional_packages'
+mod 'ncsa/profile_additional_packages', branch: 'v0.2.0', git: 'https://github.com/ncsa/puppet-profile_additional_packages'
 mod 'ncsa/profile_additional_yumrepos', tag: 'v0.1.2', git: 'https://github.com/ncsa/puppet-profile_additional_yumrepos'
 mod 'ncsa/profile_allow_ssh_from_bastion', tag: 'v0.2.1', git: 'https://github.com/ncsa/puppet-profile_allow_ssh_from_bastion'
 # mod 'ncsa/profile_chrony', tag: 'v0.1.0', git: 'https://github.com/ncsa/puppet-profile_chrony'

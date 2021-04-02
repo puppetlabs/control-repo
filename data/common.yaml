@@ -1,5 +1,13 @@
 ---
 lookup_options:
+  profile_monitoring::telegraf::inputs_extra:
+    merge:
+      strategy: "deep"
+      merge_hash_arrays: true
+  profile_monitoring::telegraf::input_extra_scripts:
+    merge:
+      strategy: "deep"
+      merge_hash_arrays: true
   profile_monitoring::telegraf::outputs:
     merge:
       strategy: "deep"
@@ -308,6 +316,7 @@ telegraf::agent:
   flush_interval: "10s"
   metric_buffer_limit: "100000"
 telegraf::flush_jitter: "10s"
+telegraf::hostname: "%{::fqdn}"
 telegraf::inputs:
   cpu:
     percpu: false

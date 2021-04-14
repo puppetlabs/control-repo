@@ -20,7 +20,7 @@ mod 'ncsa/profile_firewall', tag: 'v1.0.3', git: 'https://github.com/ncsa/puppet
 mod 'ncsa/profile_monitoring', tag: 'v0.1.5', git: 'https://github.com/ncsa/puppet-profile_monitoring'
 mod 'ncsa/profile_motd', tag: 'v0.1.0', git: 'https://github.com/ncsa/puppet-profile_motd'
 mod 'ncsa/profile_pam_access', tag: 'v0.0.5', git: 'https://github.com/ncsa/puppet-profile_pam_access'
-mod 'ncsa/profile_puppet_agent', tag: 'v0.1.0', git: 'https://github.com/ncsa/puppet-profile_puppet_agent'
+mod 'ncsa/profile_puppet_agent', tag: 'v0.1.1', git: 'https://github.com/ncsa/puppet-profile_puppet_agent'
 mod 'ncsa/profile_puppet_master', tag: 'v0.1.1', git: 'https://github.com/ncsa/puppet-profile_puppet_master'
 mod 'ncsa/profile_sudo', tag: 'v0.1.1', git: 'https://github.com/ncsa/puppet-profile_sudo'
 mod 'ncsa/profile_system_auth', tag: 'v0.1.0', git: 'https://github.com/ncsa/puppet-profile_system_auth'

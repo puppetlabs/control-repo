@@ -10,3 +10,5 @@ hierarchy:
     paths:
       - "nodes/%{trusted.certname}.yaml"
       - "common.yaml"
+  - name: "space testing"
+    path: "facts/%{subbutest}.yaml"

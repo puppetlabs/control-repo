@@ -1,6 +1,6 @@
 # @summary Default role
 
-class role::default {
+class role::time_master {
 
   include ::profile::base
   # include ::profile::rsyslog::client

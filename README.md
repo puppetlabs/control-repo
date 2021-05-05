@@ -95,7 +95,14 @@ To get started with using the control-repo template in your own environment and 
 
 ### GitHub
 
-1. Prepare your local git client to authenticate with GitHub.com or a local GitHub Enterprise instance.
+Follow [GitHub's documentation](https://docs.github.com/en/github/creating-cloning-and-archiving-repositories/creating-a-repository-from-a-template) to create a your control repository starting from this template.
+
+<img width="429" alt="template button" src="https://user-images.githubusercontent.com/1392917/117215366-f4eeb280-adb2-11eb-9108-1bd45c4d98f3.png">
+
+
+### GitHub Enterprise
+
+1. Prepare your local git client to authenticate with a **local GitHub Enterprise instance**.
     * <https://help.github.com/articles/generating-ssh-keys/>
     * <https://help.github.com/articles/adding-a-new-ssh-key-to-your-github-account/>
 1. Create a repository called `control-repo` in your user account or organization. Ensure that "Initialize this repository with a README" is not selected.

@@ -95,7 +95,7 @@ To get started with using the control-repo template in your own environment and 
 
 ### GitHub
 
-Follow [GitHub's documentation](https://docs.github.com/en/github/creating-cloning-and-archiving-repositories/creating-a-repository-from-a-template) to create a your control repository starting from this template.
+Follow [GitHub's documentation](https://docs.github.com/en/github/creating-cloning-and-archiving-repositories/creating-a-repository-from-a-template) to create your control repository starting from this template.
 
 <img width="429" alt="template button" src="https://user-images.githubusercontent.com/1392917/117215366-f4eeb280-adb2-11eb-9108-1bd45c4d98f3.png">
 

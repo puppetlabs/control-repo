@@ -1,4 +1,0 @@
-{
-     "description": "This is the description for the nix task",
-     "input_method": "environment"
-   }

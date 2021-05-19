@@ -4,6 +4,6 @@ plan adhoc::myplan(
   TargetSpec $targets,
 ) {
 
-# plan steps go here
+  # plan steps go here
 
 }

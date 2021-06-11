@@ -1,0 +1,4 @@
+{
+    "description": "This is the description for the win_example task",
+    "input_method": "powershell"
+}

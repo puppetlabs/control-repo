@@ -1,0 +1,4 @@
+{
+    "description": "This is the description for the nix_example task",
+    "input_method": "environment"
+}

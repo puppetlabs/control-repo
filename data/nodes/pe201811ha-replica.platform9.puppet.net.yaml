@@ -1,0 +1,28 @@
+puppet_enterprise::master::puppetserver::jruby_max_active_instances: 1
+puppet_enterprise::master::puppetserver:reserved_code_cache: '96m'
+puppet_enterprise::profile::master::java_args:
+  Xmx: '384m'
+  Xms: '128m'
+  'XX:MaxPermSize': '=96m'
+  'XX:PermSize': '=64m'
+  'XX:+UseG1GC': ''
+puppet_enterprise::profile::puppetdb::java_args:
+  Xmx: '128m'
+  Xms: '64m'
+  'XX:MaxPermSize': '=96m'
+  'XX:PermSize': '=64m'
+  'XX:+UseG1GC': ''
+puppet_enterprise::profile::console::java_args:
+  Xmx: '64m'
+  Xms: '64m'
+  'XX:MaxPermSize': '=96m'
+  'XX:PermSize': '=64m'
+  'XX:+UseG1GC': ''
+puppet_enterprise::profile::console::delayed_job_workers: 1
+#shared_buffers takes affect during install but is not managed after
+puppet_enterprise::profile::database::shared_buffers: '4MB'
+#2015.3.2 and above
+puppet_enterprise::profile::orchestrator::java_args:
+  Xmx: '64m'
+  Xms: '64m'
+  'XX:+UseG1GC': ''

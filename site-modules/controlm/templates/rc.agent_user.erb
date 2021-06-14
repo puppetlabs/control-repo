@@ -1,0 +1,71 @@
+#!/bin/sh
+#
+# chkconfig: 2345 97 02
+# description: controlm agent
+
+# set minimal PATH to make sure basic commands like grep and awk are recognized
+PATH=/usr/sbin/:/usr/bin:/sbin:$PATH
+export PATH
+
+account_name="controlm"
+install_path="<%= @install_dir %>"
+
+# set config file name
+config_file=$install_path/ctm/data/CONFIG.dat
+
+# Get the agent status
+AGENT_STATUS_FILE=$install_path/ctm/data/ctm_agent_status.dat
+agent_status=`cat $AGENT_STATUS_FILE`
+
+
+#Get input parameter start|stop|<empty> for backward compatibility
+ARG1=`echo $1 | tr '[A-Z]' '[a-z]'`
+if [ "$ARG1" = "start" ] || [ "$ARG1" = "stop" ] ; then
+	if [ "$ARG1" = "start" ] ; then
+		STATE_ACTION="start"
+	elif [ "$ARG1" = "stop" ] ; then
+		STATE_ACTION="stop"
+	fi 
+else
+	STATE_ACTION="start"
+fi
+
+
+	if [ "$agent_status" = "STOPPED" ] ; then # AGENT_STATUS is set to 'STOPPED', exit without starting the Agent
+		echo "Control-M/Agent (account $account_name) status is set to 'STOPPED'. Control-M/Agent will not start."
+		exit 0
+	fi
+
+	# get the value for config parameter AGENT_OWNER to determine which owner should start the agent
+	# in case the parameter is missing or empty, start as root.
+	# This script is executed as root user by the OS during machine startup.
+	# If the agent should run as agent owner, use 'su' to run start-ag
+	agent_owner=`grep AGENT_OWNER $config_file | awk '{print $2}'`
+
+if [ "$STATE_ACTION" = "start" ] ; then 
+	
+	if [ "$agent_owner" != "root" ] ; then
+		/bin/su - $agent_owner -c "$install_path/ctm/scripts/start-ag -u $account_name -p ALL"
+	else
+		$install_path/ctm/scripts/start-ag -u $account_name -p ALL
+	fi
+
+else
+ 
+	# backup ctm_agent_status.dat to keep origional status
+	TMP_FILE_NAME="ctm_agent_status_dat-`date +'%Y-%m-%d_%H-%M-%S'`.tar"	
+	cd $install_path/ctm/data ; tar -cf $TMP_FILE_NAME ctm_agent_status.dat 
+	
+	if [ "$agent_owner" != "root" ] ; then
+			/bin/su - $agent_owner -c "$install_path/ctm/scripts/shut-ag -u $account_name -p ALL"
+	else			
+			$install_path/ctm/scripts/shut-ag -u $account_name -p ALL
+	fi
+	
+	# restore ctm_agent_status.dat to origional 
+	cd $install_path/ctm/data ; tar -xf $TMP_FILE_NAME  ; rm -f $TMP_FILE_NAME 
+
+fi
+exit 0
+
+

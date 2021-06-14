@@ -1,0 +1,71 @@
+#!/bin/bash
+#
+#Does install and patches if any
+
+cd /apps/bmc/
+sudo -u ctmagent /apps/bmc/software/version_9/setup.sh -silent /apps/bmc/ctm/ctm_silentinstall_optus.xml 
+RESULT=$?
+echo "exit status $RESULT"
+if [ $RESULT -ne 0 ] ; then exit $RESULT; fi
+/bin/date > /apps/bmc/ctm/controlm_agent_install.hasrun
+echo "exit status $RESULT" >> /apps/bmc/ctm/controlm_agent_install.hasrun
+echo "do not remove this file unless you want to rerun the install" >> /apps/bmc/ctm/controlm_agent_install.hasrun
+chmod 444  /apps/bmc/ctm/controlm_agent_install.hasrun
+
+
+<% if @patch_files -%>
+/bin/date  >  /apps/bmc/ctm/controlm_agent_patch_install.hasrun
+# remove any old patches
+rm -rf /apps/bmc/software/version_9/fixes/*INSTALL.BIN
+
+. /etc/profile.d/controlm.sh
+
+<% @patch_files.each do | file | -%>
+
+echo "===================="
+PATCH_RESULT=1
+cd /apps/bmc/software/version_9/fixes
+wget http://<%= scope.lookupvar('::razor_metadata_repo_server') -%>/files/bcc_source/controlm/<%= file %>
+chmod 755 /apps/bmc/software/version_9/fixes/<%= file %>
+sudo -u ctmagent /bin/bash - <<EOF
+cd /apps/bmc/software/version_9/fixes
+. /etc/profile.d/controlm.sh
+/usr/bin/yes y | /apps/bmc/software/version_9/fixes/<%= file %>
+EOF
+PATCH_RESULT=$?
+  if [ $PATCH_RESULT -ne 0 ] 
+  then 
+    echo "patch <%= file -%> bad $PATCH_RESULT" >> controlm_agent_patch_install.hasrun
+    mv /apps/bmc/ctm/controlm_agent_patch_install.hasrun /apps/bmc/ctm/controlm_agent_patch_install.bad 
+    exit $RESULT
+    fi
+
+echo "patch exit status <%= file -%> $PATCH_RESULT"
+# sleep to see if patches properly install
+echo "sleeping for 10 "
+sleep 10
+<% end -%>
+<% end -%>
+
+# set correct hostnames
+SHORT=`/bin/hostname -s`
+LONG=`/bin/hostname -f`
+
+echo "Changing short hostnames in CONFIG.dat"
+cp -f /apps/bmc/ctm/data/CONFIG.dat /apps/bmc/ctm/data/CONFIG.dat.bak
+/bin/sed -i "s/$SHORT$/$LONG/" /apps/bmc/ctm/data/CONFIG.dat
+grep $SHORT /apps/bmc/ctm/data/CONFIG.dat
+
+
+#change mode
+/usr/bin/yes y | /apps/bmc/ctm/scripts/set_agent_mode -u ctmagent -o 1
+
+# stop agent
+sudo -u ctmagent /bin/bash - <<EOF
+. /etc/profile.d/controlm.sh
+cd /apps/bmc/ctm
+/apps/bmc/ctm/scripts/shut-ag
+EOF
+
+/usr/bin/yes y | /apps/bmc/ctm/scripts/set_agent_mode -u ctmagent -o 2
+

@@ -1,0 +1,93 @@
+# Classes to be tested
+classes:
+  - role::database_server
+  - role::webserver
+  - role::goldload_server
+  - role::loadbalancer
+  - role::example
+  - role::callaugeas
+
+# Nodes to tests classes on, this refers to a 'factset' or 'nodeset'
+# depending on whether you are running 'spec' or 'acceptance' tests
+nodes:
+  - AIX-7.1-powerpc
+  - SLES-12.1-64
+  - Debian-6.0.10-32
+  - CentOS-6.6-64
+  - Ubuntu-12.04-32
+  - Amazon-2018.03
+  - Ubuntu-12.04-64
+  - CentOS-6.6-32
+  - Debian-6.0.10-64
+  - AIX-6.1-powerpc
+  - Windows_Server-2012r2-64
+  - RHEL-7.4
+  - Debian-7.8-32
+  - windows-10-64
+  - Windows_Server-2008r2-64
+  - SLES-11.3-64
+  - Debian-7.8-64
+  - solaris-10_u9-sparc-64
+  - solaris-11.2-sparc-64
+  - Ubuntu-14.04-32
+  - CentOS-5.11-64
+  - CentOS-5.11-32
+  - RHEL-6.7
+  - CentOS-7.0-64
+  - Ubuntu-14.04-64
+
+# You can group classes here to save typing
+class_groups:
+  general_class:
+    - role::database_server
+    - role::webserver
+    - role::goldload_server
+    - role::example
+
+# You can group nodes here to save typing
+# We have created a 'non_windows_nodes' group because we can't
+# give you Windows vagrant boxes to test with because licensing,
+# we can give you fact sets though so go crazy with spec testing!
+node_groups:
+  windows_nodes:
+    - Windows_Server-2012r2-64
+    - windows-10-64
+    - Windows_Server-2008r2-64
+  non_windows_nodes:
+    include: 'all_nodes'
+    exclude: 'windows_nodes'
+  callaugeas_nodes:
+    - RHEL-7.4
+    - RHEL-6.7
+  haproxy_nodes:
+    - SLES-12.1-64
+    - Debian-6.0.10-32
+    - CentOS-6.6-64
+    - Ubuntu-12.04-32
+    - Amazon-2018.03
+    - Ubuntu-12.04-64
+    - CentOS-6.6-32
+    - Debian-6.0.10-64
+    - RHEL-7.4
+    - Debian-7.8-32
+    - SLES-11.3-64
+    - Debian-7.8-64
+    - Ubuntu-14.04-32
+    - CentOS-5.11-64
+    - CentOS-5.11-32
+    - RHEL-6.7
+    - CentOS-7.0-64
+    - Ubuntu-14.04-64
+
+test_matrix:
+  - all_nodes:
+      classes: 'general_class'
+      tests: 'spec'
+  - callaugeas_nodes: 
+      classes: 'role::callaugeas'
+      tests: 'spec'
+  - haproxy_nodes:
+      classes: 'role::loadbalancer'
+      tests: 'spec'
+
+

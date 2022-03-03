@@ -120,6 +120,4 @@ Follow [GitHub's documentation](https://docs.github.com/en/github/creating-cloni
 
 ## Code Manager Setup
 
-If you use Puppet Enterprise and have not yet enabled and configured Code Manager, in addition to reading the official [documentation](https://puppet.com/docs/pe/latest/code_mgr.html) for enabling it, you may want to look at the Ramp-Up Program's control repository instead of this one. It's similar to this repo except that it has batteries included, so to speak. There are pre-built profiles for configuring Code Manager, generating SSH keys, and setting up your Git server to work with Code Manager.
-
-* <https://github.com/Puppet-RampUpProgram/control-repo>
+If you use Puppet Enterprise see the official [documentation](https://puppet.com/docs/pe/latest/code_mgr.html) for enabling Code Manager.

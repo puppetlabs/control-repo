@@ -54,7 +54,7 @@ To get started with using the control-repo template in your own environment and 
 
 1. Install GitLab.
     * <https://about.gitlab.com/downloads/>
-1. After GitLab is installed you may sign in with the `root` user and password `5iveL!fe`.
+1. After GitLab is installed you may sign in with the `root` user. If you didn't specify a custom password during installation, a temporary password is located in `/etc/gitlab/initial_root_password`.
 1. Make a user for yourself.
 1. Make an SSH key to link with your user. You’ll want to do this on the machine you intend to edit code from (most likely not your Puppet master, but your local workstation or laptop).
     * <http://doc.gitlab.com/ce/ssh/README.html>

@@ -10,4 +10,3 @@ hierarchy:
     paths:
       - "nodes/%{trusted.certname}.yaml"
       - "common.yaml"
-      - "nodes/%{spacetest}.yaml"

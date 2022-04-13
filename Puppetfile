@@ -1,17 +1,23 @@
-forge 'https://forge.puppet.com'
-
 # Modules from the Puppet Forge
-# Versions should be updated to be the latest at the time you start
-#mod 'puppetlabs/inifile', '5.0.1'
-#mod 'puppetlabs/stdlib',  '7.0.1'
-#mod 'puppetlabs/concat',  '7.0.1'
+
+# Modules that assist using Puppet Bolt in combination with PE
+# mod 'puppetlabs-bolt_shim',          '0.1.1'
+# mod 'puppetlabs-puppet_agent',       '1.7.0'
+# mod 'puppetlabs-apply_helpers',      '0.1.0'
+mod 'puppetlabs-python_task_helper', '0.2.0'
+mod 'puppetlabs-exec',               '1.0.0'
+mod 'puppetlabs-chocolatey',         '6.0.1'
+mod 'puppetlabs-stdlib',             '7.0.1'
+mod 'puppet-epel',                   '3.0.1'
+# mod 'puppet-puppetboard',            '7.0.2'
+mod 'puppetlabs-motd', '6.1.0'
 
 # Modules from Git
 # Examples: https://github.com/puppetlabs/r10k/blob/master/doc/puppetfile.mkd#examples
 #mod 'apache',
-#  git:    'https://github.com/puppetlabs/puppetlabs-apache',
-#  commit: '1b6f89afdde0df7f9433a163d5c4b5328eac5779'
+#  :git    => 'https://github.com/puppetlabs/puppetlabs-apache',
+#  :commit => 'de290646f97e04b4b8e42c70f6e01e860c394ce7'
 
 #mod 'apache',
-#  git:    'https://github.com/puppetlabs/puppetlabs-apache',
-#  branch: 'docs_experiment'
+#  :git    => 'https://github.com/puppetlabs/puppetlabs-apache',
+#  :branch => 'docs_experiment'

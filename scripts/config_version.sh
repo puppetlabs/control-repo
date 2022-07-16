@@ -24,7 +24,7 @@ elif [ -e /opt/puppetlabs/server/pe_version ]; then
   # being available.
   ruby $1/$2/scripts/config_version-rugged.rb $1 $2
 
-elif type git >/dev/null; then
+elif type git >/dev/null && [ -d "$1/$2/.git" ]; then
   # The git command is available.
   git --git-dir $1/$2/.git rev-parse HEAD
 

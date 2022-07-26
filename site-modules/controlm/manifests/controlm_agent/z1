@@ -1,0 +1,10 @@
+
+  file { '/apps/bmc/ctm/ctm_silentinstall_optus.xml':
+    ensure  => file,
+    owner   => 'root',
+    group   => 'root',
+    mode    => '0755',
+    content => template('controlm/agent_install.erb'),
+    require => User['ctmagent'],
+  }
+

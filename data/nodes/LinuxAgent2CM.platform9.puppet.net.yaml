@@ -1,0 +1,938 @@
+---
+
+# Some standard permissions to use
+root_0000: { owner: root, group: root, mode: '0000' }
+root_0444: { owner: root, group: root, mode: '0444' }
+root_0600: { owner: root, group: root, mode: '0600' }
+root_0640: { owner: root, group: root, mode: '0640' }
+root_0644: { owner: root, group: root, mode: '0644' }
+root_0700: { owner: root, group: root, mode: '0700' }
+root_4755: { owner: root, group: root, mode: '4755' }
+root_2755: { owner: root, group: root, mode: '2755' }
+#
+
+filesystems:
+  # CIS 1.1.2	L2	Ensure separate partition exists for /tmp
+  # CIS 1.1.3	L1	Ensure nodev option set on /tmp partition
+  # CIS 1.1.4	L1	Ensure nosuid option set on /tmp partition
+  # CIS 1.1.5	L1	Ensure noexec option set on /tmp partition
+  /tmp:
+    options: nodev,nosuid,noexec
+    size: 512M
+  # CIS 1.1.6	L2	Ensure separate partition exists for /var
+  /var:
+    size: 2048M
+  # CIS 1.1.7	L2	Ensure separate partition exists for /var/tmp
+  # CIS 1.1.8	L1	Ensure nodev option set on /var/tmp partition
+  # CIS 1.1.9	L1	Ensure nosuid option set on /var/tmp partition
+  # CIS 1.1.10	L1	Ensure noexec option set on /var/tmp partition
+  /var/tmp:
+    options: nodev,nosuid,noexec
+    size: 512M
+  # CIS 1.1.11	L2	Ensure separate partition exists for /var/log
+  /var/log:
+    size: 512M
+  # CIS 1.1.12	L2	Ensure separate partition exists for /var/log/audit
+  /var/log/audit:
+    size: 512M
+  # CIS 1.1.13	L2	Ensure separate partition exists for /home
+  # CIS 1.1.14	L1	Ensure nodev option set on /home partition
+  /home:
+    size: 2048M
+    options: nodev
+  # CIS 1.1.15	L1	Ensure nodev option set on /dev/shm partition
+  # CIS 1.1.16	L1	Ensure nosuid option set on /dev/shm partition
+  # CIS 1.1.17	L1	Ensure noexec option set on /dev/shm partition
+  /dev/shm:
+    options: nodev,nosuid,noexec
+    fstype: tmpfs
+    device: tmpfs
+
+
+
+# CIS 1.1.18	L1	Ensure nodev option set on removable media partitions
+# CIS 1.1.19	L1	Ensure nosuid option set on removable media partitions
+# CIS 1.1.20	L1	Ensure noexec option set on removable media partitions
+
+# CIS 1.1.21	L1	Ensure sticky bit is set on all world-writable directories
+# CIS 1.2.1	L1	Ensure package manager repositories are configured
+# CIS 1.2.2	L1	Ensure gpgcheck is globally activated
+# CIS 1.2.3	L1	Ensure GPG keys are configured
+# CIS 1.2.4	L1	Ensure Red Hat Subscription Manager connection is configured
+# CIS 1.3.1	L1	Ensure AIDE is installed
+
+# CIS 1.7.1.2	L1	Ensure local login warning banner is configured properly - banner text
+profile::ssh::banner_content: |2+
+
+            Do not logon unless you have read and agree to the following.
+
+  By continuing to logon you are representing that you are an authorised user
+  and you accept and agree that:
+
+    1. use of Australia Post (AP) computers, systems, software and facilities
+  including email and Internet Browsing is subject to policies and guidelines issued
+  by Australia Post from time to time;
+
+    2. the contents of all internal, incoming and outgoing emails are the property of
+  Australia Post;
+
+    3. Australia Post may take disciplinary action under the AP Employee Counselling
+  and Disciplinary Process, and/or legal action against anyone failing to comply
+  with relevant policy or misusing IT facilities including email and Internet;
+
+    4. misuse includes use, access or transmission of pornographic photos, animations,
+  cartoons, and images (including screensavers), sexually explicit, sexist, racist
+  material or material that offends, embarrasses or degrades a person because of
+  disability, sex, religion or ethnic background, or unacceptable behaviour or
+  harrassment as outlined in the Code of Ethics or Harrassment Policy;
+
+    5. Australia Post may monitor or audit the use of any of its IT facilities and
+  any information stored or passed through these facilities including email and
+  Internet browsing details;
+
+  It is your responsibility to read and comply with the Group Technology Use Policy.
+  Should you have any questions about these conditions or the policies detailed here
+  please contact your line manager. For all information security related issues
+  contact the Information Security Office at secureatpost@auspost.com.au
+
+                     I agree to these terms and conditions.
+
+profile::file_ops::files:
+  # CIS 1.4.1	L1	Ensure permissions on bootloader config are configured - grub.cfg
+  /boot/grub2/grub.cfg: "%{alias('root_0640')}"
+  # CIS 1.4.1	L1	Ensure permissions on bootloader config are configured - user.cfg
+  /boot/grub2/user.cfg: "%{alias('root_0640')}"
+  # CIS 1.7.1.1	L1	Ensure message of the day is configured properly - banner text
+  # CIS 1.7.1.4	L1	Ensure permissions on /etc/motd are configured
+  /etc/motd:
+    content: ''
+    mode: '0644'
+    owner: root
+    group: root
+  # CIS 1.7.1.5	L1	Ensure permissions on /etc/issue are configured - already covered by SSH module
+  #/etc/issue:
+  #content: "%{hiera('profile::ssh::banner_content')}"
+  #mode: 644
+  #owner: root
+  #group: root
+  # CIS 1.7.1.3	L1	Ensure remote login warning banner is configured properly - banner text
+  # CIS 1.7.1.6	L1	Ensure permissions on /etc/issue.net are configured - already covered by SSH module
+  #/etc/issue.net:
+  #content: "%{hiera('profile::ssh::banner_content')}"
+  #mode: 644
+  #owner: root
+  #group: root
+  # CIS 3.4.2	L1	Ensure /etc/hosts.allow is configured
+  # CIS 3.4.4	L1	Ensure permissions on /etc/hosts.allow are configured
+  /etc/hosts.allow:
+    content: |
+      # File managed by Puppet
+      'ALL: 10.0.0.0/255.0.0.0'
+    mode: '0644'
+    owner: root
+    group: root
+  # CIS 3.4.3	L1	Ensure /etc/hosts.deny is configured
+  # CIS 3.4.5	L1	Ensure permissions on /etc/hosts.deny are configured
+  /etc/hosts.deny:
+    content: |
+      # File managed by Puppet
+      'ALL: ALL'
+    mode: '0644'
+    owner: root
+    group: root
+  /etc/modprobe.d/CIS.conf:
+    content: |
+      # File managed by Puppet
+      # CIS 1.1.1.1	L1	Ensure mounting of cramfs filesystems is disabled - modprobe
+      install cramfs /bin/true
+      # CIS 1.1.1.2	L1	Ensure mounting of freevxfs filesystems is disabled - lsmod
+      install freevxfs /bin/true
+      # CIS 1.1.1.3	L1	Ensure mounting of jffs2 filesystems is disabled - modprobe
+      install jffs2 /bin/true
+      # CIS 1.1.1.4	L1	Ensure mounting of hfs filesystems is disabled - modprobe
+      install hfs /bin/true
+      # CIS 1.1.1.5	L1	Ensure mounting of hfsplus filesystems is disabled - lsmod
+      install hfsplus /bin/true
+      # CIS 1.1.1.6	L1	Ensure mounting of squashfs filesystems is disabled - modprobe
+      install squashfs /bin/true
+      # CIS 1.1.1.7	L1	Ensure mounting of udf filesystems is disabled - lsmod
+      install udf /bin/true
+      # CIS 1.1.1.8	L2	Ensure mounting of FAT filesystems is disabled
+      install vfat /bin/true
+
+      # CIS 3.5.1	L1	Ensure DCCP is disabled
+      install dccp /bin/true
+      # CIS 3.5.2	L1	Ensure SCTP is disabled
+      install sctp /bin/true
+      # CIS 3.5.3	L1	Ensure RDS is disabled
+      install rds /bin/true
+      # CIS 3.5.4	L1	Ensure TIPC is disabled
+      install tipc /bin/true
+    mode: '0644'
+    owner: root
+    group: root
+  # CIS 5.1.2	L1	Ensure permissions on /etc/crontab are configured
+  /etc/crontab: "%{alias('root_0600')}"
+  # CIS 5.1.8	L1	Ensure at/cron is restricted to authorized users - cron.allow
+  /etc/cron.allow: "%{alias('root_0600')}"
+  # CIS 5.1.8	L1	Ensure at/cron is restricted to authorized users - cron.deny
+  /etc/cron.deny:
+    ensure: absent
+  # CIS 5.1.8	L1	Ensure at/cron is restricted to authorized users - at.allow
+  /etc/at.allow: "%{alias('root_0600')}"
+  # CIS 5.1.8	L1	Ensure at/cron is restricted to authorized users - at.deny
+  /etc/at.deny:
+    ensure: absent
+  /etc/security/pwquality.conf:
+    content: |
+      # File managed by Puppet
+      difok = 5
+      # CIS 5.3.1	L1	Ensure password creation requirements are configured - minlen
+      minlen = 9
+      # CIS 5.3.1	L1	Ensure password creation requirements are configured - dcredit
+      dcredit = -1
+      # CIS 5.3.1	L1	Ensure password creation requirements are configured - ucredit
+      ucredit = -1
+      # CIS 5.3.1	L1	Ensure password creation requirements are configured - lcredit
+      lcredit = -1
+      # CIS 5.3.1	L1	Ensure password creation requirements are configured - ocredit
+      ocredit = -1
+      # minclass = 0
+      # maxrepeat = 0
+      # maxclassrepeat = 0
+      # gecoscheck = 0
+      # dictpath =
+    mode: '0644'
+    owner: root
+    group: root
+  # CIS 5.4.4	L1	Ensure default user umask is 027 or more restrictive - /etc/profile /etc/profile.d/*.sh
+  /etc/profile.d/umask.sh:
+    content: "umask 0027\n"
+  /etc/profile.d/umask.csh:
+    content: "umask 0027\n"
+  # CIS 5.4.5	L2	Ensure default user shell timeout is 900 seconds or less - /etc/profile
+  /etc/profile.d/autologout.sh:
+    content: "export TMOUT=36000\n"
+  /etc/profile.d/tmout.csh:
+    content: "TMOUT=36000\n"
+  # CIS 6.1.2	L1	Ensure permissions on /etc/passwd are configured
+  /etc/passwd: "%{alias('root_0644')}"
+  # CIS 6.1.3	L1	Ensure permissions on /etc/shadow are configured
+  /etc/shadow: "%{alias('root_0000')}"
+  # CIS 6.1.4	L1	Ensure permissions on /etc/group are configured
+  /etc/group: "%{alias('root_0644')}"
+  # CIS 6.1.5	L1	Ensure permissions on /etc/gshadow are configured
+  /etc/gshadow: "%{alias('root_0000')}"
+  # CIS 6.1.6	L1	Ensure permissions on /etc/passwd- are configured
+  /etc/passwd-: "%{alias('root_0644')}"
+  # CIS 6.1.7	L1	Ensure permissions on /etc/shadow- are configured
+  /etc/shadow-: "%{alias('root_0000')}"
+  # CIS 6.1.8	L1	Ensure permissions on /etc/group- are configured
+  /etc/group-: "%{alias('root_0644')}"
+  # CIS 6.1.9	L1	Ensure permissions on /etc/gshadow- are configured
+  /etc/gshadow-: "%{alias('root_0000')}"
+  # CIS 2.2.1.2	L1	Ensure ntp is configured - restrict -4 - not using NTP
+  # CIS 2.2.1.2	L1	Ensure ntp is configured - restrict -6 - not using NTP
+  # CIS 2.2.1.2	L1	Ensure ntp is configured - server - not using NTP
+  # CIS 2.2.1.3	L1	Ensure chrony is configured - NTP server - set elsewhere in hiera
+  # CIS 2.2.1.3	L1	Ensure chrony is configured - OPTIONS
+  /etc/sysconfig/chronyd:
+    content: |
+      # File managed by Puppet
+      OPTIONS='-u chrony'
+  # CIS 4.1.1.1	L2	Ensure audit log storage size is configured
+  # CIS 4.1.1.2	L2	Ensure system is disabled when audit logs are full - 'space_left_action = email'
+  # CIS 4.1.1.2	L2	Ensure system is disabled when audit logs are full - 'action_mail_acct = root'
+  # CIS 4.1.1.2	L2	Ensure system is disabled when audit logs are full - 'admin_space_left_action = halt'
+  # CIS 4.1.1.3	L2	Ensure audit logs are not automatically deleted
+  # CIS 4.1.2	L2	Ensure auditd service is enabled
+  # CIS 4.1.3	L2	Ensure auditing for processes that start prior to auditd is enabled
+  # CIS 4.1.4	L2	Ensure events that modify date and time information are collected - auditctl adjtimex (32-bit)
+  # CIS 4.1.4	L2	Ensure events that modify date and time information are collected - adjtimex (32-bit)
+  # CIS 4.1.4	L2	Ensure events that modify date and time information are collected - auditctl clock_settime (32-bit)
+  # CIS 4.1.4	L2	Ensure events that modify date and time information are collected - clock_settime (32-bit)
+  # CIS 4.1.4	L2	Ensure events that modify date and time information are collected -  auditctl /etc/localtime
+  # CIS 4.1.4	L2	Ensure events that modify date and time information are collected - /etc/localtime
+  # CIS 4.1.4	L2	Ensure events that modify date and time information are collected - auditctl adjtimex (64-bit)
+  # CIS 4.1.4	L2	Ensure events that modify date and time information are collected - auditctl clock_settime (64-bit)
+  # CIS 4.1.4	L2	Ensure events that modify date and time information are collected - adjtimex (64-bit)
+  # CIS 4.1.4	L2	Ensure events that modify date and time information are collected - clock_settime (64-bit)
+  # CIS 4.1.5	L2	Ensure events that modify user/group information are collected - '/etc/group'
+  # CIS 4.1.5	L2	Ensure events that modify user/group information are collected - auditctl '/etc/group'
+  # CIS 4.1.5	L2	Ensure events that modify user/group information are collected - '/etc/passwd'
+  # CIS 4.1.5	L2	Ensure events that modify user/group information are collected - auditctl '/etc/passwd'
+  # CIS 4.1.5	L2	Ensure events that modify user/group information are collected - '/etc/gshadow'
+  # CIS 4.1.5	L2	Ensure events that modify user/group information are collected - auditctl '/etc/gshadow'
+  # CIS 4.1.5	L2	Ensure events that modify user/group information are collected - '/etc/shadow'
+  # CIS 4.1.5	L2	Ensure events that modify user/group information are collected - auditctl '/etc/shadow'
+  # CIS 4.1.5	L2	Ensure events that modify user/group information are collected - '/etc/security/opasswd'
+  # CIS 4.1.5	L2	Ensure events that modify user/group information are collected - auditctl '/etc/security/opasswd'
+  # CIS 4.1.6	L2	Ensure events that modify the system's network environment are collected - sethostname (32-bit)
+  # CIS 4.1.6	L2	Ensure events that modify the system's network environment are collected - auditctl sethostname (32-bit)
+  # CIS 4.1.6	L2	Ensure events that modify the system's network environment are collected - issue
+  # CIS 4.1.6	L2	Ensure events that modify the system's network environment are collected - auditctl issue
+  # CIS 4.1.6	L2	Ensure events that modify the system's network environment are collected - issue.net
+  # CIS 4.1.6	L2	Ensure events that modify the system's network environment are collected - auditctl issue.net
+  # CIS 4.1.6	L2	Ensure events that modify the system's network environment are collected - /etc/hosts
+  # CIS 4.1.6	L2	Ensure events that modify the system's network environment are collected - auditctl hosts
+  # CIS 4.1.6	L2	Ensure events that modify the system's network environment are collected - /etc/sysconfig/network
+  # CIS 4.1.6	L2	Ensure events that modify the system's network environment are collected - auditctl network
+  # CIS 4.1.6	L2	Ensure events that modify the system's network environment are collected - /etc/sysconfig/network-scripts
+  # CIS 4.1.6	L2	Ensure events that modify the system's network environment are collected - auditctl network-scripts
+  # CIS 4.1.6	L2	Ensure events that modify the system's network environment are collected - sethostname (64-bit)
+  # CIS 4.1.6	L2	Ensure events that modify the system's network environment are collected - auditctl sethostname (64-bit)
+  # CIS 4.1.7	L2	Ensure events that modify the system's Mandatory Access Controls are collected - /etc/selinux/
+  # CIS 4.1.7	L2	Ensure events that modify the system's Mandatory Access Controls are collected - auditctl /etc/selinux/
+  # CIS 4.1.7	L2	Ensure events that modify the system's Mandatory Access Controls are collected - /usr/share/selinux/
+  # CIS 4.1.7	L2	Ensure events that modify the system's Mandatory Access Controls are collected - auditctl /usr/share/selinux/
+  # CIS 4.1.8	L2	Ensure login and logout events are collected - /var/log/lastlog
+  # CIS 4.1.8	L2	Ensure login and logout events are collected - auditctl /var/log/lastlog
+  # CIS 4.1.8	L2	Ensure login and logout events are collected - /var/run/faillock/
+  # CIS 4.1.8	L2	Ensure login and logout events are collected - auditctl /var/run/faillock/
+  # CIS 4.1.9	L2	Ensure session initiation information is collected - utmp
+  # CIS 4.1.9	L2	Ensure session initiation information is collected - auditctl utmp
+  # CIS 4.1.9	L2	Ensure session initiation information is collected - wtmp
+  # CIS 4.1.9	L2	Ensure session initiation information is collected - auditctl wtmp
+  # CIS 4.1.9	L2	Ensure session initiation information is collected - btmp
+  # CIS 4.1.9	L2	Ensure session initiation information is collected - auditctl btmp
+  # CIS 4.1.10	L2	Ensure discretionary access control permission modification events are collected - chmod/fchmod/fchmodat
+  # CIS 4.1.10	L2	Ensure discretionary access control permission modification events are collected - auditctl chmod/fchmod/fchmodat
+  # CIS 4.1.10	L2	Ensure discretionary access control permission modification events are collected - chown/fchown/fchownat/lchown
+  # CIS 4.1.10	L2	Ensure discretionary access control permission modification events are collected - auditctl chown/fchown/fchownat/lchown
+  # CIS 4.1.10	L2	Ensure discretionary access control permission modification events are collected - setxattr/lsetxattr/fsetxattr/removexattr
+  # CIS 4.1.10	L2	Ensure discretionary access control permission modification events are collected - auditctl setxattr/lsetxattr/fsetxattr/removexattr
+  # CIS 4.1.10	L2	Ensure discretionary access control permission modification events are collected - chmod/fchmod/fchmodat (64-bit)
+  # CIS 4.1.10	L2	Ensure discretionary access control permission modification events are collected - auditctl chmod/fchmod/fchmodat (64-bit)
+  # CIS 4.1.10	L2	Ensure discretionary access control permission modification events are collected - chown/fchown/fchownat/lchown (64-bit)
+  # CIS 4.1.10	L2	Ensure discretionary access control permission modification events are collected - auditctl chown/fchown/fchownat/lchown (64-bit)
+  # CIS 4.1.10	L2	Ensure discretionary access control permission modification events are collected - xattr (64-bit)
+  # CIS 4.1.10	L2	Ensure discretionary access control permission modification events are collected - auditctl xattr (64-bit)
+  # CIS 4.1.11	L2	Ensure unsuccessful unauthorized file access attempts are collected - EACCES
+  # CIS 4.1.11	L2	Ensure unsuccessful unauthorized file access attempts are collected - auditctl EACCES
+  # CIS 4.1.11	L2	Ensure unsuccessful unauthorized file access attempts are collected - EPERM
+  # CIS 4.1.11	L2	Ensure unsuccessful unauthorized file access attempts are collected - auditctl EPERM
+  # CIS 4.1.11	L2	Ensure unsuccessful unauthorized file access attempts are collected - EACCES (64-bit)
+  # CIS 4.1.11	L2	Ensure unsuccessful unauthorized file access attempts are collected - auditctl EACCES (64-bit)
+  # CIS 4.1.11	L2	Ensure unsuccessful unauthorized file access attempts are collected - EPERM (64-bit)
+  # CIS 4.1.11	L2	Ensure unsuccessful unauthorized file access attempts are collected - auditctl EPERM (64-bit)
+  # CIS 4.1.12	L2	Ensure use of privileged commands is collected
+  # CIS 4.1.13	L2	Ensure successful file system mounts are collected
+  # CIS 4.1.13	L2	Ensure successful file system mounts are collected - auditctl
+  # CIS 4.1.13	L2	Ensure successful file system mounts are collected - b64
+  # CIS 4.1.13	L2	Ensure successful file system mounts are collected - auditctl (64-bit)
+  # CIS 4.1.14	L2	Ensure file deletion events by users are collected
+  # CIS 4.1.14	L2	Ensure file deletion events by users are collected - auditctl
+  # CIS 4.1.14	L2	Ensure file deletion events by users are collected - b64
+  # CIS 4.1.14	L2	Ensure file deletion events by users are collected - auditctl (64-bit)
+  # CIS 4.1.15	L2	Ensure changes to system administration scope (sudoers) is collected - sudoers
+  # CIS 4.1.15	L2	Ensure changes to system administration scope (sudoers) is collected - auditctl sudoers
+  # CIS 4.1.15	L2	Ensure changes to system administration scope (sudoers) is collected - sudoers.d
+  # CIS 4.1.15	L2	Ensure changes to system administration scope (sudoers) is collected - auditctl sudoers.d
+  # CIS 4.1.16	L2	Ensure system administrator actions (sudolog) are collected
+  # CIS 4.1.16	L2	Ensure system administrator actions (sudolog) are collected - auditctl
+  # CIS 4.1.17	L2	Ensure kernel module loading and unloading is collected - insmod
+  # CIS 4.1.17	L2	Ensure kernel module loading and unloading is collected - auditctl insmod
+  # CIS 4.1.17	L2	Ensure kernel module loading and unloading is collected - rmmod
+  # CIS 4.1.17	L2	Ensure kernel module loading and unloading is collected - auditctl rmmod
+  # CIS 4.1.17	L2	Ensure kernel module loading and unloading is collected - modprobe
+  # CIS 4.1.17	L2	Ensure kernel module loading and unloading is collected - auditctl modprobe
+  # CIS 4.1.17	L2	Ensure kernel module loading and unloading is collected - init_module/delete_module
+  # CIS 4.1.17	L2	Ensure kernel module loading and unloading is collected - auditctl init_module/delete_module
+  # CIS 4.1.17	L2	Ensure kernel module loading and unloading is collected - init_module/delete_module
+  # CIS 4.1.17	L2	Ensure kernel module loading and unloading is collected - auditctl init_module/delete_module
+  # CIS 4.1.18	L2	Ensure the audit configuration is immutable
+  /etc/audit/auditd.conf:
+    content: |
+      # File managed by Puppet
+      #
+      # This file controls the configuration of the audit daemon
+      #
+      local_events = yes
+      write_logs = yes
+      log_file = /var/log/audit/audit.log
+      log_group = root
+      log_format = RAW
+      flush = INCREMENTAL_ASYNC
+      freq = 50
+      max_log_file = 8
+      num_logs = 5
+      priority_boost = 4
+      disp_qos = lossy
+      dispatcher = /sbin/audispd
+      name_format = NONE
+      ##name = mydomain
+      max_log_file_action = ROTATE
+      space_left = 75
+      space_left_action = SYSLOG
+      verify_email = yes
+      action_mail_acct = root
+      admin_space_left = 50
+      admin_space_left_action = SUSPEND
+      disk_full_action = SUSPEND
+      disk_error_action = SUSPEND
+      use_libwrap = yes
+      ##tcp_listen_port = 60
+      tcp_listen_queue = 5
+      tcp_max_per_addr = 1
+      ##tcp_client_ports = 1024-65535
+      tcp_client_max_idle = 0
+      enable_krb5 = no
+      krb5_principal = auditd
+      ##krb5_key_file = /etc/audit/audit.key
+      distribute_network = no
+
+
+profile::file_ops::directories:
+  # CIS 5.1.3	L1	Ensure permissions on /etc/cron.hourly are configured
+  /etc/cron.hourly: "%{alias('root_0700')}"
+  # CIS 5.1.4	L1	Ensure permissions on /etc/cron.daily are configured
+  /etc/cron.daily: "%{alias('root_0700')}"
+  # CIS 5.1.5	L1	Ensure permissions on /etc/cron.weekly are configured
+  /etc/cron.weekly: "%{alias('root_0700')}"
+  # CIS 5.1.6	L1	Ensure permissions on /etc/cron.monthly are configured
+  /etc/cron.monthly: "%{alias('root_0700')}"
+  # CIS 5.1.7	L1	Ensure permissions on /etc/cron.d are configured
+  /etc/cron.d: "%{alias('root_0700')}"
+
+# CIS 5.3.1	L1	Ensure password creation requirements are configured - password-auth try_first_pass
+# CIS 5.3.1	L1	Ensure password creation requirements are configured - system-auth try_first_pass
+# CIS 5.3.1	L1	Ensure password creation requirements are configured - password-auth retry=3
+# CIS 5.3.1	L1	Ensure password creation requirements are configured - system-auth retry=3
+central_auth::pam::dfok: 5
+central_auth::pam::minlen: 9
+central_auth::pam::dcredit: -1
+central_auth::pam::ucredit: -1
+central_auth::pam::ocredit: -1
+central_auth::pam::lcredit: -1
+
+
+# CIS 1.4.2	L1	Ensure bootloader password is set
+# CIS 1.4.3	L1	Ensure authentication required for single user mode - rescue.service
+# CIS 1.4.3	L1	Ensure authentication required for single user mode - emergency.service
+
+# CIS 1.5.1	L1	Ensure core dumps are restricted - limits.conf limits.d
+security::limits::limits_hash:
+  "*/hard/core":
+    value: '0'
+# CIS 1.5.1	L1	Ensure core dumps are restricted - sysctl
+# CIS 1.5.1	L1	Ensure core dumps are restricted - sysctl.conf sysctl.d
+profile::kernel::sysctl:
+  fs.suid_dumpable: 0
+  # CIS 1.5.3	L1	Ensure address space layout randomization (ASLR) is enabled - sysctl
+  # CIS 1.5.3	L1	Ensure address space layout randomization (ASLR) is enabled - sysctl.conf sysctl.d
+  kernel.randomize_va_space: 2
+  # CIS 3.1.1	L1	Ensure IP forwarding is disabled - sysctl
+  # CIS 3.1.1	L1	Ensure IP forwarding is disabled - sysctlc.conf sysctl.d
+  net.ipv4.ip_forward: 0
+  # CIS 3.1.2	L1	Ensure packet redirect sending is disabled - 'net.ipv4.conf.all.send_redirects = 0'
+  # CIS 3.1.2	L1	Ensure packet redirect sending is disabled - 'net.ipv4.conf.default.send_redirects = 0'
+  net.ipv4.conf.all.send_redirects: 0
+  net.ipv4.conf.default.send_redirects: 0
+  # CIS 3.2.1	L1	Ensure source routed packets are not accepted - 'net.ipv4.conf.default.accept_source_route = 0'
+  # CIS 3.2.1	L1	Ensure source routed packets are not accepted - 'net.ipv4.conf.all.accept_source_route = 0'
+  net.ipv4.conf.all.accept_source_route: 0
+  net.ipv4.conf.default.accept_source_route: 0
+  # CIS 3.2.2	L1	Ensure ICMP redirects are not accepted - 'net.ipv4.conf.all.accept_redirects = 0'
+  # CIS 3.2.2	L1	Ensure ICMP redirects are not accepted - 'net.ipv4.conf.default.accept_redirects = 0'
+  net.ipv4.conf.all.accept_redirects: 0
+  net.ipv4.conf.default.accept_redirects: 0
+  # CIS 3.2.3	L1	Ensure secure ICMP redirects are not accepted - 'net.ipv4.conf.default.secure_redirects = 0'
+  # CIS 3.2.3	L1	Ensure secure ICMP redirects are not accepted - 'net.ipv4.conf.all.secure_redirects = 0'
+  net.ipv4.conf.all.secure_redirects: 0
+  net.ipv4.conf.default.secure_redirects: 0
+  # CIS 3.2.4	L1	Ensure suspicious packets are logged - 'net.ipv4.conf.all.log_martians = 1'
+  # CIS 3.2.4	L1	Ensure suspicious packets are logged - 'net.ipv4.conf.default.log_martians = 1'
+  net.ipv4.conf.all.log_martians: 1
+  net.ipv4.conf.default.log_martians: 1
+  # CIS 3.2.5	L1	Ensure broadcast ICMP requests are ignored - sysctl
+  # CIS 3.2.5	L1	Ensure broadcast ICMP requests are ignored - sysctl.conf sysctl.d
+  net.ipv4.icmp_echo_ignore_broadcasts: 1
+  # CIS 3.2.6	L1	Ensure bogus ICMP responses are ignored - sysctl
+  # CIS 3.2.6	L1	Ensure bogus ICMP responses are ignored - sysctl.conf sysctl.d
+  net.ipv4.icmp_ignore_bogus_error_responses: 1
+  # CIS 3.2.7	L1	Ensure Reverse Path Filtering is enabled - 'net.ipv4.conf.default.rp_filter = 1'
+  # CIS 3.2.7	L1	Ensure Reverse Path Filtering is enabled - 'net.ipv4.conf.all.rp_filter = 1'
+  net.ipv4.conf.all.rp_filter: 1
+  net.ipv4.conf.default.rp_filter: 1
+  # CIS 3.2.8	L1	Ensure TCP SYN Cookies is enabled - sysctl
+  # CIS 3.2.8	L1	Ensure TCP SYN Cookies is enabled - sysctl.conf sysctl.d
+  net.ipv4.tcp_syncookies: 1
+  # CIS 3.3.1	L1	Ensure IPv6 router advertisements are not accepted - 'net.ipv6.conf.all.accept_ra = 0'
+  # CIS 3.3.1	L1	Ensure IPv6 router advertisements are not accepted - 'net.ipv6.conf.default.accept_ra = 0'
+  # CIS 3.3.1	L1	Ensure IPv6 router advertisements are not accepted - files 'net.ipv6.conf.all.accept_ra = 0'
+  # CIS 3.3.1	L1	Ensure IPv6 router advertisements are not accepted - files 'net.ipv6.conf.default.accept_ra = 0'
+  net.ipv6.conf.all.accept_ra: 0
+  net.ipv6.conf.default.accept_ra: 0
+  # CIS 3.3.2	L1	Ensure IPv6 redirects are not accepted - 'net.ipv6.conf.default.accept_redirects = 0'
+  # CIS 3.3.2	L1	Ensure IPv6 redirects are not accepted - 'net.ipv6.conf.all.accept_redirects = 0'
+  # CIS 3.3.2	L1	Ensure IPv6 redirects are not accepted - files 'net.ipv6.conf.default.accept_redirects = 0'
+  # CIS 3.3.2	L1	Ensure IPv6 redirects are not accepted - files 'net.ipv6.conf.all.accept_redirects = 0'
+  net.ipv6.conf.all.accept_redirects: 0
+  net.ipv6.conf.default.accept_redirects: 0
+
+# CIS 1.5.2	L1	Ensure XD/NX support is enabled (32 bit only)
+# CIS 1.8	L1	Ensure updates, patches, and additional security software are installed
+
+# CIS 2.2.15	L1	Ensure mail transfer agent is configured for local-only mode
+networking::mailclient::inet_interfaces: 'localhost'
+
+packages::remove:
+  RedHat:
+  # CIS 1.1.22	L1	Disable Automounting
+    - autofs
+  # CIS 1.5.4	L1	Ensure prelink is disabled
+    - prelink
+  # CIS 1.6.1.4	L2	Ensure SETroubleshoot is not installed
+    - setroubleshoot
+  # CIS 1.6.1.5	L2	Ensure the MCS Translation Service (mcstrans) is not installed
+    - mcstrans
+  # CIS 1.7.2	L1	Ensure GDM login banner is configured - user-db
+  # CIS 1.7.2	L1	Ensure GDM login banner is configured - system-db
+  # CIS 1.7.2	L1	Ensure GDM login banner is configured - file-db
+  # CIS 1.7.2	L1	Ensure GDM login banner is configured - banner message enabled
+  # CIS 1.7.2	L1	Ensure GDM login banner is configured - banner message text
+    - gdm
+  # CIS 2.1.1	L1	Ensure chargen services are not enabled - dgram
+  # CIS 2.1.1	L1	Ensure chargen services are not enabled - stream
+  # CIS 2.1.2	L1	Ensure daytime services are not enabled - dgram
+  # CIS 2.1.2	L1	Ensure daytime services are not enabled - stream
+  # CIS 2.1.3	L1	Ensure discard services are not enabled - dgram
+  # CIS 2.1.3	L1	Ensure discard services are not enabled - stream
+  # CIS 2.1.4	L1	Ensure echo services are not enabled - dgram
+  # CIS 2.1.4	L1	Ensure echo services are not enabled - stream
+  # CIS 2.1.5	L1	Ensure time services are not enabled - dgram
+  # CIS 2.1.5	L1	Ensure time services are not enabled - stream
+  # CIS 2.1.7	L1	Ensure xinetd is not enabled
+    - xinetd
+  # CIS 2.1.6	L1	Ensure tftp server is not enabled
+  # CIS 2.2.20	L1	Ensure tftp server is not enabled
+    - tftp-server
+# CIS 2.2.2	L1	Ensure X Window System is not installed
+  # CIS 2.2.3	L1	Ensure Avahi Server is not enabled
+    - avahi
+  # CIS 2.2.4	L1	Ensure CUPS is not enabled
+    - cups
+  # CIS 2.2.5	L1	Ensure DHCP Server is not enabled
+    - dhcp
+    - dnsmasq
+  # CIS 2.2.6	L1	Ensure LDAP server is not enabled
+    - openldap-servers
+# CIS 2.2.7	L1	Ensure NFS and RPC are not enabled - nfs
+# CIS 2.2.7	L1	Ensure NFS and RPC are not enabled - nfs-server
+# CIS 2.2.7	L1	Ensure NFS and RPC are not enabled - rpcbind
+  # CIS 2.2.8	L1	Ensure DNS Server is not enabled
+    - bind
+    - pdns
+  # CIS 2.2.9	L1	Ensure FTP Server is not enabled
+    - vsftpd
+    - pure-ftpd
+    - perl-ftpd
+    - proftpd
+  # CIS 2.2.10	L1	Ensure HTTP server is not enabled
+    - caddy
+    - httpd
+    - lighttpd
+    - nginx
+    - nginx14-nginx
+    - nginx16-nginx
+    - nodejs-ws
+    - xbean
+    - rubygem-thin
+  # CIS 2.2.11	L1	Ensure IMAP and POP3 server is not enabled
+    - dovecot
+    - cyrus-imapd
+  # CIS 2.2.12	L1	Ensure Samba is not enabled
+    - samba
+    - samba-dc
+  # CIS 2.2.13	L1	Ensure HTTP Proxy Server is not enabled
+    - squid
+  # CIS 2.2.14	L1	Ensure SNMP Server is not enabled
+    - net-snmp
+  # CIS 2.2.16	L1	Ensure NIS Server is not enabled
+  # CIS 2.3.1	L1	Ensure NIS Client is not installed
+    - ypserv
+    - ypbind
+  # CIS 2.2.17	L1	Ensure rsh server is not enabled - rexec
+  # CIS 2.2.17	L1	Ensure rsh server is not enabled - rlogin
+  # CIS 2.2.17	L1	Ensure rsh server is not enabled - rsh
+  # CIS 2.3.2	L1	Ensure rsh client is not installed
+    - rsh-server
+    - rsh
+  # CIS 2.2.18	L1	Ensure talk server is not enabled
+  # CIS 2.3.3	L1	Ensure talk client is not installed
+    - ntalk
+    - talk
+  # CIS 2.2.19	L1	Ensure telnet server is not enabled
+    - telnet-server
+profile::services:
+  # CIS 1.2.5	L2	Disable the rhnsd Daemon
+  rhnsd:
+    ensure: stopped
+    enable: false
+  # CIS 2.2.21	L1	Ensure rsync service is not enabled
+  rsyncd:
+    ensure: stopped
+    enable: false
+  # CIS 5.1.1	L1	Ensure cron daemon is enabled
+  crond:
+    ensure: running
+    enable: true
+
+# CIS 2.3.4	L1	Ensure telnet client is not installed - disputed
+# CIS 2.3.5	L1	Ensure LDAP client is not installed - disputed
+
+packages::add:
+  RedHat:
+  # CIS 3.4.1	L1	Ensure TCP Wrappers is installed
+    - tcp_wrappers
+  # CIS 1.6.2	L2	Ensure SELinux is installed
+    - libselinux
+
+# CIS 3.6.1	L1	Ensure iptables is installed
+profile::firewall::enable: true
+profile::firewall::chains:
+  # CIS 3.6.2	L1	Ensure default deny firewall policy - Chain INPUT
+  INPUT:filter:IPv4:
+    policy: drop
+  INPUT:filter:IPv6:
+    policy: drop
+  # CIS 3.6.2	L1	Ensure default deny firewall policy - Chain FORWARD
+  FORWARD:filter:IPv4:
+    policy: drop
+  FORWARD:filter:IPv6:
+    policy: drop
+  # CIS 3.6.2	L1	Ensure default deny firewall policy - Chain OUTPUT
+  OUTPUT:filter:IPv4:
+    policy: drop
+  OUTPUT:filter:IPv6:
+    policy: drop
+# CIS 3.6.3	L1	Ensure loopback traffic is configured
+# Configured in code
+# CIS 3.6.4	L1	Ensure outbound and established connections are configured
+# Configured in code
+# CIS 3.6.5	L1	Ensure firewall rules exist for all open ports
+profile::firewall::inbound:
+  '101 DHCP Server':
+    sport: 67
+    proto: udp
+  '110 SSH Access':
+    dport: 22
+  '161 NetBackup Server':
+    dport: [ 1556, 13724 ]
+profile::firewall::outbound:
+  '101 DHCP Client':
+    sport: 68
+    proto: udp
+  '120 SSH Access':
+    sport: 22
+  '130 Puppet Server Access':
+    dport: [8140,8142]
+    destination: 10.5.162.0/24
+  '102 Network Time Protocol':
+    dport: 123
+    proto: udp
+  '103 Name Resolution TCP':
+    dport: 53
+    proto: tcp
+  '103 Name Resolution UDP':
+    dport: 53
+    proto: udp
+  '104 AD Authentication TCP':
+    dport: [ 88, 389, 445, 464, 3268 ]
+  '104 AD Authentication UDP':
+    dport: [ 88, 137, 389 ]
+    proto: udp
+  '140 RightLink Agent':
+    # From here: https://docs.rightscale.com/faq/Firewall_Configuration_Ruleset.html
+    dport: 443
+    destination:
+    - 54.225.248.128/27
+    - 54.244.88.96/27
+    - 54.86.63.128/26
+    - 54.187.254.128/26
+    - 54.246.247.16/28
+    - 54.248.220.128/28
+    - 54.255.255.208/28
+    - 52.65.255.224/28
+  '141 AWS Instance Data':
+    dport: 80
+    destination: 169.254.169.254/32
+  '145 Sumo Logic Monitoring':
+    # Unfortunately SUMO runs on AWS randomly, so we need to open up access to the whole of AWS EC2 for our region ap-southeast-2
+    # https://help.sumologic.com/APIs/General-API-Information/Sumo-Logic-Endpoints-and-Firewall-Security
+    dport: 443
+    destination:
+    - 13.210.0.0/15
+    - 13.236.0.0/14
+    - 13.54.0.0/15
+    - 15.193.3.0/24
+    - 3.104.0.0/14
+    - 3.24.0.0/14
+    - 52.62.0.0/15
+    - 52.64.0.0/17
+    - 52.64.128.0/17
+    - 52.65.0.0/16
+    - 52.94.248.64/28
+    - 52.95.241.0/24
+    - 52.95.255.16/28
+    - 54.153.128.0/17
+    - 54.206.0.0/16
+    - 54.252.0.0/16
+    - 54.253.0.0/16
+    - 54.66.0.0/16
+    - 54.79.0.0/16
+    - 99.77.144.0/24
+    # Currently some sumo installations are trying to hit the US AWS site us-east-1, hopefully we can delete these after getting the
+    # sumo agent to just point to AU
+    - 100.24.0.0/13
+    - 107.20.0.0/14
+    - 15.193.6.0/24
+    - 162.250.236.0/24
+    - 162.250.237.0/24
+    - 162.250.238.0/23
+    - 174.129.0.0/16
+    - 18.204.0.0/14
+    - 18.208.0.0/13
+    - 18.232.0.0/14
+    - 184.72.128.0/17
+    - 184.72.64.0/18
+    - 184.73.0.0/16
+    - 204.236.192.0/18
+    - 208.86.88.0/23
+    - 216.182.224.0/21
+    - 216.182.232.0/22
+    - 216.182.238.0/23
+    - 23.20.0.0/14
+    - 3.208.0.0/12
+    - 3.224.0.0/12
+    - 3.80.0.0/12
+    - 34.192.0.0/12
+    - 34.224.0.0/12
+    - 35.153.0.0/16
+    - 35.168.0.0/13
+    - 44.192.0.0/11
+    - 50.16.0.0/15
+    - 50.19.0.0/16
+    - 52.0.0.0/15
+    - 52.2.0.0/15
+    - 52.20.0.0/14
+    - 52.200.0.0/13
+    - 52.4.0.0/14
+    - 52.44.0.0/15
+    - 52.54.0.0/15
+    - 52.70.0.0/15
+    - 52.72.0.0/15
+    - 52.86.0.0/15
+    - 52.90.0.0/15
+    - 52.94.201.0/26
+    - 52.94.248.0/28
+    - 52.95.245.0/24
+    - 52.95.255.80/28
+    - 54.144.0.0/14
+    - 54.152.0.0/16
+    - 54.156.0.0/14
+    - 54.160.0.0/13
+    - 54.172.0.0/15
+    - 54.174.0.0/15
+    - 54.196.0.0/15
+    - 54.198.0.0/16
+    - 54.204.0.0/15
+    - 54.208.0.0/15
+    - 54.210.0.0/15
+    - 54.221.0.0/16
+    - 54.224.0.0/15
+    - 54.226.0.0/15
+    - 54.234.0.0/15
+    - 54.236.0.0/15
+    - 54.242.0.0/15
+    - 54.80.0.0/13
+    - 54.88.0.0/14
+    - 54.92.128.0/17
+    - 67.202.0.0/18
+    - 72.44.32.0/19
+    - 75.101.128.0/17
+    - 99.77.128.0/24
+    - 99.77.129.0/24
+    - 99.77.191.0/24
+    - 99.77.254.0/24
+  '150 Telegraf Monitoring':
+    dport: 80
+    destination: [ 10.212.82.107/32, 10.212.85.6/32 ]
+  '160 YUM Server':
+    dport: [ 80, 443 ]
+    destination: "%{::yum_server}"
+  '161 NetBackup Server':
+    dport: [ 1556, 13724 ]
+  '162 Mail Server':
+    dport: 25
+    destination: "%{hiera('networking::mailclient::relayhost')}"
+  '163 Log Server':
+    dport: [ 5514, 6514 ]
+    destination:
+    - "%{hiera('profile::nxlog_client::logserver1')}"
+    - "%{hiera('profile::nxlog_client::logserver2')}"
+# CIS 3.7	L1	Ensure wireless interfaces are disabled
+
+
+# CIS 4.2.1.1	L1	Ensure rsyslog Service is enabled
+# CIS 4.2.1.3	L1	Ensure rsyslog default file permissions configured
+# CIS 4.2.1.4	L1	Ensure rsyslog is configured to send logs to a remote log host
+# CIS 4.2.1.5	L1	Ensure remote rsyslog messages are only accepted on designated log hosts. - imtcp.so
+# CIS 4.2.1.5	L1	Ensure remote rsyslog messages are only accepted on designated log hosts. - InputTCPServerRun 514
+# CIS 4.2.2.1	L1	Ensure syslog-ng service is enabled
+# CIS 4.2.2.3	L1	Ensure syslog-ng default file permissions configured
+# CIS 4.2.2.4	L1	Ensure syslog-ng is configured to send logs to a remote log host - destination logserver
+# CIS 4.2.2.4	L1	Ensure syslog-ng is configured to send logs to a remote log host - log src
+# CIS 4.2.2.5	L1	Ensure remote syslog-ng messages are only accepted on designated log hosts
+# CIS 4.2.4	L1	Ensure permissions on all logfiles are configured
+
+
+# CIS 5.2.1	L1	Ensure permissions on /etc/ssh/sshd_config are configured
+# Set to 600 by SSH server module
+profile::ssh::options_hash:
+# CIS 5.2.2	L1	Ensure SSH Protocol is set to 2
+  Protocol: '2'
+# CIS 5.2.3	L1	Ensure SSH LogLevel is set to INFO
+  LogLevel: INFO
+# CIS 5.2.4	L1	Ensure SSH X11 forwarding is disabled
+  X11Forwarding: no
+# CIS 5.2.5	L1	Ensure SSH MaxAuthTries is set to 4 or less
+  MaxAuthTries: '4'
+# CIS 5.2.6	L1	Ensure SSH IgnoreRhosts is enabled
+  IgnoreRhosts: yes
+# CIS 5.2.7	L1	Ensure SSH HostbasedAuthentication is disabled
+  HostbasedAuthentication: no
+# CIS 5.2.8	L1	Ensure SSH root login is disabled
+  PermitRootLogin: no
+# CIS 5.2.9	L1	Ensure SSH PermitEmptyPasswords is disabled
+  PermitEmptyPasswords: no
+# CIS 5.2.10	L1	Ensure SSH PermitUserEnvironment is disabled
+  PermitUserEnvironment: no
+# CIS 5.2.11	L1	Ensure only approved MAC algorithms are used
+  MACs: hmac-sha2-512-etm@openssh.com,hmac-sha2-256-etm@openssh.com,umac-128-etm@openssh.com,hmac-sha2-512,hmac-sha2-256,umac-128@openssh.com
+# CIS 5.2.12	L1	Ensure SSH Idle Timeout Interval is configured - ClientAliveInterval - setting to an hour to balance productivity
+  ClientAliveInterval: '3600'
+# CIS 5.2.12	L1	Ensure SSH Idle Timeout Interval is configured - ClientAliveCountMax
+  ClientAliveCountMax: '0'
+# CIS 5.2.13	L1	Ensure SSH LoginGraceTime is set to one minute or less
+  LoginGraceTime: 60
+# CIS 5.2.15	L1	Ensure SSH warning banner is configured
+  Banner: /etc/issue
+# CIS 5.2.14	L1	Ensure SSH access is limited
+profile::ssh::allowed_groups:
+  - gg_linux_admins
+
+# CIS 5.3.2	L1	Ensure lockout for failed password attempts is configured - system-auth 'auth required pam_faillock.so'
+# CIS 5.3.2	L1	Ensure lockout for failed password attempts is configured - system-auth 'auth [success=1 default=bad] pam_unix.so'
+# CIS 5.3.2	L1	Ensure lockout for failed password attempts is configured - system-auth 'auth [default=die] pam_faillock.so'
+# CIS 5.3.2	L1	Ensure lockout for failed password attempts is configured - system-auth 'auth sufficient pam_faillock.so'
+# CIS 5.3.2	L1	Ensure lockout for failed password attempts is configured - password-auth 'auth required pam_faillock.so'
+# CIS 5.3.2	L1	Ensure lockout for failed password attempts is configured - password-auth 'auth [success=1 default=bad] pam_unix.so'
+# CIS 5.3.2	L1	Ensure lockout for failed password attempts is configured - password-auth 'auth [default=die] pam_faillock.so'
+# CIS 5.3.2	L1	Ensure lockout for failed password attempts is configured - password-auth 'auth sufficient pam_faillock.so'
+
+# CIS 5.3.3	L1	Ensure password reuse is limited - system-auth
+# CIS 5.3.3	L1	Ensure password reuse is limited - password-auth
+
+# CIS 5.3.4	L1	Ensure password hashing algorithm is SHA-512 - system-auth
+# CIS 5.3.4	L1	Ensure password hashing algorithm is SHA-512 - password-auth
+# Set via the central_auth module
+
+# CIS 5.4.1.1	L1	Ensure password expiration is 365 days or less
+# CIS 5.4.1.2	L1	Ensure minimum days between password changes is 7 or more
+# CIS 5.4.1.3	L1	Ensure password expiration warning days is 7 or more
+# CIS 5.4.1.4	L1	Ensure inactive password lock is 30 days or less
+# CIS 5.4.1.5	L1	Ensure all users last password change date is in the past
+
+# CIS 5.4.2	L1	Ensure system accounts are non-login
+
+local_users::add::users:
+  root:
+    uid: 0
+    # CIS 5.4.3	L1	Ensure default group for the root account is GID 0
+    gid: 0
+    # CIS 5.6	L1	Ensure access to the su command is restricted - wheel group contains root
+    groups: [ wheel ]
+
+profile::file_ops::file_lines:
+  /etc/bashrc:
+  # CIS 5.4.5	L2	Ensure default user shell timeout is 900 seconds or less - /etc/bashrc - setting to an hour to balance productivity
+    - line     : 'TMOUT=3600'
+      match    : 'TMOUT='
+  # CIS 5.4.4	L1	Ensure default user umask is 027 or more restrictive - /etc/bashrc
+    - line     : '       umask 027'
+      match    : '       umask 0\d\d'
+      multiple : true
+  # CIS 5.6	L1	Ensure access to the su command is restricted - pam_wheel.so
+  /etc/pam.d/su:
+    line     : 'auth		required	pam_wheel.so use_uid'
+    match    : '#auth		required	pam_wheel.so use_uid'
+  # CIS 3.3.3	L1	Ensure IPv6 is disabled
+  /etc/default/grub:
+    line: GRUB_CMDLINE_LINUX='ipv6.disable=1'
+    match: GRUB_CMDLINE_LINUX
+  # CIS 6.2.2	L1	Ensure no legacy '+' entries exist in /etc/passwd
+  /etc/passwd:
+    ensure: absent
+    line: '+'
+  # CIS 6.2.3	L1	Ensure no legacy '+' entries exist in /etc/shadow
+  /etc/shadow:
+    ensure: absent
+    line: '+'
+  # CIS 6.2.4	L1	Ensure no legacy '+' entries exist in /etc/group
+  /etc/group:
+    ensure: absent
+    line: '+'
+
+# CIS 5.5	L1	Ensure root login is restricted to system console - TBD
+# CIS 6.1.10	L1	Ensure no world writable files exist
+# CIS 6.1.11	L1	Ensure no unowned files or directories exist
+# CIS 6.1.12	L1	Ensure no ungrouped files or directories exist
+# CIS 6.1.13	L1	Audit SUID executables
+# CIS 6.1.14	L1	Audit SGID executables
+# CIS 6.2.1	L1	Ensure password fields are not empty
+
+# CIS 6.2.5	L1	Ensure root is the only UID 0 account
+# CIS 6.2.6	L1	Ensure root PATH Integrity
+# CIS 6.2.7	L1	Ensure all users' home directories exist
+# CIS 6.2.8	L1	Ensure users' home directories permissions are 750 or more restrictive
+# CIS 6.2.9	L1	Ensure users own their home directories
+# CIS 6.2.10	L1	Ensure users' dot files are not group or world writable
+# CIS 6.2.11	L1	Ensure no users have .forward files
+# CIS 6.2.12	L1	Ensure no users have .netrc files
+# CIS 6.2.13	L1	Ensure users' .netrc Files are not group or world accessible
+# CIS 6.2.14	L1	Ensure no users have .rhosts files
+# CIS 6.2.15	L1	Ensure all groups in /etc/passwd exist in /etc/group
+# CIS 6.2.16	L1	Ensure no duplicate UIDs exist
+# CIS 6.2.17	L1	Ensure no duplicate GIDs exist
+# CIS 6.2.18	L1	Ensure no duplicate user names exist
+# CIS 6.2.19	L1	Ensure no duplicate group names exist
+
+# CIS 1.6.1.1	L2	Ensure SELinux is not disabled in bootloader configuration - selinux = 0
+# CIS 1.6.1.1	L2	Ensure SELinux is not disabled in bootloader configuration - enforcing = 0
+
+profile::file_ops::templates:
+  # CIS 1.6.1.2	L2	Ensure the SELinux state is enforcing
+  # CIS 1.6.1.3	L2	Ensure SELinux policy is configured
+  /etc/selinux/config:
+    data:
+      setting: permissive
+      type: targeted
+    owner: root
+    group: root
+    mode: '0644'
+    content: |
+      # This file controls the state of SELinux on the system.
+      # SELINUX= can take one of these three values:
+      #     enforcing - SELinux security policy is enforced.
+      #     permissive - SELinux prints warnings instead of enforcing.
+      #     disabled - No SELinux policy is loaded.
+      SELINUX=<%= $setting %>
+      # SELINUXTYPE= can take one of these two values:
+      #     targeted - Targeted processes are protected,
+      #     mls - Multi Level Security protection.
+      SELINUXTYPE=<%= $type %>
+
+# CIS 1.6.1.6	L2	Ensure no unconfined daemons exist
+
+# CIS 6.1.1	L2	Audit system file permissions

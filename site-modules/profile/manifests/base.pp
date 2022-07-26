@@ -1,5 +1,5 @@
 class profile::base {
-
-  #the base profile should include component modules that will be on all nodes
-
+#  require profile::goldload::config
+  contain profile::winlogbeat
+  notify {'This is from profile::base': }
 }

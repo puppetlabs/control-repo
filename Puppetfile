@@ -8,3 +8,5 @@ mod 'puppetlabs/concat',  '6.0.0'
 mod 'puppetlabs/motd', '4.1.0'
 mod 'puppetlabs/apache', '5.3.0'
 mod 'puppetlabs/support_tasks', '1.1.0'
+
+mod 'puppetlabs-cd4pe_jobs', '1.6.0'

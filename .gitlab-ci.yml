@@ -1,0 +1,39 @@
+---
+stages:
+  - test
+  - deploy
+
+# Jobs are defined below
+Syntax Check:
+  tags:
+    - puppet agent
+  stage: test
+  script:
+    - scripts/syntax_check.sh
+
+Lint Check:
+  tags:
+    - puppet agent
+  stage: test
+  script:
+    - scripts/lint_check.sh
+
+# Unless TCP port 8170 is open to the PE master, this job must execute on the
+# PE Monolithic Master itself.
+Deploy to Puppet:
+  tags:
+    - puppet monolithic master
+  stage: deploy
+  variables:
+    URL: https://puppet:8170/code-manager
+  only:
+    - development
+    - testing
+    - production
+    - /^playground/
+  script:
+    - scripts/puppet_deploy.sh
+
+# vim:tabstop=2
+# vim:shiftwidth=2
+# vim:expandtab

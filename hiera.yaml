@@ -2,7 +2,7 @@
 version: 5
 
 defaults:
-  datadir: "data"
+  datadir: "modules/hiera_module/data"
 
 hierarchy:
   - name: "Yaml backend"

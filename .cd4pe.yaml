@@ -1,0 +1,63 @@
+config:
+  enable_pull_requests_from_forks: false
+  deployment_policy_branch: "production"
+  enable_pe_plans: true
+pipelines:
+  main:
+    triggers:
+    - "COMMIT"
+    stages:
+    - name: "Code Validation stage"
+      steps:
+      - type: "JOB"
+        name: "control-repo-manifest-validate"
+        concurrent_compilations: 0
+        all_deployments: false
+      - type: "JOB"
+        name: "control-repo-hiera-syntax-validate"
+        concurrent_compilations: 0
+        all_deployments: false
+      - type: "JOB"
+        name: "control-repo-template-syntax-validate"
+        concurrent_compilations: 0
+        all_deployments: false
+      - type: "JOB"
+        name: "control-repo-puppetfile-syntax-validate"
+        concurrent_compilations: 0
+        all_deployments: false
+      auto_promote: "all_succeeded"
+    - name: "Impact Analysis stage"
+      steps:
+      - type: "IMPACT_ANALYSIS"
+        concurrent_compilations: 10
+        all_deployments: true
+      - type: "PULL_REQUEST_GATE"
+        concurrent_compilations: 0
+        all_deployments: false
+      auto_promote: "all_succeeded"
+    - name: "Deployment stage"
+      steps:
+      - type: "DEPLOYMENT"
+        name: "Deployment to production on PE1"
+        policy:
+          name: "cd4pe_deployments::direct"
+        parameters:
+          noop: false
+          fail_if_no_nodes: true
+        timeout: 3600000
+        concurrent_compilations: 0
+        all_deployments: false
+        pe_server: "PE1"
+        target:
+          type: "NODE_GROUP"
+          node_group_id: "d0aeef7d-aa09-413c-935d-44f185b793dc"
+      auto_promote: "all_succeeded"
+    - name: "secret"
+      steps:
+      - type: "JOB"
+        name: "secret-test"
+        concurrent_compilations: 0
+        all_deployments: false
+      auto_promote: false
+spec_version: "V1"
+

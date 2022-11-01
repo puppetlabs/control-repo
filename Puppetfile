@@ -13,5 +13,5 @@ mod 'puppetlabs-cd4pe_jobs', '1.6.0'
 
 mod 'hiera_module',
   :git          => 'https://github.com/Magisus/hiera_module.git',
-  :branch       => :control_branch
-
+  :branch       => :control_branch,
+  :default_branch_override => 'main'

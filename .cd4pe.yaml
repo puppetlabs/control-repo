@@ -38,7 +38,7 @@ pipelines:
     - name: "Deployment stage"
       steps:
       - type: "DEPLOYMENT"
-        name: "Deployment to production on PE1"
+        name: "Deployment to production on PE2"
         policy:
           name: "cd4pe_deployments::direct"
         parameters:
@@ -47,10 +47,10 @@ pipelines:
         timeout: 3600000
         concurrent_compilations: 0
         all_deployments: false
-        pe_server: "PE1"
+        pe_server: "PE2"
         target:
           type: "NODE_GROUP"
-          node_group_id: "d0aeef7d-aa09-413c-935d-44f185b793dc"
+          node_group_id: "f4c28f60-083e-4a84-a514-8b8fc19a81d3"
       auto_promote: "all_succeeded"
     - name: "secret"
       steps:

@@ -10,3 +10,7 @@ hierarchy:
     paths:
       - "nodes/%{trusted.certname}.yaml"
       - "common.yaml"
+plan_hierarchy:
+  - name: "Static data"
+    data_hash: yaml_data
+    path: "static.yaml"

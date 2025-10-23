@@ -18,5 +18,5 @@ forge 'https://forge.puppet.com'
 
 
 mod 'apt', 
-  :git => 'git@github.com:jofnjosf/puppetlabs-apt.git', 
-  :tag => 'test'
+  :git => 'git@github.com:puppetlabs/puppetlabs-apt.git', 
+  :tag => 'v10.0.0'

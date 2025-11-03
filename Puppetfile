@@ -20,3 +20,4 @@ forge 'https://forge.puppet.com'
 mod 'apt', 
   :git => 'git@github.com:puppetlabs/puppetlabs-apt.git', 
   :tag => 'v11.0.0'
+mod 'puppetlabs-wsus_client', '6.2.0'

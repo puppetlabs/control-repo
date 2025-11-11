@@ -1,0 +1,33 @@
+# Puppet Infrastructure Summary: Found a Monolithic Infrastructure
+
+# Found 4 CPU(s) / 15758 MB RAM for Primary Master pe-primary--server-eacf85-0.us-west1-c.c.customer-support-scratchpad.internal
+# Specify the following optimized settings in Hiera in nodes/pe-primary--server-eacf85-0.us-west1-c.c.customer-support-scratchpad.internal.yaml
+
+---
+puppet_enterprise::profile::database::shared_buffers: 3151MB
+puppet_enterprise::puppetdb::command_processing_threads: 1
+puppet_enterprise::profile::puppetdb::java_args:
+  Xms: 1575m
+  Xmx: 1575m
+puppet_enterprise::profile::orchestrator::jruby_max_active_instances: 2
+puppet_enterprise::profile::orchestrator::java_args:
+  Xms: 1575m
+  Xmx: 1575m
+puppet_enterprise::profile::console::java_args:
+  Xms: 1024m
+  Xmx: 1024m
+puppet_enterprise::master::host_action_collector::java_args:
+  Xms: 393m
+  Xmx: 393m
+puppet_enterprise::master::puppetserver::jruby_max_active_instances: 2
+puppet_enterprise::profile::master::java_args:
+  Xms: 1536m
+  Xmx: 1536m
+puppet_enterprise::master::puppetserver::reserved_code_cache: 192m
+puppet_infrastructure_tune::metadata:
+  pe_version: 2025.6.0
+  tune_date: '2025-11-11'
+
+# CPU Summary: Total/Used/Free: 4/3/1 for pe-primary--server-eacf85-0.us-west1-c.c.customer-support-scratchpad.internal
+# RAM Summary: Total/Used/Free: 15758/9446/6312 for pe-primary--server-eacf85-0.us-west1-c.c.customer-support-scratchpad.internal
+# JVM Summary: Using 768 MB per Puppet Server JRuby for pe-primary--server-eacf85-0.us-west1-c.c.customer-support-scratchpad.internal

@@ -18,8 +18,8 @@ forge 'https://forge.puppet.com'
 
 
 #mod 'apt', 
-  :git => 'git@github.com:puppetlabs/puppetlabs-apt.git', 
-  :tag => 'v11.0.0'
+#  :git => 'git@github.com:puppetlabs/puppetlabs-apt.git', 
+#  :tag => 'v11.0.0'
 mod 'puppetlabs-wsus_client', '6.2.0'
 mod 'puppetlabs-puppet_agent', '4.26.0'
 mod 'puppetlabs-stdlib', '9.7.0'

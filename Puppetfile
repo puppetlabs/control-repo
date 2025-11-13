@@ -21,3 +21,9 @@ mod 'apt',
   :git => 'git@github.com:puppetlabs/puppetlabs-apt.git', 
   :tag => 'v11.0.0'
 mod 'puppetlabs-wsus_client', '6.2.0'
+mod 'puppetlabs-puppet_agent', '4.26.0'
+mod 'puppetlabs-stdlib', '9.7.0'
+mod 'puppetlabs-inifile', '6.2.0'
+mod 'puppetlabs-apt', '11.1.0'
+mod 'puppetlabs-facts', '1.7.0'
+mod 'puppetlabs-powershell', '6.0.2'

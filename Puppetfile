@@ -22,8 +22,19 @@ forge 'https://forge.puppet.com'
 #  :tag => 'v11.0.0'
 mod 'puppetlabs-wsus_client', '6.2.0'
 mod 'puppetlabs-puppet_agent', '4.23.0'
-mod 'puppetlabs-stdlib', '9.7.0'
-mod 'puppetlabs-inifile', '6.2.0'
 mod 'puppetlabs-apt', '10.0.1'
 mod 'puppetlabs-facts', '1.7.0'
-mod 'puppetlabs-powershell', '6.0.2'
+
+
+# Puppet comply module
+mod 'puppetlabs/comply', '3.6.0'
+ 
+# dependencies for comply
+mod 'puppet/archive', '7.1.0'
+mod 'puppetlabs/chocolatey', '8.0.0'
+mod 'puppetlabs/inifile', '6.1.1'
+mod 'puppetlabs/ruby_task_helper', '0.6.1'
+mod 'puppetlabs/stdlib', '9.6.0'
+mod 'puppetlabs/powershell', '6.0.0'
+mod 'puppetlabs/registry', '5.0.1'
+mod 'puppetlabs/pwshlib', '1.1.1'

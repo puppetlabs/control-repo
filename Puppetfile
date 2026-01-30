@@ -27,7 +27,7 @@ mod 'puppetlabs-facts', '1.7.0'
 
 
 # Puppet comply module
-#mod 'puppetlabs/comply', '3.6.0'
+mod 'puppetlabs/comply', '3.6.0'
  
 # dependencies for comply
 mod 'puppet/archive', '7.1.0'

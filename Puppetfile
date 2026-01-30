@@ -36,7 +36,7 @@ mod 'puppetlabs/inifile', '6.1.1'
 mod 'puppetlabs/ruby_task_helper', '0.6.1'
 mod 'puppetlabs/stdlib', '9.6.0'
 mod 'puppetlabs/powershell', '6.0.0'
-mod 'puppetlabs/registry', '5.0.1'
+
 mod 'puppetlabs/pwshlib', '1.1.1'
 
 

@@ -1,6 +1,6 @@
 ---
 pe_r10k::forge_settings:
-  authorization_token: 'Bearer 550b2832513f7c2c50a7bc272fe2817b49e06b449cf1d19a872f28b66e5efcec'
+  authorization_token: 'Bearer 9ed4c5440bcc61d5de8db15df96456c27f1ea49e907de3e9b03a57f09cb722df'
   baseurl: 'https://forgeapi.puppet.com'
 puppet_enterprise::master::code_manager::forge_settings:
-  authorization_token: 'Bearer 550b2832513f7c2c50a7bc272fe2817b49e06b449cf1d19a872f28b66e5efcec'
+  authorization_token: 'Bearer 9ed4c5440bcc61d5de8db15df96456c27f1ea49e907de3e9b03a57f09cb722df'

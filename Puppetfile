@@ -27,7 +27,7 @@ mod 'puppetlabs-facts', '1.7.0'
 
 
 # Puppet comply module
-#mod 'puppetlabs/comply', '3.6.0'
+mod 'puppetlabs/comply', '3.6.0'
  
 # dependencies for comply
 mod 'puppet/archive', '7.1.0'
@@ -40,7 +40,7 @@ mod 'puppetlabs/powershell', '6.0.0'
 mod 'puppetlabs/pwshlib', '1.1.1'
 
 
-#mod 'puppetlabs-sce_linux', '2.5.0'
+mod 'puppetlabs-sce_linux', '2.5.0'
 mod 'puppetlabs-augeas_core', '2.0.1'
 mod 'puppetlabs-firewall', '8.2.0'
 mod 'puppet-firewalld', '5.1.0'
@@ -48,7 +48,7 @@ mod 'puppet-logrotate', '9.0.0'
 mod 'puppet-selinux', '5.0.0'
 mod 'puppet-systemd', '9.4.0'
 
-#mod 'puppetlabs-sce_windows', '2.2.0'
+mod 'puppetlabs-sce_windows', '2.2.0'
 mod 'puppetlabs-registry', '5.0.3'
 mod 'dsc-networkingdsc', '9.1.0-0-0'
 mod 'dsc-auditpolicydsc', '1.4.0-0-9'

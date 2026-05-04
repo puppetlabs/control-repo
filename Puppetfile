@@ -29,6 +29,7 @@ mod 'puppetlabs-exec', '4.0.0'
 
 # Puppet comply module
 mod 'puppetlabs/comply', '3.7.1'
+mod 'puppetlabs-chocolatey', '8.0.3'
  
 # dependencies for comply
 mod 'puppet/archive', '7.1.0'

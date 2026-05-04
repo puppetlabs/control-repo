@@ -33,7 +33,7 @@ mod 'puppetlabs-chocolatey', '8.0.3'
  
 # dependencies for comply
 mod 'puppet/archive', '7.1.0'
-mod 'puppetlabs/chocolatey', '8.0.0'
+#mod 'puppetlabs/chocolatey', '8.0.0'
 mod 'puppetlabs/inifile', '6.1.1'
 mod 'puppetlabs/ruby_task_helper', '0.6.1'
 mod 'puppetlabs/stdlib', '9.6.0'

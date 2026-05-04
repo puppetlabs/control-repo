@@ -24,6 +24,7 @@ mod 'puppetlabs-wsus_client', '6.2.0'
 mod 'puppetlabs-puppet_agent', '4.23.0'
 mod 'puppetlabs-apt', '10.0.1'
 mod 'puppetlabs-facts', '1.7.0'
+mod 'puppetlabs-exec', '4.0.0'
 
 
 # Puppet comply module

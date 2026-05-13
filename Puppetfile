@@ -27,6 +27,11 @@ mod 'puppetlabs-facts', '1.7.0'
 mod 'puppetlabs-exec', '4.0.0'
 
 
+
+
+
+test
+
 # Puppet comply module
 mod 'puppetlabs/comply', '3.7.1'
 mod 'puppetlabs-chocolatey', '8.0.3'

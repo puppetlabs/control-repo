@@ -1,4 +1,4 @@
-plan mymodule::one_hour_plan (
+plan test::one_hour_plan (
   TargetSpec $targets,
   Integer $duration_minutes = 60
 ) {
@@ -9,13 +9,13 @@ plan mymodule::one_hour_plan (
   # STEP 1: Read file from latest deployment
   # (happens at plan start → safe)
   # --------------------------------------------------
-  $file_content = file('mymodule/message.txt')
+  $file_content = file('test/message.txt')
 
   # --------------------------------------------------
   # STEP 2: Copy file to target (CRITICAL)
   # Prevents issues if new deployment happens
   # --------------------------------------------------
-  upload_file('mymodule/message.txt', '/tmp/message.txt', $targets)
+  upload_file('test/message.txt', '/tmp/message.txt', $targets)
 
   # Optional: also write content explicitly
   run_command("echo '${file_content}' > /tmp/message_copy.txt", $targets)

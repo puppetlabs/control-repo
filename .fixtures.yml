@@ -7,3 +7,9 @@ fixtures:
   symlinks:
     # For role to be able to find the profiles module, this symlink is used.
     profile: "#{source_dir}/../profile"
+  repositories:
+    ## START PUPPET-LITMUS DEPENDENCIES ##
+    facts: 'https://github.com/puppetlabs/puppetlabs-facts.git'
+    puppet_agent: 'https://github.com/puppetlabs/puppetlabs-puppet_agent.git'
+    provision: 'https://github.com/puppetlabs/provision.git'
+    ## END PUPPET-LITMUS DEPENDENCIES ##

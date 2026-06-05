@@ -1,4 +1,3 @@
-
 {
     "description": "This is the description for the bolt_only_task task",
     "input_method": "environment"

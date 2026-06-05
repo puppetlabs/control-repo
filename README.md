@@ -21,7 +21,7 @@ The important files and items in this template are as follows:
   * A site-modules directory for roles, profiles, and any custom modules for your organization.
   * A config\_version script.
 * An example [config\_version](https://puppet.com/docs/puppet/7/config_file_environment.html#environment-conf-allowed-settings) script that outputs the git commit ID of the code that was used during a Puppet run.
-* An example [bolt project](https://help.puppet.com/bolt/current/topics/projects.htm).
+* An example [Bolt project](https://help.puppet.com/bolt/current/topics/projects.htm).
 
 Here's a visual representation of the structure of this repository:
 
@@ -31,7 +31,7 @@ control-repo/
 │   ├── plans/                            # Bolt project only plans directory.
 │   ├── tasks/                            # Bolt project only tasks directory.
 │   ├── bolt-project.yaml                 # Bolt project configuration file supports options that configure how Bolt behaves.
-│   └── inventory.yaml                    # Bolt inventory file stores information about your targets and control how Bolt connects to them.
+│   └── inventory.yaml                    # Bolt inventory file stores information about your targets and controls how Bolt connects to them.
 ├── data/                                 # Hiera data directory.
 │   ├── nodes/                            # Node-specific data goes here.
 │   └── common.yaml                       # Common data goes here.

@@ -11,6 +11,8 @@ modules: []
 #
 # @see https://help.puppet.com/bolt/current/topics/bolt_project_reference.htm#modulepath
 modulepath:
+  - site-modules
+  - modules
   - ../site-modules
   - ../modules
 

@@ -4,6 +4,3 @@
 fixtures:
   forge_modules:
     # stdlib: "puppetlabs/stdlib"
-  symlinks:
-    # For role to be able to find the profiles module, this symlink is used.
-    profile: "#{source_dir}/../profile"

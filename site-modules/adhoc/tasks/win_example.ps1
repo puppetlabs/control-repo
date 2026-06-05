@@ -1,1 +1,1 @@
-# task content goes here
+Write-Output 'Hello from adhoc::win_example'

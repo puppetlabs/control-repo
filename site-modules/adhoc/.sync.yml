@@ -20,3 +20,6 @@ data/common.yaml:
   delete: true
 .fixtures:
   unmanaged: true
+spec/spec_helper.rb:
+  spec_overrides:
+    - "require_relative 'support/task_metadata_examples' if File.file?(File.join(__dir__, 'support', 'task_metadata_examples.rb'))"

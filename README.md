@@ -7,7 +7,6 @@
   * [Github](#github)
 * [Code Manager Setup](#code-manager-setup)
 
-
 ## What You Get From This control-repo
 
 This is a template [control repository](https://puppet.com/docs/pe/latest/control_repo.html) that has the minimum amount of scaffolding to make it easy to get started with [r10k](https://puppet.com/docs/pe/latest/r10k.html) or Puppet Enterprise's [Code Manager](https://puppet.com/docs/pe/latest/code_mgr.html).
@@ -22,11 +21,17 @@ The important files and items in this template are as follows:
   * A site-modules directory for roles, profiles, and any custom modules for your organization.
   * A config\_version script.
 * An example [config\_version](https://puppet.com/docs/puppet/7/config_file_environment.html#environment-conf-allowed-settings) script that outputs the git commit ID of the code that was used during a Puppet run.
+* An example [bolt project](https://help.puppet.com/bolt/current/topics/projects.htm).
 
 Here's a visual representation of the structure of this repository:
 
-```
+```text
 control-repo/
+├── bolt/                                 # Bolt project directory.
+│   ├── plans/                            # Bolt project only plans directory.
+│   ├── tasks/                            # Bolt project only tasks directory.
+│   ├── bolt-project.yaml                 # Bolt project configuration file supports options that configure how Bolt behaves.
+│   └── inventory.yaml                    # Bolt inventory file stores information about your targets and control how Bolt connects to them.
 ├── data/                                 # Hiera data directory.
 │   ├── nodes/                            # Node-specific data goes here.
 │   └── common.yaml                       # Common data goes here.
@@ -37,6 +42,7 @@ control-repo/
 │   ├── config_version.rb                 # A config_version script for r10k.
 │   └── config_version.sh                 # A wrapper that chooses the appropriate config_version script.
 ├── site-modules/                         # This directory contains site-specific modules and is added to $modulepath.
+│   ├── adhoc/                            # A module for ad-hoc tasks and plans that don't fit into a specific role/profile.
 │   ├── profile/                          # The profile module.
 │   └── role/                             # The role module.
 ├── LICENSE

@@ -1,0 +1,44 @@
+image: puppet/puppet-dev-tools:puppet8
+
+definitions:
+  steps:
+    - step: &pdk-adhoc
+        name: Validate and Test Adhoc Tasks and Plans
+        script:
+          - if [ -n "${BITBUCKET_PR_DESTINATION_BRANCH:-}" ] && [ "$BITBUCKET_PR_DESTINATION_BRANCH" != "production" ]; then echo "Skipping pull request not targeting production"; exit 0; fi
+          - cd site-modules/adhoc
+          - pdk validate
+          - pdk bundle exec rake spec_prep
+          - pdk test unit
+    - step: &pdk-profiles
+        name: Validate and Test Profiles (Unit testing)
+        script:
+          - if [ -n "${BITBUCKET_PR_DESTINATION_BRANCH:-}" ] && [ "$BITBUCKET_PR_DESTINATION_BRANCH" != "production" ]; then echo "Skipping pull request not targeting production"; exit 0; fi
+          - cd site-modules/profile
+          - pdk validate
+          - pdk bundle exec rake spec_prep
+          - pdk test unit
+    - step: &pdk-roles
+        name: Validate and Test Roles (Integration testing)
+        script:
+          - if [ -n "${BITBUCKET_PR_DESTINATION_BRANCH:-}" ] && [ "$BITBUCKET_PR_DESTINATION_BRANCH" != "production" ]; then echo "Skipping pull request not targeting production"; exit 0; fi
+          - cd site-modules/role
+          - pdk validate
+          - pdk bundle exec rake spec_prep
+          - pdk test unit
+
+pipelines:
+  branches:
+    production:
+      - parallel:
+          steps:
+            - step: *pdk-adhoc
+            - step: *pdk-profiles
+      - step: *pdk-roles
+  pull-requests:
+    '**':
+      - parallel:
+          steps:
+            - step: *pdk-adhoc
+            - step: *pdk-profiles
+      - step: *pdk-roles

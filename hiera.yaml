@@ -5,11 +5,22 @@ defaults:
   datadir: "data"
 
 hierarchy:
-  - name: "Yaml backend"
+  - name: "YAML backend"
     data_hash: yaml_data
     paths:
       - "nodes/%{trusted.certname}.yaml"
       - "common.yaml"
+
+# Outside apply blocks, Bolt is essentially executing a script.
+# It doesn't have a concept of a target or context, and thus cannot load per-target data.
+# This breaks common Hiera features like interpolating target facts.
+#
+# @see https://help.puppet.com/bolt/current/topics/hiera.htm#outside-apply-blocks
+plan_hierarchy:
+  - name: "Plan data"
+    data_hash: yaml_data
+    paths:
+      - "plan/common.yaml"
 
 # To use eyaml (encrypted Hiera).
 # @see https://github.com/voxpupuli/hiera-eyaml
@@ -37,3 +48,13 @@ hierarchy:
 #   - name: "Common data"
 #     paths:
 #       - "common.eyaml"
+# # Outside apply blocks, Bolt is essentially executing a script.
+# # It doesn't have a concept of a target or context, and thus cannot load per-target data.
+# # This breaks common Hiera features like interpolating target facts.
+# #
+# # @see https://help.puppet.com/bolt/current/topics/hiera.htm#outside-apply-blocks
+# plan_hierarchy:
+#   - name: "Plan data"
+#     data_hash: yaml_data
+#     paths:
+#       - "plan/common.yaml"

@@ -1,0 +1,7 @@
+.modules/
+.resource_types/
+bolt-debug.log
+.plan_cache.json
+.plugin_cache.json
+.task_cache.json
+.rerun.json

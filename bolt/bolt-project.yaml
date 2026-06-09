@@ -1,0 +1,22 @@
+---
+name: control_repo_bolt
+
+# A list of module dependencies for the bolt project.
+#
+# @see https://help.puppet.com/bolt/current/topics/bolt_project_reference.htm#modules
+modules: []
+
+# Exposes the control repo's site-modules and modules directories to Bolt.
+# This allows you to run Bolt plans that use modules in the control repo without needing to install them separately in the Bolt project.
+#
+# @see https://help.puppet.com/bolt/current/topics/bolt_project_reference.htm#modulepath
+modulepath:
+  - site-modules
+  - modules
+  - ../site-modules
+  - ../modules
+
+# Path to the Hiera configuration file.
+#
+# @see https://help.puppet.com/bolt/current/topics/bolt_project_reference.htm#hiera-config
+hiera-config: ../hiera.yaml

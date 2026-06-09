@@ -10,3 +10,30 @@ hierarchy:
     paths:
       - "nodes/%{trusted.certname}.yaml"
       - "common.yaml"
+
+# To use eyaml (encrypted Hiera).
+# @see https://github.com/voxpupuli/hiera-eyaml
+#
+# 1. Install the hiera-eyaml gem on the Puppet Server
+#      $ puppet resource package hiera-eyaml ensure=installed provider=puppetserver_gem
+#
+# 2. Generate keys for encrypting and decrypting data
+#      $ eyaml createkeys
+#      Upload the generated keys to the Puppet Server and place them in /etc/puppetlabs/puppet/eyaml/
+#
+# 3. Replace the above configuration with the following:
+#
+# defaults:
+#   datadir: "data"
+#   lookup_key: eyaml_lookup_key
+#   options:
+#     pkcs7_private_key: "/etc/puppetlabs/puppet/eyaml/private_key.pkcs7.pem"
+#     pkcs7_public_key:  "/etc/puppetlabs/puppet/eyaml/public_key.pkcs7.pem"
+#
+# hierarchy:
+#   - name: "Per-node data"
+#     paths:
+#       - "nodes/%{trusted.certname}.eyaml"
+#   - name: "Common data"
+#     paths:
+#       - "common.eyaml"

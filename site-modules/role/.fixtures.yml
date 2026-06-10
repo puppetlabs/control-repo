@@ -1,0 +1,9 @@
+# This file can be used to install module dependencies for unit testing
+# See https://github.com/puppetlabs/puppetlabs_spec_helper#using-fixtures for details
+---
+fixtures:
+  forge_modules:
+    # stdlib: "puppetlabs/stdlib"
+  symlinks:
+    # For role to be able to find the profiles module, this symlink is used.
+    profile: "#{source_dir}/../profile"

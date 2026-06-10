@@ -1,0 +1,22 @@
+# This file can be used to customize the files managed by PDK.
+#
+# See https://github.com/puppetlabs/pdk-templates/blob/main/README.md
+# for more information.
+#
+# See https://github.com/puppetlabs/pdk-templates/blob/main/config_defaults.yml
+# for the default values.
+---
+.vscode/extensions.json:
+  delete: true
+.pdkignore:
+  delete: true
+CHANGELOG.md:
+  delete: true
+README.md:
+  delete: true
+hiera.yaml:
+  delete: true
+data/common.yaml:
+  delete: true
+.fixtures:
+  unmanaged: true

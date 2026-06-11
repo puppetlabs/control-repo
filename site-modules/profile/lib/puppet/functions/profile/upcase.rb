@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-# Use Functions If you need to manipulate data or communicate with third-party services during catalog compilation.
+# Use functions if you need to manipulate data or communicate with third-party services during catalog compilation.
 # If the built-in functions, or functions from Forge modules, aren’t sufficient, you can write custom functions for Puppet.
 #
 # Converts a string to uppercase.

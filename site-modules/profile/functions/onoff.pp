@@ -4,11 +4,11 @@
 #
 # @see https://help.puppet.com/core/current/Content/PuppetCore/lang_write_functions_in_puppet.htm
 function profile::onoff(
-  Variant[String, Boolean] $arg
+  Variant[String, Boolean, Undef] $arg
 ) >> String {
   case $arg {
-    false, undef, /(?i:false)/ : { 'Off' }
-    true, /(?i:true)/          : { 'On' }
+    false, undef, /\A(?i:false)\z/ : { 'Off' }
+    true, /\A(?i:true)\z/          : { 'On' }
     default                    : { $arg }
   }
 }

@@ -1,0 +1,38 @@
+stages:
+  - unit
+  - integration
+
+workflow:
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "production"'
+    - if: '$CI_MERGE_REQUEST_TARGET_BRANCH_NAME == "production"'
+    - when: never
+
+.pdk-test:
+  image: puppet/puppet-dev-tools:puppet8
+  before_script:
+    - cd "$WORKING_DIRECTORY"
+  script:
+    - pdk validate
+    - pdk bundle exec rake spec_prep
+    - pdk test unit
+
+adhoc:
+  extends: .pdk-test
+  stage: unit
+  variables:
+    WORKING_DIRECTORY: ./site-modules/adhoc
+
+profiles:
+  extends: .pdk-test
+  stage: unit
+  variables:
+    WORKING_DIRECTORY: ./site-modules/profile
+
+roles:
+  extends: .pdk-test
+  stage: integration
+  needs:
+    - profiles
+  variables:
+    WORKING_DIRECTORY: ./site-modules/role

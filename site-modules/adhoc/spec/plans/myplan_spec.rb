@@ -5,10 +5,10 @@ require 'spec_helper'
 if ENV['GEM_BOLT']
   require 'bolt_spec/plans'
 
-  describe 'adhoc::myplan', bolt: true do
+  describe 'adhoc::myplan', :bolt do
     include BoltSpec::Plans
 
-    let(:targets) { %w[windows-target nix-target] }
+    let(:targets) { ['windows-target', 'nix-target'] }
 
     def modulepath
       [File.expand_path('../fixtures/modules', __dir__), File.expand_path('../../..', __dir__)]
@@ -49,7 +49,7 @@ if ENV['GEM_BOLT']
     end
   end
 else
-  RSpec.describe 'adhoc::myplan', bolt: true do
+  RSpec.describe 'adhoc::myplan', :bolt do
     it 'requires GEM_BOLT to run Bolt plan specs' do
       skip 'Set GEM_BOLT=1 to enable Bolt plan specs'
     end

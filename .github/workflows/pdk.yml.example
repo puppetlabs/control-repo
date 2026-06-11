@@ -1,0 +1,34 @@
+name: PDK Testing
+on:
+  workflow_call:
+    inputs:
+      working-directory:
+        description: 'Working directory for PDK commands'
+        required: true
+        type: string
+    secrets:
+      FORGE_KEY:
+        required: true
+
+jobs:
+  pdk:
+    runs-on: ubuntu-latest
+    container:
+      image: puppet/puppet-dev-tools:puppet8
+    steps:
+      - name: Checkout 
+        uses: actions/checkout@v5
+
+      - name: PDK Validate
+        working-directory: ${{ inputs.working-directory }}
+        run: pdk validate
+
+      - name: Download Modules
+        working-directory: ${{ inputs.working-directory }}
+        env:
+          FORGE_KEY: ${{ secrets.FORGE_KEY }}
+        run: pdk bundle exec rake spec_prep
+
+      - name: PDK Test Unit
+        working-directory: ${{ inputs.working-directory }}
+        run: pdk test unit

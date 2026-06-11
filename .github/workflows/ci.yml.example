@@ -1,0 +1,36 @@
+name: CI Pipeline
+on:
+  push:
+    branches:
+      - production
+  pull_request:
+    branches:
+      - production
+permissions:
+  contents: read
+
+jobs:
+  adhoc:
+    name: Validate and Test Adhoc Tasks and Plans
+    uses: ./.github/workflows/pdk.yml
+    with:
+      working-directory: ./site-modules/adhoc
+    secrets:
+      FORGE_KEY: ${{ secrets.FORGE_KEY }}
+
+  profiles:
+    name: Validate and Test Profiles (Unit testing)
+    uses: ./.github/workflows/pdk.yml
+    with:
+      working-directory: ./site-modules/profile
+    secrets:
+      FORGE_KEY: ${{ secrets.FORGE_KEY }}
+
+  roles:
+    name: Validate and Test Roles (Integration testing)
+    needs: profiles
+    uses: ./.github/workflows/pdk.yml
+    with:
+      working-directory: ./site-modules/role
+    secrets:
+      FORGE_KEY: ${{ secrets.FORGE_KEY }}

@@ -1,0 +1,68 @@
+trigger:
+  branches:
+    include:
+      - production
+
+pr:
+  branches:
+    include:
+      - production
+
+jobs:
+  - job: adhoc
+    displayName: Validate and Test Adhoc Tasks and Plans
+    pool:
+      vmImage: ubuntu-latest
+    container: puppet/puppet-dev-tools:puppet8
+    steps:
+      - checkout: self
+      - script: pdk validate
+        displayName: PDK Validate
+        workingDirectory: ./site-modules/adhoc
+      - script: pdk bundle exec rake spec_prep
+        displayName: Download Modules
+        workingDirectory: ./site-modules/adhoc
+        env:
+          FORGE_KEY: $(FORGE_KEY)
+      - script: pdk test unit
+        displayName: PDK Test Unit
+        workingDirectory: ./site-modules/adhoc
+
+  - job: profiles
+    displayName: Validate and Test Profiles (Unit testing)
+    pool:
+      vmImage: ubuntu-latest
+    container: puppet/puppet-dev-tools:puppet8
+    steps:
+      - checkout: self
+      - script: pdk validate
+        displayName: PDK Validate
+        workingDirectory: ./site-modules/profile
+      - script: pdk bundle exec rake spec_prep
+        displayName: Download Modules
+        workingDirectory: ./site-modules/profile
+        env:
+          FORGE_KEY: $(FORGE_KEY)
+      - script: pdk test unit
+        displayName: PDK Test Unit
+        workingDirectory: ./site-modules/profile
+
+  - job: roles
+    displayName: Validate and Test Roles (Integration testing)
+    dependsOn: profiles
+    pool:
+      vmImage: ubuntu-latest
+    container: puppet/puppet-dev-tools:puppet8
+    steps:
+      - checkout: self
+      - script: pdk validate
+        displayName: PDK Validate
+        workingDirectory: ./site-modules/role
+      - script: pdk bundle exec rake spec_prep
+        displayName: Download Modules
+        workingDirectory: ./site-modules/role
+        env:
+          FORGE_KEY: $(FORGE_KEY)
+      - script: pdk test unit
+        displayName: PDK Test Unit
+        workingDirectory: ./site-modules/role

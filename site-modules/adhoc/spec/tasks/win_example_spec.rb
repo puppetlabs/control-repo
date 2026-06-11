@@ -10,7 +10,7 @@ describe 'adhoc::win_example task' do
                    input_method: 'powershell'
 
   let(:powershell_path) do
-    candidate_names = Gem.win_platform? ? %w[pwsh.exe powershell.exe pwsh powershell] : %w[pwsh powershell]
+    candidate_names = Gem.win_platform? ? ['pwsh.exe', 'powershell.exe', 'pwsh', 'powershell'] : ['pwsh', 'powershell']
 
     ENV.fetch('PATH', '').split(File::PATH_SEPARATOR).each do |directory|
       candidate_names.each do |name|

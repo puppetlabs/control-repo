@@ -15,11 +15,11 @@ Facter.add(:networking_primary_sha, type: :aggregate) do
     interfaces = {}
 
     Facter.value(:networking)['interfaces'].each do |interface, values|
-      if values['mac']
-        hash = Digest::SHA256.digest(values['mac'])
-        encoded = Base64.encode64(hash)
-        interfaces[interface] = {mac_sha256: encoded.strip}
-      end
+      next unless values['mac']
+
+      hash = Digest::SHA256.digest(values['mac'])
+      encoded = Base64.encode64(hash)
+      interfaces[interface] = { mac_sha256: encoded.strip }
     end
 
     interfaces
@@ -28,15 +28,15 @@ Facter.add(:networking_primary_sha, type: :aggregate) do
   chunk(:primary?) do
     interfaces = {}
 
-    Facter.value(:networking)['interfaces'].each do |interface, values|
-      interfaces[interface] = {primary?: (interface == Facter.value(:networking)['primary'])}
+    Facter.value(:networking)['interfaces'].each_key do |interface|
+      interfaces[interface] = { primary?: (interface == Facter.value(:networking)['primary']) }
     end
 
     interfaces
   end
   # Facter merges the return values for the two chunks
   # automatically, so there's no aggregate statement.
-  # 
+  #
   # Returns:
   #   {
   #     bridge0 => {
@@ -57,11 +57,11 @@ Facter.add(:networking_primary_sha, type: :aggregate) do
     interfaces = {}
 
     Facter.value(:networking)['interfaces'].each do |interface, values|
-      if values['mac']
-        hash = Digest::SHA256.digest(values['mac'])
-        encoded = Base64.encode64(hash)
-        interfaces[interface] = {mac_sha256: encoded.strip}
-      end
+      next unless values['mac']
+
+      hash = Digest::SHA256.digest(values['mac'])
+      encoded = Base64.encode64(hash)
+      interfaces[interface] = { mac_sha256: encoded.strip }
     end
 
     interfaces

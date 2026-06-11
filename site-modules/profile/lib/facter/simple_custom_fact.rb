@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 # Simple facts return a single value and are the most common type of fact.
-# 
+#
 # There are two required parts for a simple fact:
 # 1. The fact name, declared using `Facter.add(:fact_name)`.
 # 2. The fact value, declared using `setcode`.
@@ -48,14 +48,14 @@ end
 
 # This fact will be evaluated first on Windows systems
 Facter.add(:rubypath) do
-  set_weight 10_001
+  has_weight 10_001
   confine kernel: 'Windows'
   setcode 'where ruby'
 end
 
 # This fact will be evaluated after the above and external facts on Windows systems only if the previous facts do not return a value.
 Facter.add(:rubypath) do
-  set_weight 10
+  has_weight 10
   confine kernel: 'Windows'
   setcode do
     'C:\Ruby\bin\ruby.exe' # Set the string directly instead of running a command to find the path.
@@ -75,10 +75,8 @@ end
 Facter.add(:rubypath) do
   confine kernel: 'Linux'
   setcode do
-    begin
-      Facter::Core::Execution.execute('which ruby', timeout: 0.2)
-    rescue Facter::Core::Execution::ExecutionFailure
-      Facter.warn "Execution of 'which ruby' timed out after 0.2 seconds"
-    end
+    Facter::Core::Execution.execute('which ruby', timeout: 0.2)
+  rescue Facter::Core::Execution::ExecutionFailure
+    Facter.warn "Execution of 'which ruby' timed out after 0.2 seconds"
   end
 end

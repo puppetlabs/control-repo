@@ -1,4 +1,4 @@
-#!/usr/bin/bash
+#!/usr/bin/env bash
 
 # External facts provide a way to use arbitrary executables or scripts as facts, or set facts statically with structured data.
 # A shebang (#!) is always required for executable facts on Unix.

@@ -63,7 +63,7 @@ There are rules for writing profile classes.
 - Profiles can include other profiles.
 - Profiles own all the class parameters for their component classes.
   If the profile omits one, that means you definitely want the default value; the component class shouldn't use a value from Hiera data.
-  If you need to set a class parameter that was omitted - previously, refactor the profile.
+  If you need to set a class parameter that was omitted previously, refactor the profile.
 - There are three ways a profile can get the information it needs to configure component classes:
   - If your business always uses the same value for a given parameter, hardcode it.
   - If you can't hardcode it, try to compute it based on information you already have.

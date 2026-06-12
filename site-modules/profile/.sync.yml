@@ -20,3 +20,9 @@ data/common.yaml:
   delete: true
 .fixtures:
   unmanaged: true
+
+# @see https://help.puppet.com/core/current/Content/PuppetCore/create_types_and_providers_resource_api.htm
+Gemfile:
+  optional:
+    ':development':
+      - gem: 'puppet-resource_api'

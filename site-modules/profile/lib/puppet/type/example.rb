@@ -5,7 +5,7 @@ require 'puppet/resource_api'
 Puppet::ResourceApi.register_type(
   name: 'example',
   docs: <<-EOS,
-@summary a example type
+@summary An example type
 @example
 example { 'foo':
   ensure => 'present',

@@ -30,7 +30,7 @@ end
 # Only suitable for Windows systems.
 Facter.add(:rubypath) do
   confine kernel: 'Windows'
-  setcode 'where ruby'
+  setcode 'where.exe ruby'
 end
 
 # Using confine with a block allows for more complex logic to determine suitability.
@@ -38,7 +38,7 @@ Facter.add(:rubypath) do
   confine do
     Facter.value(:kernel) == 'Windows' && Facter.value(:osfamily) == 'Windows'
   end
-  setcode 'where ruby'
+  setcode 'where.exe ruby'
 end
 
 # When multiple resolutions are available for a fact, resolutions are evaluated from highest weight value to lowest.
@@ -50,7 +50,7 @@ end
 Facter.add(:rubypath) do
   has_weight 10_001
   confine kernel: 'Windows'
-  setcode 'where ruby'
+  setcode 'where.exe ruby'
 end
 
 # This fact will be evaluated after the above and external facts on Windows systems only if the previous facts do not return a value.

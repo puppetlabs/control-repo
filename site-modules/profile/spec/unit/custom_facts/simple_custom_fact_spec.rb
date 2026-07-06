@@ -27,7 +27,7 @@ describe 'simple custom facts' do
   it 'resolves rubypath with where ruby on Windows' do
     add_fact_values('kernel' => 'Windows', 'osfamily' => 'Windows')
     allow(Facter::Core::Execution).to receive(:execute) do |command, *_args, **_kwargs|
-      (command == 'where ruby') ? 'C:\Ruby32\bin\ruby.exe' : nil
+      (command == 'where.exe ruby') ? 'C:\Ruby32\bin\ruby.exe' : nil
     end
 
     load fact_file

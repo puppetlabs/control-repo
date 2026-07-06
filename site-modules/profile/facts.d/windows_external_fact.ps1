@@ -4,5 +4,7 @@
 #   .bat and .cmd: batch scripts
 #   .ps1: PowerShell scripts 
 
-Write-Host "rubypath=$(where ruby)"
-Write-Host "rubyversion=$(ruby -v | ForEach-Object { $_.Split(' ')[1] })"
+$ruby = (where.exe ruby 2>$null | Select-Object -First 1)
+if ($ruby) { Write-Output "rubypath=$ruby" }
+$rubyVersion = ((ruby -v 2>$null) -split '\s+' | Select-Object -Index 1)
+if ($rubyVersion) { Write-Output "rubyversion=$rubyVersion" }
